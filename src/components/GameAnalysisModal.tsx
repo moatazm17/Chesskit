@@ -212,7 +212,7 @@ export default function GameAnalysisModal({ open, onClose, onAnalyzeComplete }: 
     <Dialog
       open={open}
       onClose={onClose}
-      fullScreen
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
           background: `linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)`,
