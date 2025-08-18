@@ -149,7 +149,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPlayGame, onLoadGame, onSaved
               fontSize: isMobile ? '2rem' : '4rem'
             }}
           >
-            ♟️ CHESSKIT
+            ♟️ CHESS ANALYSIS
           </Typography>
           <Typography
             variant="h6"

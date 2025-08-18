@@ -18,6 +18,7 @@ export default function EngineSettingsButton() {
           bottom: 16,
           left: "auto",
           position: "fixed",
+          display: "none", // Hidden from UI temporarily
         }}
         onClick={() => setOpenDialog(true)}
       >

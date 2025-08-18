@@ -19,16 +19,17 @@ import NavLink from "@/components/NavLink";
 
 interface PremiumNavBarProps {
   onHomeClick?: () => void;
+  onLoadGameClick?: () => void;
 }
 
-const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
+const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick, onLoadGameClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const MenuOptions = [
-    { text: "Home", icon: "mdi:home", href: "/" },
-    { text: "Review Game", icon: "streamline:magnifying-glass-solid", href: "/" },
+    { text: "Home", icon: "mdi:home", href: "/", action: onHomeClick },
+    { text: "Review Game", icon: "streamline:magnifying-glass-solid", href: null, action: onLoadGameClick },
     { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
     { text: "Saved Games", icon: "streamline:database", href: "/database" },
   ];
@@ -134,17 +135,50 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
           </Typography>
           
           <List sx={{ flexGrow: 1 }}>
-            {MenuOptions.map(({ text, icon, href }) => (
+            {MenuOptions.map(({ text, icon, href, action }) => (
               <ListItem key={text} disablePadding sx={{ marginBottom: 1 }}>
-                <NavLink href={href}>
+                {href ? (
+                  <NavLink href={href}>
+                    <ListItemButton 
+                      onClick={() => {
+                        setDrawerOpen(false);
+                        action?.();
+                      }}
+                      sx={{
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,0.1)',
+                        }
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                        <Icon icon={icon} style={{ fontSize: '1.5rem' }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={text} 
+                        sx={{ 
+                          '& .MuiListItemText-primary': {
+                            fontWeight: 500,
+                            color: 'rgba(255,255,255,0.9)'
+                          }
+                        }}
+                      />
+                    </ListItemButton>
+                  </NavLink>
+                ) : (
                   <ListItemButton 
-                    onClick={() => setDrawerOpen(false)}
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      action?.();
+                    }}
                     sx={{
                       borderRadius: '8px',
                       backgroundColor: 'rgba(255,255,255,0.05)',
                       '&:hover': {
                         backgroundColor: 'rgba(255,255,255,0.1)',
-                      }
+                      },
+                      width: '100%'
                     }}
                   >
                     <ListItemIcon sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -160,7 +194,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
                       }}
                     />
                   </ListItemButton>
-                </NavLink>
+                )}
               </ListItem>
             ))}
           </List>

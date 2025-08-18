@@ -106,7 +106,10 @@ export default function GameAnalysis() {
   if (currentScreen === 'home') {
     return (
       <>
-        <PremiumNavBar onHomeClick={() => setCurrentScreen('home')} />
+        <PremiumNavBar 
+          onHomeClick={() => setCurrentScreen('home')} 
+          onLoadGameClick={handleLoadGame}
+        />
         <HomeScreen
           onPlayGame={handlePlayGame}
           onLoadGame={handleLoadGame}
@@ -120,7 +123,10 @@ export default function GameAnalysis() {
   if (currentScreen === 'load') {
     return (
       <>
-        <PremiumNavBar onHomeClick={() => setCurrentScreen('home')} />
+        <PremiumNavBar 
+          onHomeClick={() => setCurrentScreen('home')} 
+          onLoadGameClick={handleLoadGame}
+        />
         <LoadGameScreen
           onChessCom={() => setCurrentScreen('analysis')}
           onLichess={() => setCurrentScreen('analysis')}
