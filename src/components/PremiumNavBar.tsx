@@ -168,24 +168,32 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
           {/* Footer links */}
           <List sx={{ mt: 1 }}>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
-              <NavLink href="/privacy">
-                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
-                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                    <Icon icon="mdi:shield-account" />
-                  </ListItemIcon>
-                  <ListItemText primary="Privacy" />
-                </ListItemButton>
-              </NavLink>
+              <ListItemButton 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  window.open('https://doc-hosting.flycricket.io/chess-review-privacy-policy/4f2c4e45-455f-488a-8e23-e3728b7bb98f/privacy', '_blank');
+                }} 
+                sx={{ borderRadius: '8px' }}
+              >
+                <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  <Icon icon="mdi:shield-account" />
+                </ListItemIcon>
+                <ListItemText primary="Privacy" />
+              </ListItemButton>
             </ListItem>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
-              <NavLink href="/terms">
-                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
-                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                    <Icon icon="mdi:file-document" />
-                  </ListItemIcon>
-                  <ListItemText primary="Terms" />
-                </ListItemButton>
-              </NavLink>
+              <ListItemButton 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  window.open('https://doc-hosting.flycricket.io/terms/38e8128e-1d6d-447e-8fce-6cf3e31f4617/terms', '_blank');
+                }} 
+                sx={{ borderRadius: '8px' }}
+              >
+                <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  <Icon icon="mdi:file-document" />
+                </ListItemIcon>
+                <ListItemText primary="Terms" />
+              </ListItemButton>
             </ListItem>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
               <NavLink href="/support">

@@ -1,11 +1,24 @@
-import { Container, Typography, Box, Link } from '@mui/material';
+import { Container, Typography, Box, Link, IconButton } from '@mui/material';
+import { useRouter } from 'next/router';
+import { Icon } from '@iconify/react';
 
 export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Typography variant="h5" fontWeight={700} gutterBottom>
-        About Chess Analysis
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <IconButton 
+          onClick={() => router.back()} 
+          sx={{ mr: 1, color: 'text.primary' }}
+          aria-label="Go back"
+        >
+          <Icon icon="mdi:arrow-left" />
+        </IconButton>
+        <Typography variant="h5" fontWeight={700}>
+          About Chess Analysis
+        </Typography>
+      </Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3, whiteSpace: 'pre-line' }}>
         Chess Analysis helps you load games from popular platforms and analyze them with a Stockfish‑based
         engine in a clean, mobile‑first UI. The app focuses on quick analysis, move classifications, and
