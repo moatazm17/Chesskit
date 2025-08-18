@@ -1,114 +1,95 @@
-<div align="center">
-  <a href="https://github.com/GuillaumeSD/Chesskit">
-    <img width="120" height="120" src="https://github.com/GuillaumeSD/Chesskit/blob/main/public/android-chrome-192x192.png" alt="Logo">
-  </a>
+# Chess Review App
 
-<h3 align="center">Chesskit</h3>
-  <p align="center">
-    The Ultimate Chess Web App
-    <br />
-    <a href="https://chesskit.org/" target="_blank" rel="noopener noreferrer"><strong>chesskit.org</strong></a>
-    <br />
-    <a href="https://discord.com/invite/Yr99abAcUr" target="_blank" rel="noopener noreferrer">Discord Server</a>
-    ·
-    <a href="https://chesskit.notion.site/4cf7823836724432b71aa8932ba7d5bb" target="_blank" rel="noopener noreferrer">Features Backlog</a>
-  </p>
-</div>
-<br />
+A professional chess game analysis mobile application built with React Native.
 
-Chesskit is an open-source chess website to play, view, analyze and review your chess games for free on any device with Stockfish !
+## 🎯 Features
 
-## Mission
+- **Game Analysis**: Analyze chess games from Chess.com, Lichess, and other platforms
+- **Move Classification**: Get detailed move analysis with Brilliant, Great, Best, Mistake, Inaccuracy, and Blunder classifications
+- **Accuracy Metrics**: View player accuracy and game statistics
+- **Mobile-First Design**: Optimized for mobile devices with responsive UI
+- **WebView Integration**: Seamlessly loads the Chess Review web application
 
-Chesskit aims to offer all the chess related features it can, while being free and open-source. It is designed to be easy to use, fast, and reliable.
+## 🚀 Getting Started
 
-## Features
+### Prerequisites
 
-- Load and review games from [chess.com](https://chess.com) and [lichess.org](https://lichess.org)
-- Analysis board with live engine evaluation, custom arrows, evaluation graph, ...
-- Moves classification (Brilliant, Great, Good, Mistake, Blunder, ...)
-- Chess960 and Puzzles support
-- Play against Stockfish at any elo
-- Store your games in your browser database
+- Node.js (v18 or higher)
+- React Native CLI
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
 
-<img src="https://github.com/GuillaumeSD/Chesskit/blob/main/assets/showcase.png" />
+### Installation
 
-## Stack
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd ChessReviewApp
+   ```
 
-Built with [Next.js](https://nextjs.org/docs), [React](https://react.dev/learn/describing-the-ui), [Material UI](https://mui.com/material-ui/getting-started/overview/), and [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html).
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Deployed on AWS with [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html), see it live [here](https://chesskit.org).
+3. **Install iOS dependencies (macOS only)**
+   ```bash
+   cd ios && pod install && cd ..
+   ```
 
-## Running the app in dev mode
+### Running the App
 
-#### Using Node.js
-
-> [!IMPORTANT]  
-> At least [Node.js](https://nodejs.org) 22.11 is required.
-
-Install the dependencies :
-
+#### Android
 ```bash
-npm i
+npm run android
 ```
 
-Run the development server :
-
+#### iOS
 ```bash
-npm run dev
+npm run ios
 ```
 
-#### Using Docker
-
-Run the development server :
-
+#### Start Metro bundler
 ```bash
-HOST_UID=$(id -u) HOST_GID=$(id -g) COMMAND=dev docker compose -f ./docker/docker-compose-dev.yml up
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in the browser to see the app running.
+## 📱 App Structure
 
-The app will automatically refresh on any source file change.
+- **App.tsx**: Main application component with WebView integration
+- **WebView**: Loads the Chess Review web application from Railway
+- **Responsive Design**: Adapts to light/dark mode and different screen sizes
+- **Error Handling**: Graceful error handling for network issues
 
-## Lint
+## 🔧 Configuration
 
-Run it with :
-
-```bash
-npm run lint
+The app loads the Chess Review web application from:
+```
+https://chesskit-production.up.railway.app
 ```
 
-or with docker :
+## 📦 Dependencies
 
-```bash
-HOST_UID=$(id -u) HOST_GID=$(id -g) COMMAND=lint docker compose -f ./docker/docker-compose-dev.yml up
-```
+- **react-native**: Core React Native framework
+- **react-native-webview**: WebView component for web app integration
+- **react-native-safe-area-context**: Safe area handling for different devices
 
-## Contribute
+## 📄 License
 
-See [contributing](CONTRIBUTING.md) for details on how to contribute to the project.
+This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details.
 
-## Deploy
+## 🤝 Contributing
 
-To deploy the app, install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [authenticate](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html), then run :
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-```bash
-npm run deploy
-```
+## 📞 Support
 
-## License
+For support and questions, please open an issue in the repository.
 
-Chesskit is licensed under the GNU Affero General Public License 3. See [copying](COPYING.md) for
-details.
+---
 
-## Growing thanks to you ❤️
-
-[![Stargazers over time](https://starchart.cc/GuillaumeSD/Chesskit.svg?variant=adaptive)](https://starchart.cc/GuillaumeSD/Chesskit)
-
-## Self-hosting
-
-To run the project locally in production mode, you can use docker and the following command :
-
-```bash
-docker compose -f ./docker/docker-compose-prod.yml up
-```
+**Chess Review** - Professional chess analysis made mobile! ♟️

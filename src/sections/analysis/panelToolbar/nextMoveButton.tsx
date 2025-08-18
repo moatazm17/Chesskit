@@ -31,10 +31,12 @@ export default function NextMoveButton() {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const w: any = typeof window !== "undefined" ? window : undefined;
-        if (w && w.showInterstitialAd && typeof w.showInterstitialAd.postMessage === "function") {
-          // Throttle via random chance (10%) to avoid too frequent ads
-          if (Math.random() < 0.1) {
-            w.showInterstitialAd.postMessage("next_move");
+        // Throttle via random chance (10%) to avoid too frequent ads
+        if (Math.random() < 0.1) {
+          if (w && w.App && typeof w.App.postMessage === "function") {
+            w.App.postMessage("nextMoveClicked");
+          } else if (w && typeof w.triggerInterstitialAd === "function") {
+            w.triggerInterstitialAd();
           }
         }
       } catch {

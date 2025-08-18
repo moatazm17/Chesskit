@@ -54,8 +54,10 @@ export default function AnalyzeButton() {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w: any = typeof window !== "undefined" ? window : undefined;
-      if (w && w.showInterstitialAd && typeof w.showInterstitialAd.postMessage === "function") {
-        w.showInterstitialAd.postMessage("analyze_click");
+      if (w && w.App && typeof w.App.postMessage === "function") {
+        w.App.postMessage("analysisCompleted");
+      } else if (w && typeof w.triggerInterstitialAd === "function") {
+        w.triggerInterstitialAd();
       }
     } catch {
       // no-op: safe guard if not in WebView context
