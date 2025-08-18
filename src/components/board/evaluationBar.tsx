@@ -35,31 +35,40 @@ export default function EvaluationBar({
       container
       justifyContent="center"
       alignItems="center"
-      width="2rem"
-      height={height}
-      border="1px solid black"
-      borderRadius="5px"
+      width="60%"
+      height="1rem"
+      border="1px solid rgba(255,255,255,0.2)"
+      borderRadius="4px"
+      sx={{ 
+        marginBottom: 1,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+      }}
     >
       <Box
         sx={{
           backgroundColor:
             boardOrientation === Color.White ? "#424242" : "white",
-          transition: "height 1s",
+          transition: "width 1s",
         }}
-        height={`${
+        width={`${
           boardOrientation === Color.White
             ? 100 - evalBar.whiteBarPercentage
             : evalBar.whiteBarPercentage
         }%`}
-        width="100%"
+        height="100%"
         borderRadius={
-          evalBar.whiteBarPercentage === 100 ? "5px" : "5px 5px 0 0"
+          evalBar.whiteBarPercentage === 100 ? "5px" : "5px 0 0 5px"
         }
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
       >
         <Typography
           color={boardOrientation === Color.White ? "white" : "black"}
           textAlign="center"
-          width="100%"
+          fontSize="0.75rem"
+          fontWeight="bold"
         >
           {(evalBar.whiteBarPercentage < 50 &&
             boardOrientation === Color.White) ||
@@ -73,24 +82,26 @@ export default function EvaluationBar({
         sx={{
           backgroundColor:
             boardOrientation === Color.White ? "white" : "#424242",
-          transition: "height 1s",
+          transition: "width 1s",
         }}
-        height={`${
+        width={`${
           boardOrientation === Color.White
             ? evalBar.whiteBarPercentage
             : 100 - evalBar.whiteBarPercentage
         }%`}
-        width={"100%"}
+        height="100%"
         display="flex"
-        alignItems="flex-end"
+        alignItems="center"
+        justifyContent="center"
         borderRadius={
-          evalBar.whiteBarPercentage === 100 ? "5px" : "0 0 5px 5px"
+          evalBar.whiteBarPercentage === 100 ? "5px" : "0 5px 5px 5px"
         }
       >
         <Typography
           color={boardOrientation === Color.White ? "black" : "white"}
           textAlign="center"
-          width="100%"
+          fontSize="0.75rem"
+          fontWeight="bold"
         >
           {(evalBar.whiteBarPercentage >= 50 &&
             boardOrientation === Color.White) ||

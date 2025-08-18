@@ -18,10 +18,9 @@ import {
 } from "@mui/material";
 import { setContext as setSentryContext } from "@sentry/react";
 import { Chess } from "chess.js";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import GamePgnInput from "./gamePgnInput";
 import ChessComInput from "./chessComInput";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import LichessInput from "./lichessInput";
 import { useSetAtom } from "jotai";
 import { boardOrientationAtom } from "../analysis/states";
@@ -34,10 +33,19 @@ interface Props {
 
 export default function NewGameDialog({ open, onClose, setGame }: Props) {
   const [pgn, setPgn] = useState("");
-  const [gameOrigin, setGameOrigin] = useLocalStorage(
-    "preferred-game-origin",
-    GameOrigin.ChessCom
-  );
+  const [gameOrigin, setGameOrigin] = useState(GameOrigin.ChessCom);
+
+  // Check for preferred origin from localStorage when dialog opens
+  useEffect(() => {
+    if (open) {
+      const preferredOrigin = localStorage.getItem('preferred-game-origin');
+      if (preferredOrigin && Object.values(GameOrigin).includes(preferredOrigin as GameOrigin)) {
+        setGameOrigin(preferredOrigin as GameOrigin);
+        // Clear the preferred origin after using it
+        localStorage.removeItem('preferred-game-origin');
+      }
+    }
+  }, [open]);
   const [parsingError, setParsingError] = useState("");
   const parsingErrorTimeout = useRef<NodeJS.Timeout | null>(null);
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
@@ -99,11 +107,28 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
             width: "calc(100% - 10px)",
             marginY: { xs: "3vh", sm: 5 },
             maxHeight: { xs: "calc(100% - 5vh)", sm: "calc(100% - 64px)" },
+            background: 'linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
           },
         },
       }}
     >
-      <DialogTitle marginY={1} variant="h5">
+      <DialogTitle 
+        marginY={1} 
+        variant="h5"
+        sx={{
+          color: 'white',
+          fontWeight: 700,
+          background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textAlign: 'center'
+        }}
+      >
         {setGame ? "Load a game" : "Add a game to your database"}
       </DialogTitle>
       <DialogContent sx={{ padding: { xs: 2, md: 3 } }}>
@@ -115,20 +140,63 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
           rowGap={2}
         >
           <FormControl sx={{ my: 1, mr: 2, width: 150 }}>
-            <InputLabel id="dialog-select-label">Game origin</InputLabel>
+            <InputLabel 
+              id="dialog-select-label"
+              sx={{ color: 'rgba(255,255,255,0.8)' }}
+            >
+              Game origin
+            </InputLabel>
             <Select
               labelId="dialog-select-label"
               id="dialog-select"
               displayEmpty
-              input={<OutlinedInput label="Game origin" />}
+              input={<OutlinedInput 
+                label="Game origin" 
+                sx={{
+                  color: 'white',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255,255,255,0.3)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255,255,255,0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#4ecdc4',
+                  },
+                  '& .MuiSelect-icon': {
+                    color: 'rgba(255,255,255,0.8)',
+                  }
+                }}
+              />}
               value={gameOrigin ?? ""}
               onChange={(e) => {
                 setGameOrigin(e.target.value as GameOrigin);
                 setParsingError("");
               }}
+              sx={{
+                color: 'white',
+                '& .MuiSelect-select': {
+                  color: 'white',
+                }
+              }}
             >
               {Object.entries(gameOriginLabel).map(([origin, label]) => (
-                <MenuItem key={origin} value={origin}>
+                <MenuItem 
+                  key={origin} 
+                  value={origin}
+                  sx={{
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                    },
+                    '&.Mui-selected': {
+                      backgroundColor: 'rgba(78,205,196,0.2)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(78,205,196,0.3)',
+                      }
+                    }
+                  }}
+                >
                   {label}
                 </MenuItem>
               ))}
@@ -160,13 +228,30 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
         </Grid>
       </DialogContent>
       <DialogActions sx={{ m: 2 }}>
-        <Button variant="outlined" onClick={handleClose}>
+        <Button 
+          variant="outlined" 
+          onClick={handleClose}
+          sx={{
+            color: 'rgba(255,255,255,0.8)',
+            borderColor: 'rgba(255,255,255,0.3)',
+            '&:hover': {
+              borderColor: 'rgba(255,255,255,0.5)',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+            }
+          }}
+        >
           Cancel
         </Button>
         {gameOrigin === GameOrigin.Pgn && (
           <Button
             variant="contained"
-            sx={{ marginLeft: 2 }}
+            sx={{ 
+              marginLeft: 2,
+              background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #ff5252, #26a69a)',
+              }
+            }}
             onClick={() => {
               handleAddGame(pgn);
             }}

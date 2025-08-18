@@ -1,6 +1,5 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { PropsWithChildren, useMemo } from "react";
-import NavBar from "./NavBar";
 import { red } from "@mui/material/colors";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MAIN_THEME_COLOR } from "@/constants";
@@ -32,11 +31,7 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <NavBar
-        darkMode={isDarkMode}
-        switchDarkMode={() => setDarkMode((val) => !val)}
-      />
-      <main style={{ margin: "2vh 1vw" }}>{children}</main>
+      <main>{children}</main>
     </ThemeProvider>
   );
 }

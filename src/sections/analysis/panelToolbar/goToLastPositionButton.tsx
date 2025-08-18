@@ -41,7 +41,7 @@ export default function GoToLastPositionButton() {
           disabled={isButtonDisabled}
           sx={{ paddingX: 1.2, paddingY: 0.5 }}
         >
-          <Icon icon="ri:skip-forward-line" />
+          <Icon icon="ri:skip-forward-line" height={24} />
         </IconButton>
       </Grid>
     </Tooltip>

@@ -285,10 +285,11 @@ export default function Board({
   return (
     <Grid
       container
+      direction="column"
       justifyContent="center"
       alignItems="center"
-      wrap="nowrap"
       width={boardSize}
+      gap={1}
     >
       {showEvaluationBar && (
         <EvaluationBar
@@ -303,7 +304,6 @@ export default function Board({
         rowGap={1.5}
         justifyContent="center"
         alignItems="center"
-        paddingLeft={showEvaluationBar ? 2 : 0}
         size="grow"
       >
         <PlayerHeader

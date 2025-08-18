@@ -49,8 +49,8 @@ export default function PlayerHeader({ color, player, gameAtom }: Props) {
           alt={player.name}
           variant="circular"
           sx={{
-            width: 40,
-            height: 40,
+            width: 32,
+            height: 32,
             backgroundColor: color === Color.White ? "white" : "black",
             color: color === Color.White ? "black" : "white",
             border: "1px solid black",

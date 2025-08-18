@@ -84,6 +84,7 @@ const getMovesAccuracy = (movesWinPercentage: number[]): number[] =>
       : Math.max(0, winPercent - lastWinPercent);
 
     // Source: https://github.com/lichess-org/lila/blob/a320a93b68dabee862b8093b1b2acdfe132b9966/modules/analyse/src/main/AccuracyPercent.scala#L44
+
     const rawAccuracy =
       103.1668100711649 * Math.exp(-0.04354415386753951 * winDiff) -
       3.166924740191411;

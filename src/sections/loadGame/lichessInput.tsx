@@ -122,6 +122,29 @@ export default function LichessInput({ onSelect }: Props) {
               {...params}
               label="Enter your Lichess username..."
               variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: 'white',
+                  '& fieldset': {
+                    borderColor: 'rgba(255,255,255,0.3)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255,255,255,0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#4ecdc4',
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255,255,255,0.8)',
+                  '&.Mui-focused': {
+                    color: '#4ecdc4',
+                  },
+                },
+                '& .MuiAutocomplete-popupIndicator': {
+                  color: 'rgba(255,255,255,0.8)',
+                },
+              }}
             />
           )}
         />

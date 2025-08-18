@@ -58,7 +58,7 @@ export default function NextMoveButton() {
           disabled={!isButtonEnabled}
           sx={{ paddingX: 1.2, paddingY: 0.5 }}
         >
-          <Icon icon="ri:arrow-right-s-line" height={30} />
+          <Icon icon="ri:arrow-right-s-line" height={24} />
         </IconButton>
       </Grid>
     </Tooltip>
