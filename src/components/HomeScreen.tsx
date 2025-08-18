@@ -5,7 +5,6 @@ import {
   Card, 
   CardContent, 
   Typography, 
-  Button,
   useTheme,
   useMediaQuery
 } from '@mui/material';

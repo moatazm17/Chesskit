@@ -20,8 +20,9 @@ if (
     debug: false,
     initialScope: {
       extra: {
-        hardwareConcurrency: navigator.hardwareConcurrency,
+        hardwareConcurrency: typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined,
         deviceMemory:
+          typeof navigator !== 'undefined' && 
           "deviceMemory" in navigator &&
           typeof navigator.deviceMemory === "number"
             ? navigator.deviceMemory
