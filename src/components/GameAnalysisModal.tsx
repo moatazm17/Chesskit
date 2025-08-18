@@ -457,6 +457,18 @@ export default function GameAnalysisModal({ open, onClose, onAnalyzeComplete }: 
           }}>
             <Button
               onClick={() => {
+                // Trigger interstitial ad in Flutter WebView
+                try {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const w: any = typeof window !== "undefined" ? window : undefined;
+                  if (w && w.App && typeof w.App.postMessage === "function") {
+                    w.App.postMessage("showInterstitial");
+                  } else if (w && typeof w.triggerInterstitialAd === "function") {
+                    w.triggerInterstitialAd();
+                  }
+                } catch {
+                  // ignore if not in WebView
+                }
                 onAnalyzeComplete();
                 onClose();
               }}
