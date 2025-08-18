@@ -92,7 +92,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
               fontSize: isMobile ? '1.25rem' : '1.5rem'
             }}
           >
-            ♟️ Chess Review
+            ♟️ Chess Analysis
           </Typography>
         </Box>
 
@@ -130,7 +130,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
               marginBottom: 3
             }}
           >
-            ♟️ Chess Review
+            ♟️ Chess Analysis
           </Typography>
           
           <List sx={{ flexGrow: 1 }}>
