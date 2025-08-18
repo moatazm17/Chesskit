@@ -84,7 +84,7 @@ export default function LoadGameButton({ setGame, label, size }: Props) {
           lineHeight="1.4em"
           sx={{ color: 'white' }}
         >
-          {label || "Add game"}
+          {label || "Review Game"}
         </Typography>
       </Button>
 

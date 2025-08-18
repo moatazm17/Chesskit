@@ -27,9 +27,10 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const MenuOptions = [
+    { text: "Home", icon: "mdi:home", href: "/" },
+    { text: "Review Game", icon: "streamline:magnifying-glass-solid", href: "/" },
     { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
-    { text: "Analysis", icon: "streamline:magnifying-glass-solid", href: "/" },
-    { text: "Database", icon: "streamline:database", href: "/database" },
+    { text: "Saved Games", icon: "streamline:database", href: "/database" },
   ];
 
   return (
@@ -98,40 +99,8 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
         {/* Spacer */}
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* Right side buttons */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Settings Button */}
-          <IconButton
-            sx={{
-              color: 'rgba(255,255,255,0.8)',
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              padding: '8px',
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white'
-              }
-            }}
-          >
-            <Icon icon="mdi:cog" style={{ fontSize: '1.2rem' }} />
-          </IconButton>
-
-          {/* Help/Info Button */}
-          <IconButton
-            sx={{
-              color: 'rgba(255,255,255,0.8)',
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              padding: '8px',
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white'
-              }
-            }}
-          >
-            <Icon icon="mdi:help-circle" style={{ fontSize: '1.2rem' }} />
-          </IconButton>
-        </Box>
+        {/* Right side buttons (removed settings/help) */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} />
       </Toolbar>
 
       {/* Navigation Drawer */}
@@ -149,7 +118,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
           }
         }}
       >
-        <Box sx={{ padding: 2 }}>
+        <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Typography
             variant="h6"
             sx={{
@@ -164,7 +133,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
             ♟️ Chess Review
           </Typography>
           
-          <List>
+          <List sx={{ flexGrow: 1 }}>
             {MenuOptions.map(({ text, icon, href }) => (
               <ListItem key={text} disablePadding sx={{ marginBottom: 1 }}>
                 <NavLink href={href}>
@@ -194,6 +163,50 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({ onHomeClick }) => {
                 </NavLink>
               </ListItem>
             ))}
+          </List>
+
+          {/* Footer links */}
+          <List sx={{ mt: 1 }}>
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <NavLink href="/privacy">
+                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
+                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Icon icon="mdi:shield-account" />
+                  </ListItemIcon>
+                  <ListItemText primary="Privacy" />
+                </ListItemButton>
+              </NavLink>
+            </ListItem>
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <NavLink href="/terms">
+                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
+                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Icon icon="mdi:file-document" />
+                  </ListItemIcon>
+                  <ListItemText primary="Terms" />
+                </ListItemButton>
+              </NavLink>
+            </ListItem>
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <NavLink href="/support">
+                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
+                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Icon icon="mdi:lifebuoy" />
+                  </ListItemIcon>
+                  <ListItemText primary="Support" />
+                </ListItemButton>
+              </NavLink>
+            </ListItem>
+            <ListItem disablePadding>
+              <NavLink href="/about">
+                <ListItemButton onClick={() => setDrawerOpen(false)} sx={{ borderRadius: '8px' }}>
+                  <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                    <Icon icon="mdi:information" />
+                  </ListItemIcon>
+                  <ListItemText primary="About" />
+                </ListItemButton>
+              </NavLink>
+            </ListItem>
           </List>
         </Box>
       </Drawer>

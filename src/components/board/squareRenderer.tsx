@@ -68,14 +68,14 @@ export function getSquareRenderer({
             <Image
               src={`/icons/${moveClassification}.png`}
               alt="move-icon"
-              width={35}
-              height={35}
+              width={50}
+              height={50}
               style={{
                 position: "absolute",
-                top: "max(-12px, -1.8vw)",
-                right: "max(-12px, -1.8vw)",
-                maxWidth: "3.6vw",
-                maxHeight: "3.6vw",
+                top: "max(-16px, -2.5vw)",
+                right: "max(-16px, -2.5vw)",
+                maxWidth: "5vw",
+                maxHeight: "5vw",
                 zIndex: 100,
               }}
             />

@@ -239,7 +239,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
               fontSize: isMobile ? '1.5rem' : '3rem'
             }}
           >
-            Load Game
+            Review Game
           </Typography>
           <Typography
             variant="h6"

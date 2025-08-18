@@ -185,7 +185,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPlayGame, onLoadGame, onSaved
           
           <Grid item xs={12} sm={6} md={4}>
             <HomeCard
-              title="Load Game"
+              title="Review Game"
               description="Import games from Chess.com, Lichess, or paste PGN"
               icon="mdi:folder-open"
               color="#45b7d1"

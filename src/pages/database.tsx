@@ -88,7 +88,7 @@ export default function GameDatabase() {
                 You have <strong style={{color: '#4CAF50'}}>{games.length}</strong> game{games.length !== 1 && "s"} saved in your database
               </Typography>
 
-              <LoadGameButton label="Add New Game" size="large" />
+              <LoadGameButton label="Review Game" size="large" />
             </Box>
           </Grid>
 
