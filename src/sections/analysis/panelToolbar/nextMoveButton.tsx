@@ -27,6 +27,20 @@ export default function NextMoveButton() {
       .find((c) => c.fen === nextMove.after)?.comment;
 
     if (nextMove) {
+      // Notify Flutter WebView to show an interstitial ad occasionally
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const w: any = typeof window !== "undefined" ? window : undefined;
+        if (w && w.showInterstitialAd && typeof w.showInterstitialAd.postMessage === "function") {
+          // Throttle via random chance (10%) to avoid too frequent ads
+          if (Math.random() < 0.1) {
+            w.showInterstitialAd.postMessage("next_move");
+          }
+        }
+      } catch {
+        // ignore if not in WebView
+      }
+
       playBoardMove({
         from: nextMove.from,
         to: nextMove.to,
