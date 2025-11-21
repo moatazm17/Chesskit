@@ -1,14 +1,14 @@
-import React from 'react';
-import Image from 'next/image';
+import React from "react";
+import Image from "next/image";
 
 interface ChessComIconProps {
   size?: number;
   className?: string;
 }
 
-const ChessComIcon: React.FC<ChessComIconProps> = ({ 
-  size = 24, 
-  className = ''
+const ChessComIcon: React.FC<ChessComIconProps> = ({
+  size = 24,
+  className = "",
 }) => {
   return (
     <Image
@@ -17,7 +17,7 @@ const ChessComIcon: React.FC<ChessComIconProps> = ({
       width={size}
       height={size}
       className={className}
-      style={{ objectFit: 'contain' }}
+      style={{ objectFit: "contain" }}
     />
   );
 };

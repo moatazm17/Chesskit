@@ -45,8 +45,8 @@ export const sendCommandsToWorker = (
 };
 
 export const getRecommendedWorkersNb = (): number => {
-  if (typeof navigator === 'undefined') return 1;
-  
+  if (typeof navigator === "undefined") return 1;
+
   const maxWorkersNbFromThreads = Math.max(
     1,
     Math.round(navigator.hardwareConcurrency - 4),

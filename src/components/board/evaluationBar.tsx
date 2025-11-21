@@ -39,10 +39,10 @@ export default function EvaluationBar({
       height="1rem"
       border="1px solid rgba(255,255,255,0.2)"
       borderRadius="4px"
-      sx={{ 
+      sx={{
         marginBottom: 1,
-        backgroundColor: 'rgba(0,0,0,0.1)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+        backgroundColor: "rgba(0,0,0,0.1)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
       }}
     >
       <Box

@@ -19,12 +19,12 @@ export const isMultiThreadSupported = () => {
 };
 
 export const isIosDevice = () => {
-  if (typeof navigator === 'undefined') return false;
+  if (typeof navigator === "undefined") return false;
   return /iPhone|iPad|iPod/i.test(navigator.userAgent);
 };
 
 export const isMobileDevice = () => {
-  if (typeof navigator === 'undefined') return false;
+  if (typeof navigator === "undefined") return false;
   return isIosDevice() || /Android|Opera Mini/i.test(navigator.userAgent);
 };
 
