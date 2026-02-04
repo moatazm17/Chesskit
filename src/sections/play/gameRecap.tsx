@@ -9,7 +9,10 @@ import { Icon } from "@iconify/react";
 import { useState } from "react";
 import GameAnalysisModal from "@/components/GameAnalysisModal";
 import { useChessActions } from "@/hooks/useChessActions";
-import { boardAtom } from "@/sections/analysis/states";
+import {
+  boardAtom,
+  gameAtom as analysisGameAtom,
+} from "@/sections/analysis/states";
 
 export default function GameRecap() {
   const game = useAtomValue(gameAtom);
@@ -21,8 +24,8 @@ export default function GameRecap() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
   
-  // Chess actions to set up analysis
-  const { setPgn: setAnalysisGamePgn } = useChessActions(gameAtom);
+  // Chess actions to set up analysis - use analysis atoms, not play atoms
+  const { setPgn: setAnalysisGamePgn } = useChessActions(analysisGameAtom);
   const { resetToStartingPosition: resetAnalysisBoard } = useChessActions(boardAtom);
 
   if (isGameInProgress || !game.history().length) return null;

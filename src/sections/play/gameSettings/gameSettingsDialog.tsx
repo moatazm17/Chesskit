@@ -213,25 +213,31 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                   }
                 }}
               >
-                {Object.values(EngineName).map((engine) => (
-                  <MenuItem
-                    key={engine}
-                    value={engine}
-                    disabled={!isEngineSupported(engine)}
-                    sx={{
-                      color: 'white',
-                      backgroundColor: 'rgba(26,26,46,0.9)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(76,175,80,0.1)'
-                      },
-                      '&.Mui-selected': {
-                        backgroundColor: 'rgba(76,175,80,0.2)'
-                      }
-                    }}
-                  >
-                    {ENGINE_LABELS[engine].full}
-                  </MenuItem>
-                ))}
+                {/* Only show lite/light engines to save server resources */}
+                {[
+                  EngineName.Stockfish17Lite,
+                  EngineName.Stockfish16_1Lite,
+                  EngineName.Stockfish11,
+                ]
+                  .filter((engine) => isEngineSupported(engine))
+                  .map((engine) => (
+                    <MenuItem
+                      key={engine}
+                      value={engine}
+                      sx={{
+                        color: "white",
+                        backgroundColor: "rgba(26,26,46,0.9)",
+                        "&:hover": {
+                          backgroundColor: "rgba(76,175,80,0.1)",
+                        },
+                        "&.Mui-selected": {
+                          backgroundColor: "rgba(76,175,80,0.2)",
+                        },
+                      }}
+                    >
+                      {ENGINE_LABELS[engine].full}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </Grid>
