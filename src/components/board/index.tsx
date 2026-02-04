@@ -21,6 +21,7 @@ import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
 import { boardHueAtom, pieceSetAtom } from "./states";
 import tinycolor from "tinycolor2";
+import MoveExplanation from "@/components/MoveExplanation";
 
 export interface Props {
   id: string;
@@ -34,6 +35,7 @@ export interface Props {
   showBestMoveArrow?: boolean;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
   showEvaluationBar?: boolean;
+  showMoveExplanation?: boolean;
 }
 
 export default function Board({
@@ -48,6 +50,7 @@ export default function Board({
   showBestMoveArrow = false,
   showPlayerMoveIconAtom,
   showEvaluationBar = false,
+  showMoveExplanation = false,
 }: Props) {
   const boardRef = useRef<HTMLDivElement>(null);
   const game = useAtomValue(gameAtom);
@@ -311,6 +314,8 @@ export default function Board({
           gameAtom={gameAtom}
           player={boardOrientation === Color.White ? blackPlayer : whitePlayer}
         />
+
+        {showMoveExplanation && <MoveExplanation />}
 
         <Grid
           container
