@@ -1,0 +1,610 @@
+import { PageTitle } from "@/components/pageTitle";
+import {
+  Grid2 as Grid,
+  Box,
+  useTheme,
+  useMediaQuery,
+  Typography,
+  Button,
+  Stack,
+  Chip,
+} from "@mui/material";
+import { Icon } from "@iconify/react";
+import PremiumNavBar from "@/components/PremiumNavBar";
+import { usePuzzle } from "@/hooks/usePuzzle";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { Chessboard } from "react-chessboard";
+import { Square, Arrow, CustomSquareStyles } from "react-chessboard/dist/chessboard/types";
+
+export default function Puzzles() {
+  const theme = useTheme();
+  const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const {
+    puzzle,
+    puzzleState,
+    game,
+    stats,
+    showHint,
+    isDaily,
+    playerColor,
+    currentTurn,
+    lastMove,
+    isSettingUp,
+    loadRandomPuzzle,
+    loadDailyPuzzle,
+    makeMove,
+    getHint,
+    retry,
+  } = usePuzzle();
+
+  const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
+  const [mode, setMode] = useState<"daily" | "practice">("daily");
+  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
+  const [legalMoves, setLegalMoves] = useState<Square[]>([]);
+  const [puzzleLoaded, setPuzzleLoaded] = useState(false);
+  const puzzleCountRef = useRef(0); // Track puzzles for ad frequency
+
+  // Load initial puzzle only once per mode change
+  useEffect(() => {
+    setPuzzleLoaded(false);
+  }, [mode]);
+
+  useEffect(() => {
+    if (puzzleLoaded) return;
+    if (mode === "daily") {
+      loadDailyPuzzle();
+    } else {
+      loadRandomPuzzle();
+    }
+    setPuzzleLoaded(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, puzzleLoaded]);
+
+  // Get legal moves for a square
+  const getLegalMovesForSquare = useCallback(
+    (square: Square): Square[] => {
+      const moves = game.moves({ square, verbose: true });
+      return moves.map((move) => move.to as Square);
+    },
+    [game]
+  );
+
+  // Handle square click
+  const onSquareClick = useCallback(
+    (square: Square) => {
+      if (puzzleState !== "playing" || isSettingUp) return;
+
+      // If clicking on a legal move square, make the move
+      if (selectedSquare && legalMoves.includes(square)) {
+        const result = makeMove(selectedSquare, square);
+        setSelectedSquare(null);
+        setLegalMoves([]);
+        setHintArrow(null);
+        return;
+      }
+
+      // Check if clicking on own piece
+      const piece = game.get(square);
+      if (piece && piece.color === game.turn()) {
+        setSelectedSquare(square);
+        setLegalMoves(getLegalMovesForSquare(square));
+      } else {
+        setSelectedSquare(null);
+        setLegalMoves([]);
+      }
+    },
+    [puzzleState, isSettingUp, selectedSquare, legalMoves, makeMove, game, getLegalMovesForSquare]
+  );
+
+  // Handle piece drop
+  const onDrop = useCallback(
+    (sourceSquare: Square, targetSquare: Square): boolean => {
+      if (puzzleState !== "playing" || isSettingUp) return false;
+      const result = makeMove(sourceSquare, targetSquare);
+      setHintArrow(null);
+      setSelectedSquare(null);
+      setLegalMoves([]);
+      return result;
+    },
+    [makeMove, puzzleState, isSettingUp]
+  );
+
+  // Handle hint
+  const handleHint = useCallback(() => {
+    const hint = getHint();
+    if (hint) {
+      setHintArrow([hint.from, hint.to, "rgba(255, 193, 7, 0.8)"] as Arrow);
+    }
+  }, [getHint]);
+
+  // Handle next puzzle
+  const handleNext = useCallback(() => {
+    setHintArrow(null);
+    setSelectedSquare(null);
+    setLegalMoves([]);
+    if (mode === "practice") {
+      // Increment puzzle counter
+      puzzleCountRef.current += 1;
+      
+      // Show ad every 3 puzzles
+      if (puzzleCountRef.current % 3 === 0) {
+        const w = window as any;
+        if (w.App && typeof w.App.postMessage === "function") {
+          w.App.postMessage("showInterstitial");
+        } else if (w && typeof w.triggerInterstitialAd === "function") {
+          w.triggerInterstitialAd();
+        }
+      }
+      
+      setPuzzleLoaded(false); // This will trigger loading a new puzzle
+    }
+  }, [mode]);
+
+  // Handle retry
+  const handleRetry = useCallback(() => {
+    setHintArrow(null);
+    setSelectedSquare(null);
+    setLegalMoves([]);
+    retry();
+  }, [retry]);
+
+  // Board size calculation
+  const boardSize = useMemo(() => {
+    if (typeof window === "undefined") return 400;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    if (width < 1200) {
+      return Math.min(width - 32, height - 300, 500);
+    }
+    return Math.min(width - 700, height * 0.7, 500);
+  }, []);
+
+  // Custom arrows for hint and solved state
+  const customArrows = useMemo(() => {
+    const arrows: Arrow[] = [];
+    
+    // Show hint arrow
+    if (hintArrow) {
+      arrows.push(hintArrow);
+    }
+    
+    // Show green arrow on winning move when solved
+    if (puzzleState === "solved" && lastMove) {
+      arrows.push([
+        lastMove.from,
+        lastMove.to,
+        "rgba(76, 175, 80, 0.9)", // Green arrow
+      ] as Arrow);
+    }
+    
+    // Show red arrow on failed move
+    if (puzzleState === "failed" && lastMove) {
+      arrows.push([
+        lastMove.from,
+        lastMove.to,
+        "rgba(244, 67, 54, 0.9)", // Red arrow
+      ] as Arrow);
+    }
+    
+    return arrows;
+  }, [hintArrow, puzzleState, lastMove]);
+
+  // Custom square styles for highlighting
+  const customSquareStyles = useMemo(() => {
+    const styles: CustomSquareStyles = {};
+
+    // Highlight last move squares
+    if (lastMove) {
+      styles[lastMove.from as Square] = {
+        backgroundColor: "rgba(255, 255, 0, 0.4)",
+      };
+      
+      // If puzzle is solved, add green glow to winning square
+      if (puzzleState === "solved") {
+        styles[lastMove.to as Square] = {
+          backgroundColor: "rgba(76, 175, 80, 0.6)",
+          boxShadow: "inset 0 0 20px rgba(76, 175, 80, 0.8), 0 0 15px rgba(76, 175, 80, 0.6)",
+        };
+      } else if (puzzleState === "failed") {
+        styles[lastMove.to as Square] = {
+          backgroundColor: "rgba(244, 67, 54, 0.5)",
+          boxShadow: "inset 0 0 20px rgba(244, 67, 54, 0.6)",
+        };
+      } else {
+        styles[lastMove.to as Square] = {
+          backgroundColor: "rgba(255, 255, 0, 0.5)",
+        };
+      }
+    }
+
+    // Highlight selected square (overrides last move highlight)
+    if (selectedSquare) {
+      styles[selectedSquare] = {
+        backgroundColor: "rgba(130, 151, 105, 0.8)",
+      };
+    }
+
+    // Highlight legal moves
+    legalMoves.forEach((square) => {
+      const piece = game.get(square);
+      if (piece) {
+        // Capture move - red highlight
+        styles[square] = {
+          backgroundColor: "rgba(255, 80, 80, 0.5)",
+          borderRadius: "0%",
+        };
+      } else {
+        // Normal move - dot indicator
+        styles[square] = {
+          background:
+            "radial-gradient(circle, rgba(0,0,0,0.3) 25%, transparent 25%)",
+          borderRadius: "50%",
+        };
+      }
+    });
+
+    return styles;
+  }, [selectedSquare, legalMoves, game, lastMove, puzzleState]);
+
+  // Status message and color
+  const getStatusInfo = () => {
+    if (puzzleState === "solved") {
+      return {
+        message: "Correct!",
+        color: "#4CAF50",
+        icon: "mdi:check-circle",
+      };
+    }
+    if (puzzleState === "failed") {
+      return {
+        message: "Incorrect",
+        color: "#f44336",
+        icon: "mdi:close-circle",
+      };
+    }
+    if (isSettingUp) {
+      return {
+        message: "Watch...",
+        color: "#FF9800",
+        icon: "mdi:eye",
+      };
+    }
+    return {
+      message: currentTurn === "white" ? "White to play" : "Black to play",
+      color: currentTurn === "white" ? "#f5f5f5" : "#e0e0e0",
+      icon: currentTurn === "white" ? "mdi:chess-king" : "game-icons:chess-king",
+    };
+  };
+
+  const statusInfo = getStatusInfo();
+
+  return (
+    <>
+      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <Box
+        sx={{
+          minHeight: "calc(100vh - 64px)",
+          background: `linear-gradient(135deg, rgba(26,26,46,0.9) 0%, rgba(22,33,62,0.9) 50%, rgba(15,52,96,0.9) 100%)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          padding: isMobile ? "16px" : "24px",
+        }}
+      >
+        <PageTitle title="Chess Puzzles" />
+
+        <Grid
+          container
+          gap={3}
+          justifyContent="center"
+          alignItems="start"
+          sx={{ maxWidth: "1200px", margin: "0 auto" }}
+        >
+          {/* Mode Selector */}
+          <Grid size={12}>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent="center"
+              sx={{ mb: 2 }}
+            >
+              <Button
+                variant={mode === "daily" ? "contained" : "outlined"}
+                onClick={() => setMode("daily")}
+                startIcon={<Icon icon="mdi:calendar-today" />}
+                sx={{
+                  borderRadius: "12px",
+                  px: 3,
+                  py: 1,
+                  background:
+                    mode === "daily"
+                      ? "linear-gradient(135deg, #FF9800 0%, #F57C00 100%)"
+                      : "transparent",
+                  borderColor: "#FF9800",
+                  color: mode === "daily" ? "white" : "#FF9800",
+                  "&:hover": {
+                    background:
+                      mode === "daily"
+                        ? "linear-gradient(135deg, #F57C00 0%, #E65100 100%)"
+                        : "rgba(255, 152, 0, 0.1)",
+                    borderColor: "#FF9800",
+                  },
+                }}
+              >
+                Daily Puzzle
+              </Button>
+              <Button
+                variant={mode === "practice" ? "contained" : "outlined"}
+                onClick={() => setMode("practice")}
+                startIcon={<Icon icon="mdi:dumbbell" />}
+                sx={{
+                  borderRadius: "12px",
+                  px: 3,
+                  py: 1,
+                  background:
+                    mode === "practice"
+                      ? "linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)"
+                      : "transparent",
+                  borderColor: "#9C27B0",
+                  color: mode === "practice" ? "white" : "#9C27B0",
+                  "&:hover": {
+                    background:
+                      mode === "practice"
+                        ? "linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)"
+                        : "rgba(156, 39, 176, 0.1)",
+                    borderColor: "#9C27B0",
+                  },
+                }}
+              >
+                Practice
+              </Button>
+            </Stack>
+          </Grid>
+
+          {/* Puzzle Board Section */}
+          <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
+            <Box sx={{ maxWidth: boardSize }}>
+              {/* Header: Turn/Status + Rating */}
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 1, px: 0.5 }}
+              >
+                {/* Turn/Status Indicator */}
+                {puzzleState === "solved" ? (
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Icon
+                      icon="mdi:check-circle"
+                      style={{ fontSize: 20, color: "#4CAF50" }}
+                    />
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "#4CAF50",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Puzzle Solved!
+                    </Typography>
+                  </Stack>
+                ) : puzzleState === "failed" ? (
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Icon
+                      icon="mdi:close-circle"
+                      style={{ fontSize: 20, color: "#f44336" }}
+                    />
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "#f44336",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Incorrect
+                    </Typography>
+                  </Stack>
+                ) : (
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Box
+                      sx={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        backgroundColor: currentTurn === "white" ? "#fff" : "#333",
+                        border: "2px solid #666",
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: statusInfo.color,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {statusInfo.message}
+                    </Typography>
+                  </Stack>
+                )}
+
+                {/* Rating */}
+                {puzzle && (
+                  <Chip
+                    size="small"
+                    icon={<Icon icon="mdi:star" style={{ fontSize: 14 }} />}
+                    label={`Rating: ${puzzle.rating}`}
+                    sx={{
+                      background: "rgba(255,193,7,0.2)",
+                      color: "#FFC107",
+                      fontWeight: 600,
+                      fontSize: "0.75rem",
+                      height: 24,
+                    }}
+                  />
+                )}
+              </Stack>
+
+              {/* Board with Icon Overlay */}
+              <Box
+                sx={{
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                  position: "relative",
+                }}
+              >
+                <Chessboard
+                  id="PuzzleBoard"
+                  position={game.fen()}
+                  onPieceDrop={onDrop}
+                  onSquareClick={onSquareClick}
+                  boardWidth={boardSize}
+                  boardOrientation={playerColor || "white"}
+                  customArrows={customArrows}
+                  customSquareStyles={customSquareStyles}
+                  arePiecesDraggable={puzzleState === "playing" && !isSettingUp}
+                  animationDuration={400}
+                  customBoardStyle={{
+                    borderRadius: "8px",
+                  }}
+                />
+                
+                {/* Icon overlay for solved/failed state */}
+                {(puzzleState === "solved" || puzzleState === "failed") && lastMove && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      width: boardSize / 8,
+                      height: boardSize / 8,
+                      pointerEvents: "none",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "flex-end",
+                      // Calculate position based on square
+                      left: (() => {
+                        const file = lastMove.to.charCodeAt(0) - 97; // a=0, h=7
+                        return playerColor === "white" 
+                          ? file * (boardSize / 8)
+                          : (7 - file) * (boardSize / 8);
+                      })(),
+                      top: (() => {
+                        const rank = parseInt(lastMove.to[1]) - 1; // 1=0, 8=7
+                        return playerColor === "white"
+                          ? (7 - rank) * (boardSize / 8)
+                          : rank * (boardSize / 8);
+                      })(),
+                    }}
+                  >
+                    <img
+                      src={puzzleState === "solved" ? "/icons/best.png" : "/icons/mistake.png"}
+                      alt={puzzleState === "solved" ? "Correct" : "Incorrect"}
+                      style={{
+                        width: boardSize / 8 * 0.4,
+                        height: boardSize / 8 * 0.4,
+                        marginTop: 2,
+                        marginRight: 2,
+                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Action Buttons Below Board */}
+              <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="center"
+                sx={{ mt: 2 }}
+              >
+                {puzzleState === "playing" && (
+                  <Button
+                    variant="outlined"
+                    onClick={handleHint}
+                    startIcon={<Icon icon="mdi:lightbulb" />}
+                    size="small"
+                    sx={{
+                      borderRadius: "8px",
+                      borderColor: "#FFC107",
+                      color: "#FFC107",
+                      "&:hover": {
+                        background: "rgba(255,193,7,0.1)",
+                        borderColor: "#FFC107",
+                      },
+                    }}
+                  >
+                    Hint
+                  </Button>
+                )}
+
+                {puzzleState === "failed" && (
+                  <Button
+                    variant="contained"
+                    onClick={handleRetry}
+                    startIcon={<Icon icon="mdi:refresh" />}
+                    size="small"
+                    sx={{
+                      borderRadius: "8px",
+                      background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+                    }}
+                  >
+                    Retry
+                  </Button>
+                )}
+
+                {puzzleState === "solved" && mode === "practice" && (
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    startIcon={<Icon icon="mdi:arrow-right" />}
+                    size="small"
+                    sx={{
+                      borderRadius: "8px",
+                      background: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
+                    }}
+                  >
+                    Next Puzzle
+                  </Button>
+                )}
+              </Stack>
+
+              {/* Stats Row */}
+              <Stack
+                direction="row"
+                spacing={3}
+                justifyContent="center"
+                sx={{ mt: 2 }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="h6" sx={{ color: "#4CAF50", fontWeight: 700 }}>
+                    {stats.solved}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
+                    Solved
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="h6" sx={{ color: "#f44336", fontWeight: 700 }}>
+                    {stats.failed}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
+                    Failed
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="h6" sx={{ color: "#FF9800", fontWeight: 700 }}>
+                    {stats.streak}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
+                    Streak
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </>
+  );
+}

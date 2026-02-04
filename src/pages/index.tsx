@@ -65,6 +65,13 @@ export default function GameAnalysis() {
 
   // Navigation handlers
   const handlePlayGame = () => {
+    // Show interstitial ad before navigating to play
+    const w = window as any;
+    if (w.App && typeof w.App.postMessage === "function") {
+      w.App.postMessage("showInterstitial");
+    } else if (w && typeof w.triggerInterstitialAd === "function") {
+      w.triggerInterstitialAd();
+    }
     window.location.href = '/play';
   };
 
@@ -74,6 +81,17 @@ export default function GameAnalysis() {
 
   const handleSavedGames = () => {
     window.location.href = '/database';
+  };
+
+  const handlePuzzles = () => {
+    // Show interstitial ad before navigating to puzzles
+    const w = window as any;
+    if (w.App && typeof w.App.postMessage === "function") {
+      w.App.postMessage("showInterstitial");
+    } else if (w && typeof w.triggerInterstitialAd === "function") {
+      w.triggerInterstitialAd();
+    }
+    router.push('/puzzles');
   };
 
   const handleBackToHome = () => {
@@ -114,6 +132,7 @@ export default function GameAnalysis() {
           onPlayGame={handlePlayGame}
           onLoadGame={handleLoadGame}
           onSavedGames={handleSavedGames}
+          onPuzzles={handlePuzzles}
         />
       </>
     );

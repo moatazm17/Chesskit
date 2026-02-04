@@ -98,12 +98,14 @@ interface HomeScreenProps {
   onPlayGame: () => void;
   onLoadGame: () => void;
   onSavedGames: () => void;
+  onPuzzles?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   onPlayGame,
   onLoadGame,
   onSavedGames,
+  onPuzzles,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -179,34 +181,44 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           spacing={isMobile ? 2 : 3}
           justifyContent="center"
           sx={{
-            maxWidth: 900,
+            maxWidth: 1200,
             paddingBottom: isMobile ? 2 : 0,
           }}
         >
-          <Grid item xs={12} sm={6} md={4}>
-            <HomeCard
-              title="Play Game"
-              description="Start a new game against Stockfish or practice your skills"
-              icon="game-icons:chess-king"
-              color="#4ecdc4"
-              onClick={onPlayGame}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <HomeCard
               title="Review Game"
-              description="Import games from Chess.com, Lichess, or paste PGN"
+              description="Analyze from Chess.com or Lichess"
               icon="mdi:folder-open"
               color="#45b7d1"
               onClick={onLoadGame}
             />
           </Grid>
 
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Puzzles"
+              description="Solve daily puzzles and improve"
+              icon="mdi:puzzle"
+              color="#FF9800"
+              onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Play Game"
+              description="Challenge Stockfish engine"
+              icon="game-icons:chess-king"
+              color="#4ecdc4"
+              onClick={onPlayGame}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
             <HomeCard
               title="Saved Games"
-              description="Access your previously saved games and analysis"
+              description="Your saved games and analysis"
               icon="mdi:database"
               color="#ff6b6b"
               onClick={onSavedGames}
