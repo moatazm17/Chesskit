@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
-import { getRandomPuzzle, getDailyPuzzle } from "@/data/puzzles";
+import { getRandomPuzzle, getDailyPuzzle, PUZZLES } from "@/data/puzzles";
 import { Chess } from "chess.js";
 import { playMoveSound, playCaptureSound } from "@/lib/sounds";
 
@@ -10,6 +10,7 @@ interface LastMove {
 }
 
 const STORAGE_KEY = "chesskit_puzzle_stats";
+const CURRENT_PUZZLE_KEY = "chesskit_puzzle_current";
 
 const DEFAULT_STATS: PuzzleStats = {
   solved: 0,
@@ -35,6 +36,26 @@ const loadStats = (): PuzzleStats => {
 const saveStats = (stats: PuzzleStats) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+};
+
+// Save/load current practice puzzle ID so it persists across mode switches
+const saveCurrentPuzzleId = (puzzleId: string) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CURRENT_PUZZLE_KEY, puzzleId);
+};
+
+const loadCurrentPuzzleId = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(CURRENT_PUZZLE_KEY);
+};
+
+const clearCurrentPuzzleId = () => {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(CURRENT_PUZZLE_KEY);
+};
+
+const findPuzzleById = (id: string): Puzzle | null => {
+  return PUZZLES.find((p) => p.id === id) || null;
 };
 
 export const usePuzzle = () => {
@@ -65,97 +86,40 @@ export const usePuzzle = () => {
     setStats(loadedStats);
   }, []);
 
-  // Load a new random puzzle
-  const loadRandomPuzzle = useCallback(() => {
+  // Setup and animate a puzzle on the board
+  const setupPuzzleOnBoard = useCallback((puzzleToLoad: Puzzle, daily: boolean) => {
     // Clear any pending setup timeout
     if (setupTimeoutRef.current) {
       clearTimeout(setupTimeoutRef.current);
     }
 
-    const newPuzzle = getRandomPuzzle(stats.solvedIds);
-    if (newPuzzle) {
-      setPuzzle(newPuzzle);
-      setLastMove(null);
-      setIsSettingUp(true);
-      
-      // First show the initial position (before opponent's move)
-      const initialGame = new Chess(newPuzzle.fen);
-      setGame(initialGame);
-      setPuzzleState("playing");
-      setMoveIndex(1);
-      setShowHint(false);
-      setIsDaily(false);
-      
-      // Determine player color: it's the color that plays AFTER the setup move
-      // If FEN shows White to move, White plays setup, so player is Black
-      const setupColor = initialGame.turn();
-      setFixedPlayerColor(setupColor === "w" ? "black" : "white");
-
-      // After a delay, animate the opponent's setup move
-      if (newPuzzle.moves.length > 0) {
-        const firstMove = newPuzzle.moves[0];
-        setupTimeoutRef.current = setTimeout(() => {
-          try {
-            const gameAfterSetup = new Chess(newPuzzle.fen);
-            const moveResult = gameAfterSetup.move({
-              from: firstMove.slice(0, 2),
-              to: firstMove.slice(2, 4),
-              promotion: firstMove.slice(4) || undefined,
-            });
-            setGame(gameAfterSetup);
-            setLastMove({
-              from: firstMove.slice(0, 2),
-              to: firstMove.slice(2, 4),
-            });
-            setIsSettingUp(false);
-            // Play sound
-            if (moveResult?.captured) {
-              playCaptureSound();
-            } else {
-              playMoveSound();
-            }
-          } catch (e) {
-            console.error("Invalid setup move:", firstMove, "in puzzle:", newPuzzle.id);
-            setIsSettingUp(false);
-          }
-        }, 800); // Delay before showing opponent's move
-      } else {
-        setIsSettingUp(false);
-      }
-    }
-    return newPuzzle;
-  }, [stats.solvedIds]);
-
-  // Load daily puzzle
-  const loadDailyPuzzle = useCallback(() => {
-    // Clear any pending setup timeout
-    if (setupTimeoutRef.current) {
-      clearTimeout(setupTimeoutRef.current);
-    }
-
-    const dailyPuzzle = getDailyPuzzle();
-    setPuzzle(dailyPuzzle);
+    setPuzzle(puzzleToLoad);
     setLastMove(null);
     setIsSettingUp(true);
     
-    // First show the initial position
-    const initialGame = new Chess(dailyPuzzle.fen);
+    // First show the initial position (before opponent's move)
+    const initialGame = new Chess(puzzleToLoad.fen);
     setGame(initialGame);
-    setPuzzleState(stats.dailySolved ? "solved" : "playing");
+    setPuzzleState(daily && stats.dailySolved ? "solved" : "playing");
     setMoveIndex(1);
     setShowHint(false);
-    setIsDaily(true);
+    setIsDaily(daily);
     
-    // Determine player color: it's the color that plays AFTER the setup move
+    // Determine player color
     const setupColor = initialGame.turn();
     setFixedPlayerColor(setupColor === "w" ? "black" : "white");
 
+    // Save current puzzle ID for practice mode
+    if (!daily) {
+      saveCurrentPuzzleId(puzzleToLoad.id);
+    }
+
     // After a delay, animate the opponent's setup move
-    if (dailyPuzzle.moves.length > 0) {
-      const firstMove = dailyPuzzle.moves[0];
+    if (puzzleToLoad.moves.length > 0) {
+      const firstMove = puzzleToLoad.moves[0];
       setupTimeoutRef.current = setTimeout(() => {
         try {
-          const gameAfterSetup = new Chess(dailyPuzzle.fen);
+          const gameAfterSetup = new Chess(puzzleToLoad.fen);
           const moveResult = gameAfterSetup.move({
             from: firstMove.slice(0, 2),
             to: firstMove.slice(2, 4),
@@ -167,23 +131,47 @@ export const usePuzzle = () => {
             to: firstMove.slice(2, 4),
           });
           setIsSettingUp(false);
-          // Play sound
           if (moveResult?.captured) {
             playCaptureSound();
           } else {
             playMoveSound();
           }
         } catch (e) {
-          console.error("Invalid setup move:", firstMove, "in daily puzzle:", dailyPuzzle.id);
+          console.error("Invalid setup move:", firstMove, "in puzzle:", puzzleToLoad.id);
           setIsSettingUp(false);
         }
       }, 800);
     } else {
       setIsSettingUp(false);
     }
-    
-    return dailyPuzzle;
   }, [stats.dailySolved]);
+
+  // Load a random puzzle - restore saved one or get new
+  const loadRandomPuzzle = useCallback(() => {
+    // Try to restore saved puzzle
+    const savedPuzzleId = loadCurrentPuzzleId();
+    if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
+      const savedPuzzle = findPuzzleById(savedPuzzleId);
+      if (savedPuzzle) {
+        setupPuzzleOnBoard(savedPuzzle, false);
+        return savedPuzzle;
+      }
+    }
+
+    // No saved puzzle or already solved - get new one
+    const newPuzzle = getRandomPuzzle(stats.solvedIds);
+    if (newPuzzle) {
+      setupPuzzleOnBoard(newPuzzle, false);
+    }
+    return newPuzzle;
+  }, [stats.solvedIds, setupPuzzleOnBoard]);
+
+  // Load daily puzzle
+  const loadDailyPuzzle = useCallback(() => {
+    const dailyPuzzle = getDailyPuzzle();
+    setupPuzzleOnBoard(dailyPuzzle, true);
+    return dailyPuzzle;
+  }, [setupPuzzleOnBoard]);
 
   // Make a move
   const makeMove = useCallback(
@@ -228,6 +216,9 @@ export const usePuzzle = () => {
         if (nextMoveIndex >= puzzle.moves.length) {
           // Puzzle solved!
           setPuzzleState("solved");
+          if (!isDaily) {
+            clearCurrentPuzzleId(); // Clear saved puzzle so next load gets a new one
+          }
           const newStats = {
             ...stats,
             solved: stats.solved + 1,

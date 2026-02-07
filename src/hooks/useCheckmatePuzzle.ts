@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
-import { getRandomMateIn2, getRandomMateIn3 } from "@/data/checkmatePuzzles";
+import { getRandomMateIn2, getRandomMateIn3, MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } from "@/data/checkmatePuzzles";
 import { Chess } from "chess.js";
 import { playMoveSound, playCaptureSound } from "@/lib/sounds";
 
@@ -12,6 +12,7 @@ interface LastMove {
 export type MateType = "mateIn2" | "mateIn3";
 
 const STORAGE_KEY = "chesskit_checkmate_stats";
+const CURRENT_PUZZLE_KEY = "chesskit_checkmate_current";
 
 interface CheckmateStats {
   mateIn2: PuzzleStats;
@@ -53,6 +54,42 @@ const saveStats = (stats: CheckmateStats) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
 };
 
+// Save/load current puzzle ID per mate type so it persists across tab switches
+const saveCurrentPuzzleId = (mateType: MateType, puzzleId: string) => {
+  if (typeof window === "undefined") return;
+  try {
+    const saved = localStorage.getItem(CURRENT_PUZZLE_KEY);
+    const current = saved ? JSON.parse(saved) : {};
+    current[mateType] = puzzleId;
+    localStorage.setItem(CURRENT_PUZZLE_KEY, JSON.stringify(current));
+  } catch { /* ignore */ }
+};
+
+const loadCurrentPuzzleId = (mateType: MateType): string | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(CURRENT_PUZZLE_KEY);
+    if (!saved) return null;
+    const current = JSON.parse(saved);
+    return current[mateType] || null;
+  } catch { return null; }
+};
+
+const clearCurrentPuzzleId = (mateType: MateType) => {
+  if (typeof window === "undefined") return;
+  try {
+    const saved = localStorage.getItem(CURRENT_PUZZLE_KEY);
+    const current = saved ? JSON.parse(saved) : {};
+    delete current[mateType];
+    localStorage.setItem(CURRENT_PUZZLE_KEY, JSON.stringify(current));
+  } catch { /* ignore */ }
+};
+
+const findPuzzleById = (mateType: MateType, id: string): Puzzle | null => {
+  const puzzles = mateType === "mateIn2" ? MATE_IN_2_PUZZLES : MATE_IN_3_PUZZLES;
+  return puzzles.find((p) => p.id === id) || null;
+};
+
 export const useCheckmatePuzzle = (mateType: MateType) => {
   const [allStats, setAllStats] = useState<CheckmateStats>(DEFAULT_CHECKMATE_STATS);
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
@@ -84,63 +121,85 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
     [mateType]
   );
 
-  // Load a new puzzle
-  const loadPuzzle = useCallback(() => {
+  // Setup and animate a puzzle on the board
+  const setupPuzzleOnBoard = useCallback((puzzleToLoad: Puzzle) => {
     // Clear any pending setup timeout
     if (setupTimeoutRef.current) {
       clearTimeout(setupTimeoutRef.current);
     }
 
-    const newPuzzle = getRandomPuzzle(stats.solvedIds);
-    if (newPuzzle) {
-      setPuzzle(newPuzzle);
-      setLastMove(null);
-      setIsSettingUp(true);
+    setPuzzle(puzzleToLoad);
+    setLastMove(null);
+    setIsSettingUp(true);
 
-      // First show the initial position (before opponent's move)
-      const initialGame = new Chess(newPuzzle.fen);
-      setGame(initialGame);
-      setPuzzleState("playing");
-      setMoveIndex(1);
-      setShowHint(false);
+    // First show the initial position (before opponent's move)
+    const initialGame = new Chess(puzzleToLoad.fen);
+    setGame(initialGame);
+    setPuzzleState("playing");
+    setMoveIndex(1);
+    setShowHint(false);
 
-      // Determine player color
-      const setupColor = initialGame.turn();
-      setFixedPlayerColor(setupColor === "w" ? "black" : "white");
+    // Determine player color
+    const setupColor = initialGame.turn();
+    setFixedPlayerColor(setupColor === "w" ? "black" : "white");
 
-      // After a delay, animate the opponent's setup move
-      if (newPuzzle.moves.length > 0) {
-        const firstMove = newPuzzle.moves[0];
-        setupTimeoutRef.current = setTimeout(() => {
-          try {
-            const gameAfterSetup = new Chess(newPuzzle.fen);
-            const moveResult = gameAfterSetup.move({
-              from: firstMove.slice(0, 2),
-              to: firstMove.slice(2, 4),
-              promotion: firstMove.slice(4) || undefined,
-            });
-            setGame(gameAfterSetup);
-            setLastMove({
-              from: firstMove.slice(0, 2),
-              to: firstMove.slice(2, 4),
-            });
-            setIsSettingUp(false);
-            if (moveResult?.captured) {
-              playCaptureSound();
-            } else {
-              playMoveSound();
-            }
-          } catch (e) {
-            console.error("Invalid setup move:", firstMove, "in puzzle:", newPuzzle.id);
-            setIsSettingUp(false);
+    // Save current puzzle ID
+    saveCurrentPuzzleId(mateType, puzzleToLoad.id);
+
+    // After a delay, animate the opponent's setup move
+    if (puzzleToLoad.moves.length > 0) {
+      const firstMove = puzzleToLoad.moves[0];
+      setupTimeoutRef.current = setTimeout(() => {
+        try {
+          const gameAfterSetup = new Chess(puzzleToLoad.fen);
+          const moveResult = gameAfterSetup.move({
+            from: firstMove.slice(0, 2),
+            to: firstMove.slice(2, 4),
+            promotion: firstMove.slice(4) || undefined,
+          });
+          setGame(gameAfterSetup);
+          setLastMove({
+            from: firstMove.slice(0, 2),
+            to: firstMove.slice(2, 4),
+          });
+          setIsSettingUp(false);
+          if (moveResult?.captured) {
+            playCaptureSound();
+          } else {
+            playMoveSound();
           }
-        }, 800);
-      } else {
-        setIsSettingUp(false);
+        } catch (e) {
+          console.error("Invalid setup move:", firstMove, "in puzzle:", puzzleToLoad.id);
+          setIsSettingUp(false);
+        }
+      }, 800);
+    } else {
+      setIsSettingUp(false);
+    }
+  }, [mateType]);
+
+  // Load a puzzle - restore saved one or get a new one
+  const loadPuzzle = useCallback(() => {
+    // Try to restore the saved puzzle for this tab
+    const savedPuzzleId = loadCurrentPuzzleId(mateType);
+    if (savedPuzzleId) {
+      // Check if it's not already solved
+      if (!stats.solvedIds.includes(savedPuzzleId)) {
+        const savedPuzzle = findPuzzleById(mateType, savedPuzzleId);
+        if (savedPuzzle) {
+          setupPuzzleOnBoard(savedPuzzle);
+          return savedPuzzle;
+        }
       }
     }
+
+    // No saved puzzle or it's already solved - get a new one
+    const newPuzzle = getRandomPuzzle(stats.solvedIds);
+    if (newPuzzle) {
+      setupPuzzleOnBoard(newPuzzle);
+    }
     return newPuzzle;
-  }, [getRandomPuzzle, stats.solvedIds]);
+  }, [mateType, getRandomPuzzle, stats.solvedIds, setupPuzzleOnBoard]);
 
   // Make a move
   const makeMove = useCallback(
@@ -183,6 +242,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
         // Check if puzzle is solved
         if (nextMoveIndex >= puzzle.moves.length) {
           setPuzzleState("solved");
+          clearCurrentPuzzleId(mateType); // Clear saved puzzle so next load gets a new one
           const newStats = {
             ...allStats,
             [mateType]: {
