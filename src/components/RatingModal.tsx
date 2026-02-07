@@ -294,10 +294,11 @@ export const useRatingPrompt = () => {
     const state = loadRatingState();
     if (!canShowAgain(state)) return;
 
-    // Show after 3+ sessions
-    if (state.totalSessions >= SESSION_THRESHOLD) {
+    // Show rating after completing any analysis
+    // Small delay so it doesn't overlap with the analysis completion UI
+    setTimeout(() => {
       setShowRating(true);
-    }
+    }, 1500);
   }, []);
 
   // Check on app open (after enough sessions)

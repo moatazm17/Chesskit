@@ -445,6 +445,9 @@ export default function GameAnalysis() {
         onClose={() => setAnalysisModalOpen(false)}
         onAnalyzeComplete={handleAnalysisComplete}
       />
+
+      {/* Rating Modal */}
+      <RatingModal open={showRating} onClose={closeRating} />
     </>
   );
 }
