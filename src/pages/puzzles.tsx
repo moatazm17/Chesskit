@@ -388,15 +388,28 @@ export default function Puzzles() {
                       icon="mdi:check-circle"
                       style={{ fontSize: 20, color: "#4CAF50" }}
                     />
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        color: "#4CAF50",
-                        fontWeight: 700,
-                      }}
-                    >
-                      Puzzle Solved!
-                    </Typography>
+                    <Stack>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: "#4CAF50",
+                          fontWeight: 700,
+                        }}
+                      >
+                        Puzzle Solved!
+                      </Typography>
+                      {mode === "daily" && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "rgba(255,255,255,0.6)",
+                            fontSize: "0.7rem",
+                          }}
+                        >
+                          New puzzle tomorrow
+                        </Typography>
+                      )}
+                    </Stack>
                   </Stack>
                 ) : puzzleState === "failed" ? (
                   <Stack direction="row" alignItems="center" spacing={1}>
