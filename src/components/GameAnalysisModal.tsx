@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -90,6 +90,8 @@ export default function GameAnalysisModal({
   // Engine setup for analysis
   const engineName = useAtomValue(engineNameAtom);
   const engine = useEngine(engineName);
+  const engineRef = useRef(engine);
+  engineRef.current = engine; // Always keep ref in sync with latest engine
   const engineDepth = useAtomValue(engineDepthAtom);
   const engineMultiPv = useAtomValue(engineMultiPvAtom);
   const engineWorkersNb = useAtomValue(engineWorkersNbAtom);
@@ -149,7 +151,8 @@ export default function GameAnalysisModal({
       setIsAnalyzing(true);
 
       const startAnalysis = async () => {
-        if (!engine?.getIsReady()) {
+        const currentEngine = engineRef.current;
+        if (!currentEngine?.getIsReady()) {
           setTimeout(startAnalysis, 100);
           return;
         }
@@ -162,7 +165,7 @@ export default function GameAnalysisModal({
             return;
           }
 
-          const newGameEval = await engine.evaluateGame({
+          const newGameEval = await currentEngine.evaluateGame({
             ...params,
             depth: engineDepth,
             multiPv: engineMultiPv,
