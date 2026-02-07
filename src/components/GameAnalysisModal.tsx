@@ -29,7 +29,6 @@ import {
 import { getEvaluateGameParams } from "@/lib/chess";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { MoveClassification } from "@/types/enums";
-import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 
 interface GameAnalysisModalProps {
   open: boolean;
@@ -86,7 +85,6 @@ export default function GameAnalysisModal({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [showMore, setShowMore] = useState(false);
-  const { showRating, checkAfterAnalysis, closeRating } = useRatingPrompt();
   const { white, black } = usePlayersData(gameAtom);
 
   // Engine setup for analysis
@@ -232,7 +230,6 @@ export default function GameAnalysisModal({
   };
 
   return (
-    <>
     <Dialog
       open={open}
       onClose={onClose}
@@ -569,8 +566,6 @@ export default function GameAnalysisModal({
                 } catch {
                   // ignore if not in WebView
                 }
-                // Trigger rating prompt after analysis
-                checkAfterAnalysis();
                 onAnalyzeComplete();
                 onClose();
               }}
@@ -600,7 +595,5 @@ export default function GameAnalysisModal({
         )}
       </DialogContent>
     </Dialog>
-    <RatingModal open={showRating} onClose={closeRating} />
-  </>
   );
 }
