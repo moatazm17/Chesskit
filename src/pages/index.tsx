@@ -48,7 +48,7 @@ export default function GameAnalysis() {
   const { setPgn: setGamePgn } = useChessActions(gameAtom);
   const { resetToStartingPosition: resetBoard } = useChessActions(boardAtom);
 
-  const { showRating, checkOnOpen, checkAfterAnalysis, closeRating } = useRatingPrompt();
+  const { showRating, checkOnOpen, closeRating } = useRatingPrompt();
   const showMovesTab = game.history().length > 0 || board.history().length > 0;
 
   // Check if we should show rating prompt on app open
@@ -136,8 +136,6 @@ export default function GameAnalysis() {
   // Handle analysis completion
   const handleAnalysisComplete = () => {
     setAnalysisModalOpen(false);
-    // Check if we should show rating after analysis
-    checkAfterAnalysis();
   };
 
   // Show home screen
