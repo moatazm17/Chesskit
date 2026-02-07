@@ -94,6 +94,17 @@ export default function GameAnalysis() {
     router.push('/puzzles');
   };
 
+  const handleCheckmate = () => {
+    // Show interstitial ad before navigating to checkmate puzzles
+    const w = window as any;
+    if (w.App && typeof w.App.postMessage === "function") {
+      w.App.postMessage("showInterstitial");
+    } else if (w && typeof w.triggerInterstitialAd === "function") {
+      w.triggerInterstitialAd();
+    }
+    router.push('/checkmate');
+  };
+
   const handleBackToHome = () => {
     setCurrentScreen('home');
   };
@@ -133,6 +144,7 @@ export default function GameAnalysis() {
           onLoadGame={handleLoadGame}
           onSavedGames={handleSavedGames}
           onPuzzles={handlePuzzles}
+          onCheckmate={handleCheckmate}
         />
       </>
     );

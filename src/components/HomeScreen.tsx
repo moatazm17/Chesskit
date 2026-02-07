@@ -99,6 +99,7 @@ interface HomeScreenProps {
   onLoadGame: () => void;
   onSavedGames: () => void;
   onPuzzles?: () => void;
+  onCheckmate?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -106,6 +107,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onLoadGame,
   onSavedGames,
   onPuzzles,
+  onCheckmate,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -202,6 +204,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               icon="mdi:puzzle"
               color="#FF9800"
               onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Checkmate"
+              description="Mate in 2 and 3 puzzles"
+              icon="mdi:crown"
+              color="#E91E63"
+              onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
             />
           </Grid>
 
