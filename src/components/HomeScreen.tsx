@@ -16,6 +16,7 @@ interface HomeCardProps {
   icon: string;
   color: string;
   onClick: () => void;
+  badge?: string;
 }
 
 const HomeCard: React.FC<HomeCardProps> = ({
@@ -24,6 +25,7 @@ const HomeCard: React.FC<HomeCardProps> = ({
   icon,
   color,
   onClick,
+  badge,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -34,20 +36,40 @@ const HomeCard: React.FC<HomeCardProps> = ({
       sx={{
         width: isMobile ? "100%" : 280,
         height: isMobile ? 160 : 200,
-        background: `linear-gradient(135deg, ${color}15, ${color}05)`,
+        position: "relative",
+        background: `linear-gradient(135deg, ${color}20, ${color}08)`,
         backdropFilter: "blur(20px)",
-        border: `1px solid ${color}30`,
+        border: `1px solid ${color}35`,
         borderRadius: 4,
         cursor: "pointer",
         transition: "all 0.3s ease",
-        boxShadow: `0 8px 32px ${color}20`,
+        boxShadow: `0 8px 32px ${color}25`,
         "&:hover": {
           transform: "translateY(-8px)",
-          boxShadow: `0 16px 48px ${color}40`,
-          border: `1px solid ${color}50`,
+          boxShadow: `0 16px 48px ${color}45`,
+          border: `1px solid ${color}55`,
         },
       }}
     >
+      {badge && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            background: "linear-gradient(135deg, #FF6B6B, #FF3D3D)",
+            color: "white",
+            fontSize: "0.6rem",
+            fontWeight: 700,
+            padding: "2px 8px",
+            borderRadius: "10px",
+            letterSpacing: "0.5px",
+            boxShadow: "0 2px 8px rgba(255, 61, 61, 0.4)",
+          }}
+        >
+          {badge}
+        </Box>
+      )}
       <CardContent
         sx={{
           display: "flex",
@@ -202,8 +224,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               title="Puzzles"
               description="Solve daily puzzles and improve"
               icon="mdi:puzzle"
-              color="#FF9800"
+              color="#FFA726"
               onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
+              badge="NEW"
             />
           </Grid>
 
@@ -212,8 +235,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               title="Checkmate"
               description="Mate in 2 and 3 puzzles"
               icon="mdi:crown"
-              color="#E91E63"
+              color="#EC407A"
               onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
+              badge="NEW"
             />
           </Grid>
 
