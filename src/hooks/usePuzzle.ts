@@ -193,21 +193,23 @@ export const usePuzzle = () => {
       const expectedMove = puzzle.moves[moveIndex];
       if (!expectedMove) return false;
 
-      const userMove = from + to + (promotion || "");
       const expectedFrom = expectedMove.slice(0, 2);
       const expectedTo = expectedMove.slice(2, 4);
       const expectedPromotion = expectedMove.slice(4) || undefined;
+
+      // Auto-fill promotion if expected move requires it (UI may not provide promotion dialog)
+      const effectivePromotion = promotion || expectedPromotion;
 
       // Check if move is correct
       const isCorrect =
         from === expectedFrom &&
         to === expectedTo &&
-        (promotion || undefined) === expectedPromotion;
+        (effectivePromotion || undefined) === expectedPromotion;
 
       if (isCorrect) {
-        // Play user's move
+        // Play user's move (use effectivePromotion for auto-promotion)
         const newGame = new Chess(game.fen());
-        const userMoveResult = newGame.move({ from, to, promotion });
+        const userMoveResult = newGame.move({ from, to, promotion: effectivePromotion });
         const fenAfterUserMove = newGame.fen(); // Capture FEN immediately
         setGame(newGame);
         setLastMove({ from, to });
