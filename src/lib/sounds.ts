@@ -1,9 +1,5 @@
 import { Move } from "chess.js";
 
-let audioContext: AudioContext | null = null;
-let timeout: NodeJS.Timeout | null = null;
-const soundsCache = new Map<string, AudioBuffer>();
-
 type Sound = "move" | "capture" | "illegalMove";
 const soundUrls: Record<Sound, string> = {
   move: "/sounds/move.mp3",
@@ -11,55 +7,60 @@ const soundUrls: Record<Sound, string> = {
   illegalMove: "/sounds/error.mp3",
 };
 
-const getAudioContext = async (): Promise<AudioContext> => {
-  // If context is closed or missing, create a new one
-  if (!audioContext || audioContext.state === "closed") {
-    soundsCache.clear(); // Buffers are tied to the old context
-    audioContext = new AudioContext();
-  }
+// Pre-create audio elements for instant playback
+const audioElements = new Map<Sound, HTMLAudioElement>();
 
-  // Resume if suspended (happens after ads / app background)
-  if (audioContext.state === "suspended") {
-    try {
-      await audioContext.resume();
-    } catch {
-      // If resume fails, recreate the context
-      soundsCache.clear();
-      audioContext = new AudioContext();
-    }
+const getAudio = (sound: Sound): HTMLAudioElement => {
+  let audio = audioElements.get(sound);
+  if (!audio) {
+    audio = new Audio(soundUrls[sound]);
+    audio.volume = 0.3;
+    audio.preload = "auto";
+    audioElements.set(sound, audio);
   }
-
-  return audioContext;
+  return audio;
 };
 
+// Preload all sounds on first user interaction
+let preloaded = false;
+const preloadSounds = () => {
+  if (preloaded) return;
+  preloaded = true;
+  (Object.keys(soundUrls) as Sound[]).forEach((sound) => {
+    const audio = getAudio(sound);
+    // Force load
+    audio.load();
+  });
+};
+
+if (typeof window !== "undefined") {
+  // Preload on first touch/click
+  const handler = () => {
+    preloadSounds();
+    window.removeEventListener("touchstart", handler);
+    window.removeEventListener("click", handler);
+  };
+  window.addEventListener("touchstart", handler, { once: true });
+  window.addEventListener("click", handler, { once: true });
+}
+
 export const play = async (sound: Sound) => {
-  if (timeout) clearTimeout(timeout);
-
-  timeout = setTimeout(async () => {
+  try {
+    const audio = getAudio(sound);
+    // Reset to start if already playing
+    audio.currentTime = 0;
+    await audio.play();
+  } catch {
+    // If play fails, try creating a fresh element
     try {
-      const ctx = await getAudioContext();
-
-      let audioBuffer = soundsCache.get(soundUrls[sound]);
-      if (!audioBuffer) {
-        const res = await fetch(soundUrls[sound]);
-        const buffer = await ctx.decodeAudioData(await res.arrayBuffer());
-        audioBuffer = buffer;
-        soundsCache.set(soundUrls[sound], buffer);
-      }
-
-      const audioSrc = ctx.createBufferSource();
-      audioSrc.buffer = audioBuffer;
-      const volume = ctx.createGain();
-      volume.gain.value = 0.3;
-      audioSrc.connect(volume);
-      volume.connect(ctx.destination);
-      audioSrc.start();
+      audioElements.delete(sound);
+      const freshAudio = getAudio(sound);
+      freshAudio.currentTime = 0;
+      await freshAudio.play();
     } catch {
-      // If anything fails, reset context for next attempt
-      audioContext = null;
-      soundsCache.clear();
+      // Silently fail - sound is non-critical
     }
-  }, 1);
+  }
 };
 
 export const playCaptureSound = () => play("capture");
