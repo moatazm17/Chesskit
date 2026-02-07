@@ -19,6 +19,7 @@ import {
   Arrow,
   CustomSquareStyles,
 } from "react-chessboard/dist/chessboard/types";
+import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 
 export default function CheckmatePuzzles() {
   const theme = useTheme();
@@ -43,11 +44,19 @@ export default function CheckmatePuzzles() {
     retry,
   } = useCheckmatePuzzle(mateType);
 
+  const { showRating, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [puzzleLoaded, setPuzzleLoaded] = useState(false);
   const puzzleCountRef = useRef(0);
+
+  // Check if we should show rating prompt when puzzle is solved
+  useEffect(() => {
+    if (puzzleState === "solved") {
+      checkAfterPuzzle(stats.solved);
+    }
+  }, [puzzleState, stats.solved, checkAfterPuzzle]);
 
   // Load initial puzzle only once per mode change
   useEffect(() => {
@@ -133,8 +142,8 @@ export default function CheckmatePuzzles() {
     // Increment puzzle counter
     puzzleCountRef.current += 1;
 
-    // Show ad every 3 puzzles
-    if (puzzleCountRef.current % 3 === 0) {
+    // Show ad every 2 puzzles
+    if (puzzleCountRef.current % 2 === 0) {
       const w = window as any;
       if (w.App && typeof w.App.postMessage === "function") {
         w.App.postMessage("showInterstitial");
@@ -628,6 +637,7 @@ export default function CheckmatePuzzles() {
           </Grid>
         </Grid>
       </Box>
+      <RatingModal open={showRating} onClose={closeRating} />
     </>
   );
 }

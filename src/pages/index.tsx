@@ -29,6 +29,7 @@ import NewGameDialog from "@/sections/loadGame/loadGameDialog";
 import GameAnalysisModal from "@/components/GameAnalysisModal";
 import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
+import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -47,7 +48,13 @@ export default function GameAnalysis() {
   const { setPgn: setGamePgn } = useChessActions(gameAtom);
   const { resetToStartingPosition: resetBoard } = useChessActions(boardAtom);
 
+  const { showRating, checkOnOpen, checkAfterAnalysis, closeRating } = useRatingPrompt();
   const showMovesTab = game.history().length > 0 || board.history().length > 0;
+
+  // Check if we should show rating prompt on app open
+  useEffect(() => {
+    checkOnOpen();
+  }, [checkOnOpen]);
 
   useEffect(() => {
     if (tab === 1 && !showMovesTab) setTab(0);
@@ -129,6 +136,8 @@ export default function GameAnalysis() {
   // Handle analysis completion
   const handleAnalysisComplete = () => {
     setAnalysisModalOpen(false);
+    // Check if we should show rating after analysis
+    checkAfterAnalysis();
   };
 
   // Show home screen
@@ -146,6 +155,7 @@ export default function GameAnalysis() {
           onPuzzles={handlePuzzles}
           onCheckmate={handleCheckmate}
         />
+        <RatingModal open={showRating} onClose={closeRating} />
       </>
     );
   }

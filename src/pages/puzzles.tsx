@@ -15,6 +15,7 @@ import { usePuzzle } from "@/hooks/usePuzzle";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Chessboard } from "react-chessboard";
 import { Square, Arrow, CustomSquareStyles } from "react-chessboard/dist/chessboard/types";
+import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 
 export default function Puzzles() {
   const theme = useTheme();
@@ -39,12 +40,20 @@ export default function Puzzles() {
     retry,
   } = usePuzzle();
 
+  const { showRating, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [mode, setMode] = useState<"daily" | "practice">("daily");
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [puzzleLoaded, setPuzzleLoaded] = useState(false);
   const puzzleCountRef = useRef(0); // Track puzzles for ad frequency
+
+  // Check if we should show rating prompt when puzzle is solved
+  useEffect(() => {
+    if (puzzleState === "solved") {
+      checkAfterPuzzle(stats.solved);
+    }
+  }, [puzzleState, stats.solved, checkAfterPuzzle]);
 
   // Load initial puzzle only once per mode change
   useEffect(() => {
@@ -128,8 +137,8 @@ export default function Puzzles() {
       // Increment puzzle counter
       puzzleCountRef.current += 1;
       
-      // Show ad every 3 puzzles
-      if (puzzleCountRef.current % 3 === 0) {
+      // Show ad every 2 puzzles
+      if (puzzleCountRef.current % 2 === 0) {
         const w = window as any;
         if (w.App && typeof w.App.postMessage === "function") {
           w.App.postMessage("showInterstitial");
@@ -605,6 +614,7 @@ export default function Puzzles() {
           </Grid>
         </Grid>
       </Box>
+      <RatingModal open={showRating} onClose={closeRating} />
     </>
   );
 }
