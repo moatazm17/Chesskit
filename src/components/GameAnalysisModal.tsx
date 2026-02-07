@@ -232,6 +232,7 @@ export default function GameAnalysisModal({
   };
 
   return (
+    <>
     <Dialog
       open={open}
       onClose={onClose}
@@ -598,7 +599,8 @@ export default function GameAnalysisModal({
           </Box>
         )}
       </DialogContent>
-      <RatingModal open={showRating} onClose={closeRating} />
     </Dialog>
+    <RatingModal open={showRating} onClose={closeRating} />
+  </>
   );
 }
