@@ -135,11 +135,7 @@ export const usePuzzle = () => {
             to: firstMove.slice(2, 4),
           });
           setIsSettingUp(false);
-          if (moveResult?.captured) {
-            playCaptureSound();
-          } else {
-            playMoveSound();
-          }
+          // No sound for setup move (first automatic move)
         } catch (e) {
           console.error("Invalid setup move:", firstMove, "in puzzle:", puzzleToLoad.id);
           setIsSettingUp(false);
@@ -338,12 +334,7 @@ export const usePuzzle = () => {
             to: firstMove.slice(2, 4),
           });
           setIsSettingUp(false);
-          // Play sound
-          if (moveResult?.captured) {
-            playCaptureSound();
-          } else {
-            playMoveSound();
-          }
+          // No sound for setup move on retry
         } catch (e) {
           console.error("Invalid setup move on retry:", firstMove);
           setIsSettingUp(false);
