@@ -100,7 +100,11 @@ export const usePuzzle = () => {
     // First show the initial position (before opponent's move)
     const initialGame = new Chess(puzzleToLoad.fen);
     setGame(initialGame);
-    setPuzzleState(daily && stats.dailySolved ? "solved" : "playing");
+    // Read directly from localStorage to avoid race condition with React state
+    const currentStats = loadStats();
+    const today = new Date().toDateString();
+    const isDailySolved = daily && currentStats.dailySolved && currentStats.lastDailyDate === today;
+    setPuzzleState(isDailySolved ? "solved" : "playing");
     setMoveIndex(1);
     setShowHint(false);
     setIsDaily(daily);
@@ -144,7 +148,7 @@ export const usePuzzle = () => {
     } else {
       setIsSettingUp(false);
     }
-  }, [stats.dailySolved]);
+  }, []);
 
   // Load a random puzzle - restore saved one or get new
   const loadRandomPuzzle = useCallback(() => {
