@@ -30,6 +30,7 @@ import GameAnalysisModal from "@/components/GameAnalysisModal";
 import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -72,6 +73,7 @@ export default function GameAnalysis() {
 
   // Navigation handlers
   const handlePlayGame = () => {
+    logAnalyticsEvent("card_click", { card: "play_game" });
     // Show interstitial ad before navigating to play
     const w = window as any;
     if (w.App && typeof w.App.postMessage === "function") {
@@ -83,14 +85,17 @@ export default function GameAnalysis() {
   };
 
   const handleLoadGame = () => {
+    logAnalyticsEvent("card_click", { card: "review_game" });
     setCurrentScreen('load');
   };
 
   const handleSavedGames = () => {
+    logAnalyticsEvent("card_click", { card: "saved_games" });
     window.location.href = '/database';
   };
 
   const handlePuzzles = () => {
+    logAnalyticsEvent("card_click", { card: "puzzles" });
     // Show interstitial ad before navigating to puzzles
     const w = window as any;
     if (w.App && typeof w.App.postMessage === "function") {
@@ -102,6 +107,7 @@ export default function GameAnalysis() {
   };
 
   const handleCheckmate = () => {
+    logAnalyticsEvent("card_click", { card: "checkmate" });
     // Show interstitial ad before navigating to checkmate puzzles
     const w = window as any;
     if (w.App && typeof w.App.postMessage === "function") {
@@ -110,6 +116,17 @@ export default function GameAnalysis() {
       w.triggerInterstitialAd();
     }
     router.push('/checkmate');
+  };
+
+  const handleBots = () => {
+    logAnalyticsEvent("card_click", { card: "play_vs_legends" });
+    const w = window as any;
+    if (w.App && typeof w.App.postMessage === "function") {
+      w.App.postMessage("showInterstitial");
+    } else if (w && typeof w.triggerInterstitialAd === "function") {
+      w.triggerInterstitialAd();
+    }
+    router.push('/bots');
   };
 
   const handleBackToHome = () => {
@@ -156,6 +173,7 @@ export default function GameAnalysis() {
           onSavedGames={handleSavedGames}
           onPuzzles={handlePuzzles}
           onCheckmate={handleCheckmate}
+          onBots={handleBots}
         />
         <RatingModal open={showRating} onClose={closeRating} />
       </>

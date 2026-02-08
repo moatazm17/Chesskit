@@ -8,6 +8,7 @@ import {
   IconButton,
   Stack,
 } from "@mui/material";
+import { logAnalyticsEvent } from "@/lib/firebase";
 import { Icon } from "@iconify/react";
 
 const RATING_STORAGE_KEY = "chesskit_rating_prompt";
@@ -70,6 +71,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose }) => {
   const [hoveredStars, setHoveredStars] = useState(0);
 
   const handleRate = () => {
+    logAnalyticsEvent("rating_modal_rate", { stars: selectedStars || hoveredStars });
     const state = loadRatingState();
     state.hasRated = true;
     saveRatingState(state);
@@ -95,6 +97,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose }) => {
   };
 
   const handleDismiss = () => {
+    logAnalyticsEvent("rating_modal_dismiss");
     const state = loadRatingState();
     state.dismissCount += 1;
     state.lastDismissed = new Date().toISOString();
@@ -103,6 +106,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose }) => {
   };
 
   const handleMaybeLater = () => {
+    logAnalyticsEvent("rating_modal_later");
     const state = loadRatingState();
     state.lastDismissed = new Date().toISOString();
     saveRatingState(state);
@@ -285,6 +289,7 @@ export const useRatingPrompt = () => {
       solvedCount === 15 ||
       solvedCount === 30
     ) {
+      logAnalyticsEvent("rating_modal_show", { trigger: "puzzle", solved_count: solvedCount });
       setShowRating(true);
     }
   }, []);
@@ -297,6 +302,7 @@ export const useRatingPrompt = () => {
     // Show rating after completing any analysis
     // Small delay so it doesn't overlap with the analysis completion UI
     setTimeout(() => {
+      logAnalyticsEvent("rating_modal_show", { trigger: "analysis" });
       setShowRating(true);
     }, 1500);
   }, []);
@@ -310,6 +316,7 @@ export const useRatingPrompt = () => {
     if (state.totalSessions >= 5) {
       // Small delay so it doesn't pop up immediately
       setTimeout(() => {
+        logAnalyticsEvent("rating_modal_show", { trigger: "session", total_sessions: state.totalSessions });
         setShowRating(true);
       }, 2000);
     }

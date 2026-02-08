@@ -3,6 +3,7 @@ import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomPuzzle, getDailyPuzzle, PUZZLES } from "@/data/puzzles";
 import { Chess } from "chess.js";
 import { playMoveSound, playCaptureSound } from "@/lib/sounds";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
   from: string;
@@ -217,8 +218,15 @@ export const usePuzzle = () => {
           // Puzzle solved!
           setPuzzleState("solved");
           if (!isDaily) {
-            clearCurrentPuzzleId(); // Clear saved puzzle so next load gets a new one
+            clearCurrentPuzzleId();
           }
+          logAnalyticsEvent("puzzle_solved", {
+            puzzle_id: puzzle.id,
+            puzzle_rating: puzzle.rating,
+            is_daily: isDaily,
+            total_solved: stats.solved + 1,
+            streak: stats.streak + 1,
+          });
           const newStats = {
             ...stats,
             solved: stats.solved + 1,
@@ -266,6 +274,12 @@ export const usePuzzle = () => {
         // Wrong move - but still track where user tried to move
         setLastMove({ from, to });
         setPuzzleState("failed");
+        logAnalyticsEvent("puzzle_failed", {
+          puzzle_id: puzzle.id,
+          puzzle_rating: puzzle.rating,
+          is_daily: isDaily,
+          total_failed: stats.failed + 1,
+        });
         const newStats = {
           ...stats,
           failed: stats.failed + 1,

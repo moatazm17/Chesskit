@@ -16,6 +16,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Chessboard } from "react-chessboard";
 import { Square, Arrow, CustomSquareStyles } from "react-chessboard/dist/chessboard/types";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 export default function Puzzles() {
   const theme = useTheme();
@@ -120,13 +121,19 @@ export default function Puzzles() {
     [makeMove, puzzleState, isSettingUp]
   );
 
+  // Track page open
+  useEffect(() => {
+    logAnalyticsEvent("page_view", { page: "puzzles" });
+  }, []);
+
   // Handle hint
   const handleHint = useCallback(() => {
+    logAnalyticsEvent("puzzle_hint", { mode, puzzle_id: puzzle?.id });
     const hint = getHint();
     if (hint) {
       setHintArrow([hint.from, hint.to, "rgba(255, 193, 7, 0.8)"] as Arrow);
     }
-  }, [getHint]);
+  }, [getHint, mode, puzzle]);
 
   // Handle next puzzle
   const handleNext = useCallback(() => {
@@ -153,11 +160,12 @@ export default function Puzzles() {
 
   // Handle retry
   const handleRetry = useCallback(() => {
+    logAnalyticsEvent("puzzle_retry", { mode, puzzle_id: puzzle?.id });
     setHintArrow(null);
     setSelectedSquare(null);
     setLegalMoves([]);
     retry();
-  }, [retry]);
+  }, [retry, mode, puzzle]);
 
   // Board size calculation
   const boardSize = useMemo(() => {

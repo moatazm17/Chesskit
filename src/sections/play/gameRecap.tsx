@@ -1,43 +1,69 @@
 import { useAtomValue } from "jotai";
-import { gameAtom, isGameInProgressAtom, playerColorAtom } from "./states";
+import { gameAtom, isGameInProgressAtom, playerColorAtom, activeBotAtom } from "./states";
 import { Button, Typography, Box, useTheme, useMediaQuery } from "@mui/material";
 import { Color } from "@/types/enums";
 import { setGameHeaders } from "@/lib/chess";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { useRouter } from "next/router";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import GameAnalysisModal from "@/components/GameAnalysisModal";
 import { useChessActions } from "@/hooks/useChessActions";
 import {
   boardAtom,
   gameAtom as analysisGameAtom,
 } from "@/sections/analysis/states";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 export default function GameRecap() {
   const game = useAtomValue(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
+  const activeBot = useAtomValue(activeBotAtom);
   const { addGame } = useGameDatabase();
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
+  const analyticsLoggedRef = useRef(false);
   
   // Chess actions to set up analysis - use analysis atoms, not play atoms
   const { setPgn: setAnalysisGamePgn } = useChessActions(analysisGameAtom);
   const { resetToStartingPosition: resetAnalysisBoard } = useChessActions(boardAtom);
 
-  if (isGameInProgress || !game.history().length) return null;
+  // Log bot game end analytics
+  const moveCount = game.history().length;
+  useEffect(() => {
+    if (!isGameInProgress && moveCount > 0 && activeBot && !analyticsLoggedRef.current) {
+      analyticsLoggedRef.current = true;
+      const result = game.isCheckmate()
+        ? (game.turn() === playerColor ? "loss" : "win")
+        : game.isGameOver()
+        ? "draw"
+        : "resigned";
+      logAnalyticsEvent("bot_game_end", {
+        bot_id: activeBot.id,
+        bot_name: activeBot.name,
+        result,
+        total_moves: moveCount,
+      });
+    }
+    if (isGameInProgress) {
+      analyticsLoggedRef.current = false;
+    }
+  }, [isGameInProgress, moveCount, activeBot, game, playerColor]);
+
+  if (isGameInProgress || !moveCount) return null;
 
   const getResultData = () => {
+    const opponentName = activeBot ? activeBot.name : "Stockfish";
     if (game.isCheckmate()) {
       const winnerColor = game.turn() === "w" ? Color.Black : Color.White;
       const isPlayerWinner = winnerColor === playerColor;
       return {
         icon: isPlayerWinner ? "🎉" : "😔",
         title: isPlayerWinner ? "Victory!" : "Defeat",
-        message: `${isPlayerWinner ? "You" : "Stockfish"} won by checkmate`,
+        message: `${isPlayerWinner ? "You" : opponentName} won by checkmate`,
         color: isPlayerWinner ? "#4CAF50" : "#ff6b6b"
       };
     }
@@ -107,7 +133,6 @@ export default function GameRecap() {
   };
 
   const resultData = getResultData();
-  const moveCount = game.history().length;
 
   return (
     <Box

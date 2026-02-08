@@ -122,6 +122,7 @@ interface HomeScreenProps {
   onSavedGames: () => void;
   onPuzzles?: () => void;
   onCheckmate?: () => void;
+  onBots?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -130,6 +131,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onSavedGames,
   onPuzzles,
   onCheckmate,
+  onBots,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -237,6 +239,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               icon="mdi:crown"
               color="#EC407A"
               onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
+              badge="NEW"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Play vs Legends"
+              description="Challenge famous chess players"
+              icon="mdi:account-star"
+              color="#9333EA"
+              onClick={onBots || (() => (window.location.href = "/bots"))}
               badge="NEW"
             />
           </Grid>

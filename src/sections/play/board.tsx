@@ -6,6 +6,7 @@ import {
   isGameInProgressAtom,
   gameDataAtom,
   enginePlayNameAtom,
+  activeBotAtom,
 } from "./states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useEffect, useMemo } from "react";
@@ -16,6 +17,8 @@ import Board from "@/components/board";
 import { useGameData } from "@/hooks/useGameData";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { sleep } from "@/lib/helpers";
+import { getBookMove, getBotOpeningLines, gameHistoryToUCI } from "@/lib/openingBook";
+import { Color } from "@/types/enums";
 
 export default function BoardContainer() {
   const screenSize = useScreenSize();
@@ -27,6 +30,7 @@ export default function BoardContainer() {
   const { playMove } = useChessActions(gameAtom);
   const engineElo = useAtomValue(engineEloAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
+  const activeBot = useAtomValue(activeBotAtom);
 
   const gameFen = game.fen();
   const isGameFinished = game.isGameOver();
@@ -34,13 +38,30 @@ export default function BoardContainer() {
   useEffect(() => {
     const playEngineMove = async () => {
       if (
-        !engine?.getIsReady() ||
         game.turn() === playerColor ||
         isGameFinished ||
         !isGameInProgress
       ) {
         return;
       }
+
+      // Check opening book first if a bot is active
+      if (activeBot) {
+        const botColor = playerColor === Color.White ? "b" : "w";
+        const openingLines = getBotOpeningLines(activeBot.openings, botColor as "w" | "b");
+        const gameHistory = gameHistoryToUCI(game);
+        const bookMove = getBookMove(openingLines, gameHistory);
+
+        if (bookMove) {
+          // Play book move with a slight delay for natural feel
+          await sleep(800);
+          playMove(uciMoveParams(bookMove));
+          return;
+        }
+      }
+
+      // Fall back to Stockfish engine
+      if (!engine?.getIsReady()) return;
 
       const timePromise = sleep(1000);
       const move = await engine.getEngineNextMove(gameFen, engineElo);

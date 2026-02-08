@@ -1,6 +1,7 @@
 import { DEFAULT_ENGINE } from "@/constants";
 import { Color, EngineName } from "@/types/enums";
 import { CurrentPosition } from "@/types/eval";
+import { ChessBot } from "@/data/bots";
 import { Chess } from "chess.js";
 import { atom } from "jotai";
 
@@ -10,3 +11,4 @@ export const playerColorAtom = atom<Color>(Color.White);
 export const enginePlayNameAtom = atom<EngineName>(DEFAULT_ENGINE);
 export const engineEloAtom = atom(1320);
 export const isGameInProgressAtom = atom(false);
+export const activeBotAtom = atom<ChessBot | null>(null);

@@ -20,6 +20,7 @@ import {
   CustomSquareStyles,
 } from "react-chessboard/dist/chessboard/types";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 export default function CheckmatePuzzles() {
   const theme = useTheme();
@@ -125,13 +126,19 @@ export default function CheckmatePuzzles() {
     [makeMove, puzzleState, isSettingUp]
   );
 
+  // Track page open
+  useEffect(() => {
+    logAnalyticsEvent("page_view", { page: "checkmate", mate_type: mateType });
+  }, [mateType]);
+
   // Handle hint
   const handleHint = useCallback(() => {
+    logAnalyticsEvent("checkmate_hint", { mate_type: mateType, puzzle_id: puzzle?.id });
     const hint = getHint();
     if (hint) {
       setHintArrow([hint.from, hint.to, "rgba(255, 193, 7, 0.8)"] as Arrow);
     }
-  }, [getHint]);
+  }, [getHint, mateType, puzzle]);
 
   // Handle next puzzle
   const handleNext = useCallback(() => {
@@ -157,11 +164,12 @@ export default function CheckmatePuzzles() {
 
   // Handle retry
   const handleRetry = useCallback(() => {
+    logAnalyticsEvent("checkmate_retry", { mate_type: mateType, puzzle_id: puzzle?.id });
     setHintArrow(null);
     setSelectedSquare(null);
     setLegalMoves([]);
     retry();
-  }, [retry]);
+  }, [retry, mateType, puzzle]);
 
   // Board size calculation
   const boardSize = useMemo(() => {

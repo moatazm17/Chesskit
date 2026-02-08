@@ -28,6 +28,7 @@ import {
 } from "@/sections/analysis/states";
 import { getEvaluateGameParams } from "@/lib/chess";
 import { usePlayersData } from "@/hooks/usePlayersData";
+import { logAnalyticsEvent } from "@/lib/firebase";
 import { MoveClassification } from "@/types/enums";
 
 interface GameAnalysisModalProps {
@@ -181,6 +182,11 @@ export default function GameAnalysisModal({
           setEvaluationProgress(0);
           setIsAnalyzing(false);
           setAnalysisComplete(true);
+          logAnalyticsEvent("analysis_complete", {
+            total_moves: game.history().length,
+            white_player: game.getHeaders()["White"] || "unknown",
+            black_player: game.getHeaders()["Black"] || "unknown",
+          });
         } catch (error) {
           console.error("Analysis error:", error);
           setIsAnalyzing(false);

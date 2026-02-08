@@ -26,6 +26,7 @@ import {
   isGameInProgressAtom,
   gameAtom,
   enginePlayNameAtom,
+  activeBotAtom,
 } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { logAnalyticsEvent } from "@/lib/firebase";
@@ -51,6 +52,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
   );
   const [playerColor, setPlayerColor] = useAtom(playerColorAtom);
   const setIsGameInProgress = useSetAtom(isGameInProgressAtom);
+  const setActiveBot = useSetAtom(activeBotAtom);
   const { reset: resetGame } = useChessActions(gameAtom);
   const [startingPositionInput, setStartingPositionInput] = useState("");
   const [parsingError, setParsingError] = useState("");
@@ -91,6 +93,8 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
       return;
     }
 
+    // Clear any active bot since this is a manual game setup
+    setActiveBot(null);
     setIsGameInProgress(true);
     handleClose();
 

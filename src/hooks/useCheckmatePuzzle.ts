@@ -3,6 +3,7 @@ import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomMateIn2, getRandomMateIn3, MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } from "@/data/checkmatePuzzles";
 import { Chess } from "chess.js";
 import { playMoveSound, playCaptureSound } from "@/lib/sounds";
+import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
   from: string;
@@ -238,7 +239,14 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
         // Check if puzzle is solved
         if (nextMoveIndex >= puzzle.moves.length) {
           setPuzzleState("solved");
-          clearCurrentPuzzleId(mateType); // Clear saved puzzle so next load gets a new one
+          clearCurrentPuzzleId(mateType);
+          logAnalyticsEvent("checkmate_solved", {
+            puzzle_id: puzzle.id,
+            puzzle_rating: puzzle.rating,
+            mate_type: mateType,
+            total_solved: stats.solved + 1,
+            streak: stats.streak + 1,
+          });
           const newStats = {
             ...allStats,
             [mateType]: {
@@ -284,6 +292,12 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
         // Wrong move
         setLastMove({ from, to });
         setPuzzleState("failed");
+        logAnalyticsEvent("checkmate_failed", {
+          puzzle_id: puzzle.id,
+          puzzle_rating: puzzle.rating,
+          mate_type: mateType,
+          total_failed: stats.failed + 1,
+        });
         const newStats = {
           ...allStats,
           [mateType]: {
