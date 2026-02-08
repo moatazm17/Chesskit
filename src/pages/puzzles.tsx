@@ -52,6 +52,45 @@ export default function Puzzles() {
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [puzzleLoaded, setPuzzleLoaded] = useState(false);
   const puzzleCountRef = useRef(0); // Track puzzles for ad frequency
+  const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
+  const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPuzzleFenRef = useRef(game.fen());
+
+  // Detect check when position changes and show GIF
+  useEffect(() => {
+    const currentFen = game.fen();
+    if (currentFen === prevPuzzleFenRef.current) return;
+    prevPuzzleFenRef.current = currentFen;
+
+    if (game.inCheck()) {
+      const turn = game.turn();
+      const files = "abcdefgh";
+      let kingSquare: Square | null = null;
+      for (let r = 1; r <= 8; r++) {
+        for (let f = 0; f < 8; f++) {
+          const sq = `${files[f]}${r}` as Square;
+          const piece = game.get(sq as any);
+          if (piece?.type === "k" && piece.color === turn) {
+            kingSquare = sq;
+            break;
+          }
+        }
+        if (kingSquare) break;
+      }
+
+      if (kingSquare) {
+        if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+        setCheckAnimSquare(kingSquare);
+        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2000);
+      }
+    } else {
+      setCheckAnimSquare(null);
+    }
+
+    return () => {
+      if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+    };
+  }, [game, game.fen()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if we should show rating prompt when puzzle is solved
   useEffect(() => {
@@ -503,7 +542,7 @@ export default function Puzzles() {
               <Box
                 sx={{
                   borderRadius: "12px",
-                  overflow: "hidden",
+                  overflow: "visible",
                   boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
                   position: "relative",
                 }}
@@ -538,15 +577,14 @@ export default function Puzzles() {
                       display: "flex",
                       alignItems: "flex-start",
                       justifyContent: "flex-end",
-                      // Calculate position based on square
                       left: (() => {
-                        const file = lastMove.to.charCodeAt(0) - 97; // a=0, h=7
+                        const file = lastMove.to.charCodeAt(0) - 97;
                         return playerColor === "white" 
                           ? file * (boardSize / 8)
                           : (7 - file) * (boardSize / 8);
                       })(),
                       top: (() => {
-                        const rank = parseInt(lastMove.to[1]) - 1; // 1=0, 8=7
+                        const rank = parseInt(lastMove.to[1]) - 1;
                         return playerColor === "white"
                           ? (7 - rank) * (boardSize / 8)
                           : rank * (boardSize / 8);
@@ -566,6 +604,50 @@ export default function Puzzles() {
                     />
                   </Box>
                 )}
+
+                {/* Check GIF overlay */}
+                {checkAnimSquare && (() => {
+                  const sqSize = boardSize / 8;
+                  const file = checkAnimSquare.charCodeAt(0) - 97;
+                  const rank = parseInt(checkAnimSquare[1]) - 1;
+                  const isWhite = playerColor === "white";
+                  const x = isWhite ? file * sqSize : (7 - file) * sqSize;
+                  const y = isWhite ? (7 - rank) * sqSize : rank * sqSize;
+                  return (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        left: x,
+                        top: y,
+                        width: sqSize,
+                        height: sqSize,
+                        pointerEvents: "none",
+                        zIndex: 100,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        animation: "checkPop 0.3s ease-out",
+                        "@keyframes checkPop": {
+                          "0%": { transform: "scale(0.3)", opacity: 0 },
+                          "50%": { transform: "scale(1.2)", opacity: 1 },
+                          "100%": { transform: "scale(1)", opacity: 1 },
+                        },
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src="/images/check-reaction.gif"
+                        alt="Check!"
+                        sx={{
+                          width: sqSize,
+                          height: sqSize,
+                          opacity: 0.75,
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Box>
+                  );
+                })()}
               </Box>
 
               {/* Action Buttons Below Board */}

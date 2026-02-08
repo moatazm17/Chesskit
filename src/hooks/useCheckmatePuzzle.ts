@@ -257,6 +257,9 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
           saveStats(newStats);
         } else if (opponentMove) {
           // Play opponent's response
+          // Longer delay if the user's move caused a check (to show GIF animation)
+          const isCheck = newGame.inCheck();
+          const delay = isCheck ? 2200 : 600;
           setMoveIndex(nextMoveIndex);
           setTimeout(() => {
             try {
@@ -277,7 +280,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
               console.error("Invalid opponent move:", opponentMove, "marking as solved");
               setPuzzleState("solved");
             }
-          }, 600);
+          }, delay);
         }
         return true;
       } else {

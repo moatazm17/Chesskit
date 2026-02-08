@@ -1,11 +1,12 @@
 import { Chess, Move } from "chess.js";
 
-type Sound = "move" | "capture" | "illegalMove" | "check" | "gameEnd";
+type Sound = "move" | "capture" | "illegalMove" | "check" | "checkFunny" | "gameEnd";
 const soundUrls: Record<Sound, string> = {
   move: "/sounds/move.mp3",
   capture: "/sounds/capture.mp3",
   illegalMove: "/sounds/error.mp3",
   check: "/sounds/check.mp3",
+  checkFunny: "/sounds/check-funny.mp3",
   gameEnd: "/sounds/game-end.mp3",
 };
 
@@ -69,6 +70,7 @@ export const playCaptureSound = () => play("capture");
 export const playIllegalMoveSound = () => play("illegalMove");
 export const playMoveSound = () => play("move");
 export const playCheckSound = () => play("check");
+export const playCheckFunnySound = () => play("checkFunny");
 export const playGameEndSound = () => play("gameEnd");
 
 export const playSoundFromMove = (move: Move | null, game?: Chess) => {
@@ -77,8 +79,12 @@ export const playSoundFromMove = (move: Move | null, game?: Chess) => {
   // Check if the game is over (checkmate, stalemate, draw)
   if (game && game.isGameOver()) return playGameEndSound();
 
-  // Check sound (after the move, the opponent is in check)
-  if (game && game.inCheck()) return playCheckSound();
+  // Check sound + funny sound
+  if (game && game.inCheck()) {
+    play("check");
+    play("checkFunny");
+    return;
+  }
 
   if (move.captured) return playCaptureSound();
   return playMoveSound();

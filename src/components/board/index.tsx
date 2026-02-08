@@ -66,6 +66,45 @@ export default function Board({
   const captureSquaresAtom = useMemo(() => atom<Square[]>([]), []);
 
   const gameFen = game.fen();
+  const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
+  const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevFenRef = useRef(gameFen);
+
+  // Detect check when position changes and show GIF
+  useEffect(() => {
+    if (gameFen === prevFenRef.current) return;
+    prevFenRef.current = gameFen;
+
+    if (game.inCheck()) {
+      // Find king square
+      const turn = game.turn();
+      const files = "abcdefgh";
+      let kingSquare: Square | null = null;
+      for (let r = 1; r <= 8; r++) {
+        for (let f = 0; f < 8; f++) {
+          const sq = `${files[f]}${r}`;
+          const piece = game.get(sq as any);
+          if (piece?.type === "k" && piece.color === turn) {
+            kingSquare = sq as Square;
+            break;
+          }
+        }
+        if (kingSquare) break;
+      }
+
+      if (kingSquare) {
+        if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+        setCheckAnimSquare(kingSquare);
+        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2000);
+      }
+    } else {
+      setCheckAnimSquare(null);
+    }
+
+    return () => {
+      if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+    };
+  }, [gameFen, game]);
 
   useEffect(() => {
     setClickedSquares([]);
@@ -376,6 +415,7 @@ export default function Board({
           alignItems="center"
           ref={boardRef}
           size={12}
+          sx={{ position: "relative" }}
         >
           <Chessboard
             id={`${boardId}-${canPlay}`}
@@ -400,6 +440,51 @@ export default function Board({
             animationDuration={200}
             customPieces={customPieces}
           />
+
+          {/* Check GIF overlay */}
+          {checkAnimSquare && boardRef.current && (() => {
+            const bSize = boardRef.current!.offsetWidth;
+            const sqSize = bSize / 8;
+            const file = checkAnimSquare.charCodeAt(0) - 97;
+            const rank = parseInt(checkAnimSquare[1]) - 1;
+            const isWhite = boardOrientation === Color.White;
+            const x = isWhite ? file * sqSize : (7 - file) * sqSize;
+            const y = isWhite ? (7 - rank) * sqSize : rank * sqSize;
+            return (
+              <Box
+                sx={{
+                  position: "absolute",
+                  left: x,
+                  top: y,
+                  width: sqSize,
+                  height: sqSize,
+                  pointerEvents: "none",
+                  zIndex: 100,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation: "checkPop 0.3s ease-out",
+                  "@keyframes checkPop": {
+                    "0%": { transform: "scale(0.3)", opacity: 0 },
+                    "50%": { transform: "scale(1.2)", opacity: 1 },
+                    "100%": { transform: "scale(1)", opacity: 1 },
+                  },
+                }}
+              >
+                <Box
+                  component="img"
+                  src="/images/check-reaction.gif"
+                  alt="Check!"
+                  sx={{
+                    width: sqSize,
+                    height: sqSize,
+                    opacity: 0.75,
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+            );
+          })()}
         </Grid>
 
         <PlayerHeader

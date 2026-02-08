@@ -237,6 +237,9 @@ export const usePuzzle = () => {
           saveStats(newStats);
         } else if (opponentMove) {
           // Play opponent's response with a visible delay
+          // Longer delay if the user's move caused a check (to show GIF animation)
+          const isCheck = newGame.inCheck();
+          const delay = isCheck ? 2200 : 600;
           setMoveIndex(nextMoveIndex);
           setTimeout(() => {
             try {
@@ -259,7 +262,7 @@ export const usePuzzle = () => {
               console.error("Invalid opponent move:", opponentMove, "marking as solved");
               setPuzzleState("solved");
             }
-          }, 600); // Longer delay for visible opponent response
+          }, delay);
         }
         return true;
       } else {
