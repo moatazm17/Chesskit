@@ -1,9 +1,18 @@
-import { Container, Typography, Box, Link, IconButton } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Box,
+  IconButton,
+  Collapse,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 
 export default function AboutPage() {
   const router = useRouter();
+  const [showCredits, setShowCredits] = useState(false);
+
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -19,6 +28,7 @@ export default function AboutPage() {
           About Chess Analysis
         </Typography>
       </Box>
+
       <Typography
         variant="body2"
         color="text.secondary"
@@ -29,35 +39,43 @@ export default function AboutPage() {
         focuses on quick analysis, move classifications, and clear insights for
         improvement.
       </Typography>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-          Credits & License (AGPL‑3.0)
-        </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ whiteSpace: "pre-line" }}
-        >
-          This app is based on the open‑source project Chesskit by GuillaumeSD
-          and contributors. We comply with the AGPL‑3.0 license.
-          {"\n"}Original repo:{" "}
-          <Link
-            href="https://github.com/GuillaumeSD/Chesskit/"
-            target="_blank"
-            rel="noopener"
-          >
-            github.com/GuillaumeSD/Chesskit
-          </Link>
-          {"\n"}Our fork:{" "}
-          <Link
-            href="https://github.com/moatazm17/Chesskit"
-            target="_blank"
-            rel="noopener"
-          >
-            github.com/moatazm17/Chesskit
-          </Link>
+
+      {/* Credits toggle */}
+      <Box
+        onClick={() => setShowCredits(!showCredits)}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          cursor: "pointer",
+          mt: 2,
+          py: 1,
+          px: 1.5,
+          borderRadius: "8px",
+          "&:hover": { backgroundColor: "rgba(255,255,255,0.05)" },
+        }}
+      >
+        <Icon
+          icon={showCredits ? "mdi:chevron-down" : "mdi:chevron-right"}
+          style={{ fontSize: "1.2rem", marginRight: 8, opacity: 0.6 }}
+        />
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, opacity: 0.7 }}>
+          Credits
         </Typography>
       </Box>
+
+      <Collapse in={showCredits}>
+        <Box sx={{ pl: 4, pr: 1, py: 1 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: 1.5 }}
+          >
+            This app is based on the open‑source project Chesskit by GuillaumeSD
+            and contributors. Licensed under AGPL‑3.0.
+          </Typography>
+
+        </Box>
+      </Collapse>
     </Container>
   );
 }

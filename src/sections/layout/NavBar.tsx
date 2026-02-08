@@ -90,17 +90,6 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
             </IconButton>
           </StyledIconButtonLink>
 
-          <StyledIconButtonLink
-            href="https://github.com/GuillaumeSD/Chesskit"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ ml: "min(0.6rem, 0.8vw)" }}
-          >
-            <IconButton color="inherit" component="span">
-              <Icon icon="mdi:github" />
-            </IconButton>
-          </StyledIconButtonLink>
-
           <IconButton
             sx={{ ml: "min(0.6rem, 0.8vw)" }}
             onClick={switchDarkMode}
