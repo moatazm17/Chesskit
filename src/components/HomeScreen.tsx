@@ -17,6 +17,7 @@ interface HomeCardProps {
   color: string;
   onClick: () => void;
   badge?: string;
+  customIcon?: React.ReactNode;
 }
 
 const HomeCard: React.FC<HomeCardProps> = ({
@@ -26,6 +27,7 @@ const HomeCard: React.FC<HomeCardProps> = ({
   color,
   onClick,
   badge,
+  customIcon,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -81,14 +83,16 @@ const HomeCard: React.FC<HomeCardProps> = ({
           padding: 3,
         }}
       >
-        <Icon
-          icon={icon}
-          style={{
-            fontSize: isMobile ? "4rem" : "4rem",
-            color: color,
-            marginBottom: isMobile ? "0.5rem" : "1rem",
-          }}
-        />
+        {customIcon || (
+          <Icon
+            icon={icon}
+            style={{
+              fontSize: isMobile ? "4rem" : "4rem",
+              color: color,
+              marginBottom: isMobile ? "0.5rem" : "1rem",
+            }}
+          />
+        )}
         <Typography
           variant={isMobile ? "h6" : "h5"}
           component="h2"
@@ -251,6 +255,43 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#9333EA"
               onClick={onBots || (() => (window.location.href = "/bots"))}
               badge="NEW"
+              customIcon={
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: isMobile ? "0.5rem" : "1rem",
+                  }}
+                >
+                  {["/bots/carlsen.png", "/bots/nakamura.png", "/bots/fischer.png"].map(
+                    (src, i) => (
+                      <Box
+                        key={src}
+                        sx={{
+                          width: isMobile ? 44 : 52,
+                          height: isMobile ? 44 : 52,
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                          border: "2px solid rgba(147, 51, 234, 0.5)",
+                          marginLeft: i > 0 ? "-10px" : 0,
+                          zIndex: 3 - i,
+                          boxShadow: "0 0 10px rgba(147, 51, 234, 0.3)",
+                        }}
+                      >
+                        <img
+                          src={src}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Box>
+                    )
+                  )}
+                </Box>
+              }
             />
           </Grid>
 

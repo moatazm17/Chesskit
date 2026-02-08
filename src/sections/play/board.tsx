@@ -90,14 +90,29 @@ export default function BoardContainer() {
 
   useGameData(gameAtom, gameDataAtom);
 
+  // Override player data with bot avatar when a bot is active
+  const whitePlayer = useMemo(() => {
+    if (activeBot && playerColor === Color.Black) {
+      return { ...white, avatarUrl: activeBot.image };
+    }
+    return white;
+  }, [white, activeBot, playerColor]);
+
+  const blackPlayer = useMemo(() => {
+    if (activeBot && playerColor === Color.White) {
+      return { ...black, avatarUrl: activeBot.image };
+    }
+    return black;
+  }, [black, activeBot, playerColor]);
+
   return (
     <Board
       id="PlayBoard"
       canPlay={isGameInProgress ? playerColor : false}
       gameAtom={gameAtom}
       boardSize={boardSize}
-      whitePlayer={white}
-      blackPlayer={black}
+      whitePlayer={whitePlayer}
+      blackPlayer={blackPlayer}
       boardOrientation={playerColor}
       currentPositionAtom={gameDataAtom}
     />

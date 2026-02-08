@@ -69,10 +69,12 @@ export default function BotsPage() {
       white: {
         name: color === Color.White ? "You" : selectedBot.name,
         rating: color === Color.White ? undefined : selectedBot.elo,
+        avatarUrl: color === Color.White ? undefined : selectedBot.image,
       },
       black: {
         name: color === Color.Black ? "You" : selectedBot.name,
         rating: color === Color.Black ? undefined : selectedBot.elo,
+        avatarUrl: color === Color.Black ? undefined : selectedBot.image,
       },
     });
 
@@ -194,15 +196,27 @@ export default function BotsPage() {
                     "&:last-child": { paddingBottom: isMobile ? "16px" : "24px" },
                   }}
                 >
-                  {/* Avatar */}
+                  {/* Avatar Image */}
                   <Box
                     sx={{
-                      fontSize: isMobile ? "2.5rem" : "3.5rem",
+                      width: isMobile ? 80 : 110,
+                      height: isMobile ? 45 : 62,
+                      borderRadius: 2,
+                      overflow: "hidden",
                       marginBottom: 1,
-                      filter: `drop-shadow(0 0 8px ${bot.color}60)`,
+                      border: `2px solid ${bot.color}40`,
+                      boxShadow: `0 0 12px ${bot.color}30`,
                     }}
                   >
-                    {bot.avatar}
+                    <img
+                      src={bot.image}
+                      alt={bot.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
                   </Box>
 
                   {/* Name */}
@@ -314,8 +328,26 @@ export default function BotsPage() {
           {selectedBot && (
             <>
               {/* Bot info */}
-              <Box sx={{ fontSize: "3rem", marginBottom: 1 }}>
-                {selectedBot.avatar}
+              <Box
+                sx={{
+                  width: 120,
+                  height: 68,
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  margin: "0 auto 12px auto",
+                  border: `2px solid ${selectedBot.color}50`,
+                  boxShadow: `0 0 20px ${selectedBot.color}40`,
+                }}
+              >
+                <img
+                  src={selectedBot.image}
+                  alt={selectedBot.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
               </Box>
               <Typography
                 variant="h5"
