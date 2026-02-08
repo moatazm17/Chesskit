@@ -154,6 +154,18 @@ export default function BotsPage() {
             >
               Challenge the greatest chess players in history
             </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "rgba(255,255,255,0.35)",
+                fontSize: "0.7rem",
+                mt: 1,
+                display: "block",
+                fontStyle: "italic",
+              }}
+            >
+              AI opponents inspired by legendary playing styles
+            </Typography>
           </Box>
 
           {/* Bot Cards Grid */}

@@ -30,7 +30,7 @@ export interface ChessBot {
 export const CHESS_BOTS: ChessBot[] = [
   {
     id: "capablanca",
-    name: "Jose Raul Capablanca",
+    name: "Capablanca",
     title: "The Chess Machine",
     elo: 2725,
     description: "Legendary endgame wizard with flawless technique",
@@ -71,7 +71,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "tal",
-    name: "Mikhail Tal",
+    name: "Tal",
     title: "The Magician from Riga",
     elo: 2700,
     description: "Ultra-aggressive sacrificial genius, 362 Sicilian games as White",
@@ -115,7 +115,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "karpov",
-    name: "Anatoly Karpov",
+    name: "Karpov",
     title: "The Boa Constrictor",
     elo: 2780,
     description: "Positional mastery, 242 Sicilian games and Caro-Kann specialist",
@@ -162,7 +162,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "fischer",
-    name: "Bobby Fischer",
+    name: "Fischer",
     title: "The Greatest Prodigy",
     elo: 2785,
     description: "1.e4 devotee, Najdorf master, 'Best by test'",
@@ -209,7 +209,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "kasparov",
-    name: "Garry Kasparov",
+    name: "Kasparov",
     title: "The Beast from Baku",
     elo: 2851,
     description: "Opening mastermind, 158 KID games and deep preparation",
@@ -252,7 +252,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "anand",
-    name: "Viswanathan Anand",
+    name: "Anand",
     title: "The Lightning Kid",
     elo: 2800,
     description: "652 Sicilian games, rapid calculation master",
@@ -292,7 +292,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "nakamura",
-    name: "Hikaru Nakamura",
+    name: "Hikaru",
     title: "The Speed King",
     elo: 2780,
     description: "1.b3 specialist, bullet chess master, Dutch Defense player",
@@ -338,7 +338,7 @@ export const CHESS_BOTS: ChessBot[] = [
   },
   {
     id: "carlsen",
-    name: "Magnus Carlsen",
+    name: "Magnus",
     title: "The World Champion",
     elo: 2850,
     description: "Universal player, London System expert, Berlin endgame master",
