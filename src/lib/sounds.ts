@@ -1,10 +1,12 @@
-import { Move } from "chess.js";
+import { Chess, Move } from "chess.js";
 
-type Sound = "move" | "capture" | "illegalMove";
+type Sound = "move" | "capture" | "illegalMove" | "check" | "gameEnd";
 const soundUrls: Record<Sound, string> = {
   move: "/sounds/move.mp3",
   capture: "/sounds/capture.mp3",
   illegalMove: "/sounds/error.mp3",
+  check: "/sounds/check.mp3",
+  gameEnd: "/sounds/game-end.mp3",
 };
 
 // Pre-create audio elements for instant playback
@@ -66,9 +68,18 @@ export const play = async (sound: Sound) => {
 export const playCaptureSound = () => play("capture");
 export const playIllegalMoveSound = () => play("illegalMove");
 export const playMoveSound = () => play("move");
+export const playCheckSound = () => play("check");
+export const playGameEndSound = () => play("gameEnd");
 
-export const playSoundFromMove = (move: Move | null) => {
+export const playSoundFromMove = (move: Move | null, game?: Chess) => {
   if (!move) return playIllegalMoveSound();
+
+  // Check if the game is over (checkmate, stalemate, draw)
+  if (game && game.isGameOver()) return playGameEndSound();
+
+  // Check sound (after the move, the opponent is in check)
+  if (game && game.inCheck()) return playCheckSound();
+
   if (move.captured) return playCaptureSound();
   return playMoveSound();
 };

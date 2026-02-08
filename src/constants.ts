@@ -3,6 +3,12 @@ import { EngineName, MoveClassification } from "./types/enums";
 export const MAIN_THEME_COLOR = "#3B9AC6";
 export const LINEAR_PROGRESS_BAR_COLOR = "#3B9AC6";
 
+// Chess.com green board theme
+export const BOARD_COLORS = {
+  lightSquare: { backgroundColor: "#EEEED2" },
+  darkSquare: { backgroundColor: "#769656" },
+};
+
 export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Opening]: "#dbac86",
   [MoveClassification.Forced]: "#dbac86",

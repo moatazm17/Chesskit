@@ -28,7 +28,7 @@ import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
 import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
 import { useAtom } from "jotai";
-import { boardHueAtom, pieceSetAtom } from "@/components/board/states";
+import { pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
 import {
   DEFAULT_ENGINE,
@@ -56,7 +56,6 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
     "engine-name",
     engineNameAtom
   );
-  const [boardHue, setBoardHue] = useAtom(boardHueAtom);
   const [pieceSet, setPieceSet] = useAtom(pieceSetAtom);
   const [engineWorkersNb, setEngineWorkersNb] = useAtom(engineWorkersNbAtom);
 
@@ -152,20 +151,6 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
           />
 
           <ArrowOptions />
-
-          <Grid
-            container
-            justifyContent="center"
-            size={{ xs: 12, sm: 8, md: 9 }}
-          >
-            <Slider
-              label="Board hue"
-              value={boardHue}
-              setValue={setBoardHue}
-              min={0}
-              max={360}
-            />
-          </Grid>
 
           <Grid
             container

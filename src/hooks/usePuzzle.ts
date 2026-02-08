@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomPuzzle, getDailyPuzzle, PUZZLES } from "@/data/puzzles";
 import { Chess } from "chess.js";
-import { playMoveSound, playCaptureSound } from "@/lib/sounds";
+import { playSoundFromMove } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
@@ -204,11 +204,7 @@ export const usePuzzle = () => {
         setLastMove({ from, to });
         
         // Play sound for user's move
-        if (userMoveResult?.captured) {
-          playCaptureSound();
-        } else {
-          playMoveSound();
-        }
+        playSoundFromMove(userMoveResult, newGame);
 
         const nextMoveIndex = moveIndex + 1;
         const opponentMove = puzzle.moves[nextMoveIndex]; // Capture now
@@ -257,11 +253,7 @@ export const usePuzzle = () => {
               });
               setMoveIndex(nextMoveIndex + 1);
               // Play sound for opponent's move
-              if (opponentMoveResult?.captured) {
-                playCaptureSound();
-              } else {
-                playMoveSound();
-              }
+              playSoundFromMove(opponentMoveResult, responseGame);
             } catch (e) {
               // If opponent move fails, puzzle is solved (bad puzzle data)
               console.error("Invalid opponent move:", opponentMove, "marking as solved");

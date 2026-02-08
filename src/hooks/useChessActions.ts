@@ -78,7 +78,7 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
         if (comment) newGame.setComment(comment);
 
         setGame(newGame);
-        playSoundFromMove(result);
+        playSoundFromMove(result, newGame);
         return result;
       } catch {
         playIllegalMoveSound();
@@ -97,7 +97,7 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
         lastMove = newGame.move(move);
       }
       setGame(newGame);
-      if (lastMove) playSoundFromMove(lastMove);
+      if (lastMove) playSoundFromMove(lastMove, newGame);
     },
     [copyGame, setGame]
   );
@@ -105,7 +105,7 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
   const undoMove = useCallback(() => {
     const newGame = copyGame();
     const move = newGame.undo();
-    if (move) playSoundFromMove(move);
+    if (move) playSoundFromMove(move, newGame);
     setGame(newGame);
   }, [copyGame, setGame]);
 
@@ -125,7 +125,7 @@ export const useChessActions = (chessAtom: PrimitiveAtom<Chess>) => {
       }
 
       setGame(newGame);
-      playSoundFromMove(lastMove);
+      playSoundFromMove(lastMove, newGame);
     },
     [setGame]
   );

@@ -16,11 +16,10 @@ import { Chess } from "chess.js";
 import { getSquareRenderer } from "./squareRenderer";
 import { CurrentPosition } from "@/types/eval";
 import EvaluationBar from "./evaluationBar";
-import { CLASSIFICATION_COLORS } from "@/constants";
+import { BOARD_COLORS, CLASSIFICATION_COLORS } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
-import { boardHueAtom, pieceSetAtom } from "./states";
-import tinycolor from "tinycolor2";
+import { pieceSetAtom } from "./states";
 import MoveExplanation from "@/components/MoveExplanation";
 
 export interface Props {
@@ -64,7 +63,7 @@ export default function Board({
   const [moveClickFrom, setMoveClickFrom] = useState<Square | null>(null);
   const [moveClickTo, setMoveClickTo] = useState<Square | null>(null);
   const pieceSet = useAtomValue(pieceSetAtom);
-  const boardHue = useAtomValue(boardHueAtom);
+  const captureSquaresAtom = useMemo(() => atom<Square[]>([]), []);
 
   const gameFen = game.fen();
 
@@ -81,20 +80,46 @@ export default function Board({
     [canPlay, game]
   );
 
+  // Convert king-to-rook drops into proper castling moves
+  const getCastlingTarget = useCallback(
+    (source: Square, target: Square, piece: string): Square => {
+      // Only applies to king moves
+      if (piece[1] !== "K") return target;
+      const isWhite = piece[0] === "w";
+      const kingStart = isWhite ? "e1" : "e8";
+      if (source !== kingStart) return target;
+
+      // King dropped on rook's square → convert to castling destination
+      if (isWhite) {
+        if (target === "h1" || target === "g1") return "g1" as Square;
+        if (target === "a1" || target === "c1") return "c1" as Square;
+      } else {
+        if (target === "h8" || target === "g8") return "g8" as Square;
+        if (target === "a8" || target === "c8") return "c8" as Square;
+      }
+      return target;
+    },
+    []
+  );
+
   const onPieceDrop = useCallback(
     (source: Square, target: Square, piece: string): boolean => {
       if (!isPiecePlayable({ piece })) return false;
 
+      const actualTarget = getCastlingTarget(source, target, piece);
+
       const result = playMove({
         from: source,
-        to: target,
+        to: actualTarget,
         promotion: piece[1]?.toLowerCase() ?? "q",
       });
 
       return !!result;
     },
-    [isPiecePlayable, playMove]
+    [isPiecePlayable, playMove, getCastlingTarget]
   );
+
+  const setCaptureSquares = useSetAtom(captureSquaresAtom);
 
   const resetMoveClick = useCallback(
     (square?: Square | null) => {
@@ -103,12 +128,35 @@ export default function Board({
       setShowPromotionDialog(false);
       if (square) {
         const moves = game.moves({ square, verbose: true });
-        setPlayableSquares(moves.map((m) => m.to));
+        const targets = moves.map((m) => m.to);
+
+        // If king is selected and can castle, also show the rook squares as targets
+        const piece = game.get(square);
+        if (piece && piece.type === "k") {
+          const isWhite = piece.color === "w";
+          if (isWhite && square === "e1") {
+            if (targets.includes("g1" as Square) && !targets.includes("h1" as Square))
+              targets.push("h1" as Square);
+            if (targets.includes("c1" as Square) && !targets.includes("a1" as Square))
+              targets.push("a1" as Square);
+          } else if (!isWhite && square === "e8") {
+            if (targets.includes("g8" as Square) && !targets.includes("h8" as Square))
+              targets.push("h8" as Square);
+            if (targets.includes("c8" as Square) && !targets.includes("a8" as Square))
+              targets.push("a8" as Square);
+          }
+        }
+
+        setPlayableSquares(targets);
+        setCaptureSquares(
+          moves.filter((m) => m.captured).map((m) => m.to)
+        );
       } else {
         setPlayableSquares([]);
+        setCaptureSquares([]);
       }
     },
-    [setMoveClickFrom, setMoveClickTo, setPlayableSquares, game]
+    [setMoveClickFrom, setMoveClickTo, setPlayableSquares, setCaptureSquares, game]
   );
 
   const handleSquareLeftClick = useCallback(
@@ -122,19 +170,35 @@ export default function Board({
       }
 
       const validMoves = game.moves({ square: moveClickFrom, verbose: true });
-      const move = validMoves.find((m) => m.to === square);
+      // Check direct match or castling via rook square
+      let move = validMoves.find((m) => m.to === square);
+      if (!move) {
+        // Handle clicking on rook square for castling
+        const selectedPiece = game.get(moveClickFrom);
+        if (selectedPiece && selectedPiece.type === "k") {
+          const isWhite = selectedPiece.color === "w";
+          if (isWhite && moveClickFrom === "e1") {
+            if (square === "h1") move = validMoves.find((m) => m.to === "g1");
+            else if (square === "a1") move = validMoves.find((m) => m.to === "c1");
+          } else if (!isWhite && moveClickFrom === "e8") {
+            if (square === "h8") move = validMoves.find((m) => m.to === "g8");
+            else if (square === "a8") move = validMoves.find((m) => m.to === "c8");
+          }
+        }
+      }
 
       if (!move) {
         resetMoveClick(square);
         return;
       }
 
-      setMoveClickTo(square);
+      const actualTarget = move.to as Square;
+      setMoveClickTo(actualTarget);
 
       if (
         move.piece === "p" &&
-        ((move.color === "w" && square[1] === "8") ||
-          (move.color === "b" && square[1] === "1"))
+        ((move.color === "w" && actualTarget[1] === "8") ||
+          (move.color === "b" && actualTarget[1] === "1"))
       ) {
         setShowPromotionDialog(true);
         return;
@@ -142,7 +206,7 @@ export default function Board({
 
       const result = playMove({
         from: moveClickFrom,
-        to: square,
+        to: actualTarget,
       });
 
       resetMoveClick(result ? undefined : square);
@@ -225,28 +289,28 @@ export default function Board({
       const bestMoveArrow = [
         bestMove.slice(0, 2),
         bestMove.slice(2, 4),
-        tinycolor(CLASSIFICATION_COLORS[MoveClassification.Best])
-          .spin(-boardHue)
-          .toHexString(),
+        CLASSIFICATION_COLORS[MoveClassification.Best],
       ] as Arrow;
 
       return [bestMoveArrow];
     }
 
     return [];
-  }, [position, showBestMoveArrow, boardHue]);
+  }, [position, showBestMoveArrow]);
 
   const SquareRenderer: CustomSquareRenderer = useMemo(() => {
     return getSquareRenderer({
       currentPositionAtom: currentPositionAtom,
       clickedSquaresAtom,
       playableSquaresAtom,
+      captureSquaresAtom,
       showPlayerMoveIconAtom,
     });
   }, [
     currentPositionAtom,
     clickedSquaresAtom,
     playableSquaresAtom,
+    captureSquaresAtom,
     showPlayerMoveIconAtom,
   ]);
 
@@ -269,21 +333,10 @@ export default function Board({
     [pieceSet]
   );
 
-  const customBoardStyle = useMemo(() => {
-    const commonBoardStyle = {
-      borderRadius: "5px",
-      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
-    };
-
-    if (boardHue) {
-      return {
-        ...commonBoardStyle,
-        filter: `hue-rotate(${boardHue}deg)`,
-      };
-    }
-
-    return commonBoardStyle;
-  }, [boardHue]);
+  const customBoardStyle = useMemo(() => ({
+    borderRadius: "5px",
+    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.5)",
+  }), []);
 
   return (
     <Grid
@@ -332,6 +385,8 @@ export default function Board({
               boardOrientation === Color.White ? "white" : "black"
             }
             customBoardStyle={customBoardStyle}
+            customDarkSquareStyle={BOARD_COLORS.darkSquare}
+            customLightSquareStyle={BOARD_COLORS.lightSquare}
             customArrows={customArrows}
             isDraggablePiece={isPiecePlayable}
             customSquare={SquareRenderer}

@@ -82,7 +82,7 @@ export default function BoardContainer() {
 
     // 900 is the md layout breakpoint
     if (window?.innerWidth < 900) {
-      return Math.min(width, height - 150);
+      return Math.min(width - 8, height - 130);
     }
 
     return Math.min(width - 300, height * 0.83);

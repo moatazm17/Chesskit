@@ -8,12 +8,12 @@ import {
   Square,
 } from "react-chessboard/dist/chessboard/types";
 import { CLASSIFICATION_COLORS } from "@/constants";
-import { boardHueAtom } from "./states";
 
 export interface Props {
   currentPositionAtom: PrimitiveAtom<CurrentPosition>;
   clickedSquaresAtom: PrimitiveAtom<Square[]>;
   playableSquaresAtom: PrimitiveAtom<Square[]>;
+  captureSquaresAtom?: PrimitiveAtom<Square[]>;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
 }
 
@@ -21,6 +21,7 @@ export function getSquareRenderer({
   currentPositionAtom,
   clickedSquaresAtom,
   playableSquaresAtom,
+  captureSquaresAtom = atom<Square[]>([]),
   showPlayerMoveIconAtom = atom(false),
 }: Props) {
   const squareRenderer = forwardRef<HTMLDivElement, CustomSquareProps>(
@@ -30,7 +31,7 @@ export function getSquareRenderer({
       const position = useAtomValue(currentPositionAtom);
       const clickedSquares = useAtomValue(clickedSquaresAtom);
       const playableSquares = useAtomValue(playableSquaresAtom);
-      const boardHue = useAtomValue(boardHueAtom);
+      const captureSquares = useAtomValue(captureSquaresAtom);
 
       const fromSquare = position.lastMove?.from;
       const toSquare = position.lastMove?.to;
@@ -46,10 +47,17 @@ export function getSquareRenderer({
         [clickedSquares, square, fromSquare, toSquare, moveClassification]
       );
 
+      const isPlayable = playableSquares.includes(square);
+      const isCapture = captureSquares.includes(square);
+
       const playableSquareStyle: CSSProperties | undefined = useMemo(
         () =>
-          playableSquares.includes(square) ? playableSquareStyles : undefined,
-        [playableSquares, square]
+          isPlayable
+            ? isCapture
+              ? captureSquareStyles
+              : playableSquareStyles
+            : undefined,
+        [isPlayable, isCapture]
       );
 
       return (
@@ -58,7 +66,6 @@ export function getSquareRenderer({
           style={{
             ...style,
             position: "relative",
-            filter: boardHue ? `hue-rotate(-${boardHue}deg)` : undefined,
           }}
         >
           {children}
@@ -98,15 +105,27 @@ const rightClickSquareStyle: CSSProperties = {
   opacity: "0.8",
 };
 
+// Dot indicator for empty squares
 const playableSquareStyles: CSSProperties = {
   position: "absolute",
   width: "100%",
   height: "100%",
-  backgroundColor: "rgba(0,0,0,.14)",
+  backgroundColor: "rgba(0,0,0,.18)",
   padding: "35%",
   backgroundClip: "content-box",
   borderRadius: "50%",
   boxSizing: "border-box",
+};
+
+// Ring indicator for capture squares (visible on top of opponent pieces)
+const captureSquareStyles: CSSProperties = {
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  background:
+    "radial-gradient(transparent 0%, transparent 79%, rgba(0,0,0,0.3) 80%, transparent 81%)",
+  boxSizing: "border-box",
+  zIndex: 1,
 };
 
 const previousMoveSquareStyle = (

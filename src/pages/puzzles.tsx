@@ -14,9 +14,12 @@ import PremiumNavBar from "@/components/PremiumNavBar";
 import { usePuzzle } from "@/hooks/usePuzzle";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Chessboard } from "react-chessboard";
-import { Square, Arrow, CustomSquareStyles } from "react-chessboard/dist/chessboard/types";
+import { Square, Arrow, CustomSquareStyles, CustomPieces, Piece } from "react-chessboard/dist/chessboard/types";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import { BOARD_COLORS } from "@/constants";
+import { pieceSetAtom } from "@/components/board/states";
+import { useAtomValue } from "jotai";
 
 export default function Puzzles() {
   const theme = useTheme();
@@ -41,6 +44,7 @@ export default function Puzzles() {
     retry,
   } = usePuzzle();
 
+  const pieceSet = useAtomValue(pieceSetAtom);
   const { showRating, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [mode, setMode] = useState<"daily" | "practice">("daily");
@@ -167,15 +171,35 @@ export default function Puzzles() {
     retry();
   }, [retry, mode, puzzle]);
 
-  // Board size calculation
+  // Custom pieces matching the shared board component
+  const PIECE_CODES: Piece[] = ["wP","wB","wN","wR","wQ","wK","bP","bB","bN","bR","bQ","bK"];
+  const customPieces = useMemo(
+    () =>
+      PIECE_CODES.reduce<CustomPieces>((acc, piece) => {
+        acc[piece] = ({ squareWidth }: { squareWidth: number }) => (
+          <div
+            style={{
+              width: squareWidth,
+              height: squareWidth,
+              backgroundImage: `url(/piece/${pieceSet}/${piece}.svg)`,
+              backgroundSize: "contain",
+            }}
+          />
+        );
+        return acc;
+      }, {}),
+    [pieceSet] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  // Board size calculation - maximize board on mobile
   const boardSize = useMemo(() => {
     if (typeof window === "undefined") return 400;
     const width = window.innerWidth;
     const height = window.innerHeight;
     if (width < 1200) {
-      return Math.min(width - 32, height - 300, 500);
+      return Math.min(width - 16, height - 260, 560);
     }
-    return Math.min(width - 700, height * 0.7, 500);
+    return Math.min(width - 700, height * 0.7, 560);
   }, []);
 
   // Custom arrows for hint and solved state
@@ -247,10 +271,11 @@ export default function Puzzles() {
     legalMoves.forEach((square) => {
       const piece = game.get(square);
       if (piece) {
-        // Capture move - red highlight
+        // Capture move - ring indicator visible on top of opponent piece
         styles[square] = {
-          backgroundColor: "rgba(255, 80, 80, 0.5)",
-          borderRadius: "0%",
+          background:
+            "radial-gradient(transparent 0%, transparent 79%, rgba(0,0,0,0.3) 80%, transparent 81%)",
+          borderRadius: "50%",
         };
       } else {
         // Normal move - dot indicator
@@ -498,6 +523,9 @@ export default function Puzzles() {
                   customBoardStyle={{
                     borderRadius: "8px",
                   }}
+                  customDarkSquareStyle={BOARD_COLORS.darkSquare}
+                  customLightSquareStyle={BOARD_COLORS.lightSquare}
+                  customPieces={customPieces}
                 />
                 
                 {/* Icon overlay for solved/failed state */}

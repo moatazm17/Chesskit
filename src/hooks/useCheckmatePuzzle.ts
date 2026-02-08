@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomMateIn2, getRandomMateIn3, MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } from "@/data/checkmatePuzzles";
 import { Chess } from "chess.js";
-import { playMoveSound, playCaptureSound } from "@/lib/sounds";
+import { playSoundFromMove } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
@@ -227,11 +227,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
         setGame(newGame);
         setLastMove({ from, to });
 
-        if (userMoveResult?.captured) {
-          playCaptureSound();
-        } else {
-          playMoveSound();
-        }
+        playSoundFromMove(userMoveResult, newGame);
 
         const nextMoveIndex = moveIndex + 1;
         const opponentMove = puzzle.moves[nextMoveIndex];
@@ -276,11 +272,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
                 to: opponentMove.slice(2, 4),
               });
               setMoveIndex(nextMoveIndex + 1);
-              if (opponentMoveResult?.captured) {
-                playCaptureSound();
-              } else {
-                playMoveSound();
-              }
+              playSoundFromMove(opponentMoveResult, responseGame);
             } catch (e) {
               console.error("Invalid opponent move:", opponentMove, "marking as solved");
               setPuzzleState("solved");
