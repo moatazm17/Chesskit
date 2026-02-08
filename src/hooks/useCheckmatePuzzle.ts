@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomMateIn2, getRandomMateIn3, MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } from "@/data/checkmatePuzzles";
 import { Chess } from "chess.js";
-import { playSoundFromMove } from "@/lib/sounds";
+import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
@@ -281,7 +281,8 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
         }
         return true;
       } else {
-        // Wrong move
+        // Wrong move - play error sound
+        playIllegalMoveSound();
         setLastMove({ from, to });
         setPuzzleState("failed");
         logAnalyticsEvent("checkmate_failed", {

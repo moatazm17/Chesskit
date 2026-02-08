@@ -57,18 +57,17 @@ export default function MoveItem({
       wrap="nowrap"
       onClick={handleClick}
       paddingY={0.5}
-      sx={(theme) => ({
+      sx={{
         cursor: isCurrentMove ? undefined : "pointer",
-        backgroundColor:
-          isCurrentMove && theme.palette.mode === "dark"
-            ? "#4f4f4f"
-            : undefined,
-        border:
-          isCurrentMove && theme.palette.mode === "light"
-            ? "1px solid #424242"
-            : undefined,
-        borderRadius: 1,
-      })}
+        backgroundColor: isCurrentMove
+          ? "rgba(255,255,255,0.08)"
+          : undefined,
+        borderRadius: "6px",
+        transition: "background-color 0.15s ease",
+        "&:hover": !isCurrentMove
+          ? { backgroundColor: "rgba(255,255,255,0.04)" }
+          : {},
+      }}
       id={`move-${moveIdx}`}
     >
       {color && (

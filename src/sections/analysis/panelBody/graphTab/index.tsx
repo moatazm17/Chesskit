@@ -88,9 +88,9 @@ export default function GraphTab(props: GridProps) {
       container
       justifyContent="center"
       alignItems="center"
-      minHeight="min(10rem, 8vh)"
-      height={{ xs: "8rem", lg: "none" }}
-      maxHeight="10rem"
+      minHeight="min(12rem, 10vh)"
+      height={{ xs: "10rem", lg: "none" }}
+      maxHeight="12rem"
       {...props}
       sx={props.hidden ? { display: "none" } : props.sx}
       size={12}
@@ -99,8 +99,9 @@ export default function GraphTab(props: GridProps) {
         height="100%"
         width={{ xs: "100%", lg: "90%" }}
         sx={{
-          backgroundColor: "#2e2e2e",
-          borderRadius: "15px",
+          background: "rgba(255,255,255,0.04)",
+          borderRadius: "14px",
+          border: "1px solid rgba(255,255,255,0.06)",
           overflow: "hidden",
         }}
       >

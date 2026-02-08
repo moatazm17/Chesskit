@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 
 interface Props {
   title: string;
@@ -13,14 +13,25 @@ export default function PlayersMetric({
 }: Props) {
   return (
     <Stack
-      justifyContent="center"
+      justifyContent="space-between"
       alignItems="center"
       flexDirection="row"
-      columnGap={{ xs: "8vw", md: 10 }}
+      sx={{ width: "100%", px: 1 }}
     >
       <ValueBlock value={whiteValue} color="white" />
 
-      <Typography align="center" fontSize="0.8em" noWrap>
+      <Typography
+        align="center"
+        noWrap
+        sx={{
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          color: "rgba(255,255,255,0.6)",
+          letterSpacing: 0.5,
+          textTransform: "uppercase",
+          px: 1,
+        }}
+      >
         {title}
       </Typography>
 
@@ -37,21 +48,47 @@ const ValueBlock = ({
   color: "white" | "black";
 }) => {
   return (
-    <Typography
-      align="center"
+    <Box
       sx={{
-        backgroundColor: color,
-        color: color === "white" ? "black" : "white",
+        display: "flex",
+        alignItems: "center",
+        gap: 0.8,
+        background:
+          color === "white"
+            ? "rgba(255,255,255,0.12)"
+            : "rgba(0,0,0,0.35)",
+        borderRadius: "10px",
+        px: 1.5,
+        py: 0.8,
+        border:
+          color === "white"
+            ? "1px solid rgba(255,255,255,0.18)"
+            : "1px solid rgba(255,255,255,0.08)",
+        minWidth: 70,
+        justifyContent: "center",
       }}
-      borderRadius="5px"
-      lineHeight="1em"
-      fontSize="0.9em"
-      padding={0.8}
-      fontWeight="500"
-      border="1px solid #424242"
-      noWrap
     >
-      {value}
-    </Typography>
+      <Box
+        sx={{
+          width: 10,
+          height: 10,
+          borderRadius: "3px",
+          backgroundColor: color === "white" ? "#fff" : "#444",
+          border: "1px solid #666",
+          flexShrink: 0,
+        }}
+      />
+      <Typography
+        noWrap
+        sx={{
+          fontSize: "0.9rem",
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.9)",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
   );
 };

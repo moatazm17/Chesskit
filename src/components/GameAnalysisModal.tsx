@@ -8,9 +8,8 @@ import {
   Button,
   useTheme,
   useMediaQuery,
-  AppBar,
-  Toolbar,
-  IconButton,
+  CircularProgress,
+  Stack,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -49,29 +48,153 @@ interface MoveStats {
 const getMoveClassificationIcon = (classification: MoveClassification) => {
   switch (classification) {
     case MoveClassification.Splendid:
-      return { icon: "mdi:star", color: "#00bcd4", label: "Brilliant" };
+      return { icon: "mdi:star-four-points", color: "#26C6DA", label: "Brilliant" };
     case MoveClassification.Perfect:
-      return { icon: "mdi:exclamation", color: "#2196f3", label: "Great" };
+      return { icon: "mdi:exclamation-thick", color: "#42A5F5", label: "Great" };
     case MoveClassification.Best:
-      return { icon: "mdi:check", color: "#4caf50", label: "Best" };
+      return { icon: "mdi:check-bold", color: "#66BB6A", label: "Best" };
     case MoveClassification.Excellent:
-      return { icon: "mdi:thumb-up", color: "#66bb6a", label: "Excellent" };
+      return { icon: "mdi:thumb-up", color: "#9CCC65", label: "Excellent" };
     case MoveClassification.Okay:
-      return { icon: "mdi:circle", color: "#9ccc65", label: "Good" };
+      return { icon: "mdi:circle-medium", color: "#AED581", label: "Good" };
     case MoveClassification.Inaccuracy:
-      return { icon: "mdi:help", color: "#ffb74d", label: "Inaccuracy" };
+      return { icon: "mdi:help", color: "#FFA726", label: "Inaccuracy" };
     case MoveClassification.Mistake:
-      return { icon: "mdi:close", color: "#f57c00", label: "Mistake" };
+      return { icon: "mdi:close-thick", color: "#FF7043", label: "Mistake" };
     case MoveClassification.Blunder:
-      return { icon: "mdi:close-circle", color: "#e53935", label: "Blunder" };
+      return { icon: "mdi:alert-circle", color: "#EF5350", label: "Blunder" };
     case MoveClassification.Opening:
-      return { icon: "mdi:book-open", color: "#78909c", label: "Book" };
+      return { icon: "mdi:book-open-variant", color: "#78909c", label: "Book" };
     case MoveClassification.Forced:
       return { icon: "mdi:lock", color: "#90a4ae", label: "Forced" };
     default:
       return { icon: "mdi:circle", color: "#9e9e9e", label: "Other" };
   }
 };
+
+// Circular accuracy ring component
+function AccuracyRing({
+  value,
+  playerName,
+  color,
+}: {
+  value: number;
+  playerName: string;
+  color: "white" | "black";
+}) {
+  const size = 120;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = (value / 100) * circumference;
+  const ringColor = value >= 80 ? "#66BB6A" : value >= 50 ? "#FFA726" : "#EF5350";
+
+  return (
+    <Stack alignItems="center" spacing={1.5}>
+      <Box sx={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+          {/* Background ring */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth={strokeWidth}
+          />
+          {/* Progress ring */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={ringColor}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference - progress}
+            style={{ transition: "stroke-dashoffset 1s ease" }}
+          />
+        </svg>
+        {/* Center text */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: "1.8rem",
+              fontWeight: 800,
+              color: "white",
+              lineHeight: 1,
+            }}
+          >
+            {value.toFixed(1)}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "0.65rem",
+              color: "rgba(255,255,255,0.5)",
+              fontWeight: 500,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            }}
+          >
+            Accuracy
+          </Typography>
+        </Box>
+      </Box>
+      {/* Player chip */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 0.8,
+          background:
+            color === "white"
+              ? "rgba(255,255,255,0.15)"
+              : "rgba(0,0,0,0.3)",
+          borderRadius: "10px",
+          px: 1.5,
+          py: 0.6,
+          border:
+            color === "white"
+              ? "1px solid rgba(255,255,255,0.2)"
+              : "1px solid rgba(255,255,255,0.1)",
+        }}
+      >
+        <Box
+          sx={{
+            width: 12,
+            height: 12,
+            borderRadius: "3px",
+            backgroundColor: color === "white" ? "#fff" : "#333",
+            border: "1px solid #666",
+          }}
+        />
+        <Typography
+          sx={{
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.9)",
+            maxWidth: 100,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {playerName}
+        </Typography>
+      </Box>
+    </Stack>
+  );
+}
 
 export default function GameAnalysisModal({
   open,
@@ -92,14 +215,13 @@ export default function GameAnalysisModal({
   const engineName = useAtomValue(engineNameAtom);
   const engine = useEngine(engineName);
   const engineRef = useRef(engine);
-  engineRef.current = engine; // Always keep ref in sync with latest engine
+  engineRef.current = engine;
   const engineDepth = useAtomValue(engineDepthAtom);
   const engineMultiPv = useAtomValue(engineMultiPvAtom);
   const engineWorkersNb = useAtomValue(engineWorkersNbAtom);
   const setGameEval = useSetAtom(gameEvalAtom);
   const setEvaluationProgress = useSetAtom(evaluationProgressAtom);
 
-  // Calculate real move statistics from gameEval
   const moveStats = useMemo(() => {
     if (!gameEval?.positions?.length) return [];
 
@@ -120,11 +242,8 @@ export default function GameAnalysisModal({
         const isWhiteMove = index % 2 === 1;
         const stat = stats.get(position.moveClassification);
         if (stat) {
-          if (isWhiteMove) {
-            stat.whiteCount++;
-          } else {
-            stat.blackCount++;
-          }
+          if (isWhiteMove) stat.whiteCount++;
+          else stat.blackCount++;
         }
       }
     });
@@ -196,7 +315,7 @@ export default function GameAnalysisModal({
 
       startAnalysis();
     }
-  }, [open, game.pgn(), isAnalyzing, analysisComplete]);
+  }, [open, game.pgn(), isAnalyzing, analysisComplete]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getPlayerName = (color: "white" | "black") => {
     const headers = game.getHeaders();
@@ -208,32 +327,26 @@ export default function GameAnalysisModal({
 
   const getDisplayStats = () => {
     const priorityOrder = [
-      MoveClassification.Splendid, // Brilliant
-      MoveClassification.Perfect, // Great
-      MoveClassification.Best, // Best
-      MoveClassification.Mistake, // Mistake
-      MoveClassification.Inaccuracy, // Miss (Inaccuracy)
-      MoveClassification.Blunder, // Blunder
+      MoveClassification.Splendid,
+      MoveClassification.Perfect,
+      MoveClassification.Best,
+      MoveClassification.Mistake,
+      MoveClassification.Inaccuracy,
+      MoveClassification.Blunder,
     ];
 
     const byType = new Map(moveStats.map((s) => [s.type, s]));
 
-    // Always show the 6 fixed moves, even if count is 0
     const fixedStats = priorityOrder.map((type) => {
       const existing = byType.get(type);
       if (existing) return existing;
-
-      // Create stat with 0 counts if not found
       const iconData = getMoveClassificationIcon(type);
-      return {
-        type,
-        ...iconData,
-        whiteCount: 0,
-        blackCount: 0,
-      };
+      return { type, ...iconData, whiteCount: 0, blackCount: 0 };
     });
 
-    const otherStats = moveStats.filter((s) => !priorityOrder.includes(s.type));
+    const otherStats = moveStats.filter(
+      (s) => !priorityOrder.includes(s.type)
+    );
 
     return showMore ? [...fixedStats, ...otherStats] : fixedStats;
   };
@@ -243,51 +356,56 @@ export default function GameAnalysisModal({
       open={open}
       onClose={onClose}
       fullScreen={isMobile}
+      maxWidth="sm"
+      fullWidth
       PaperProps={{
         sx: {
-          background: `linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)`,
+          background:
+            "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
           color: "white",
+          borderRadius: isMobile ? 0 : "16px",
+          overflow: "hidden",
         },
       }}
     >
-      {/* Top Bar */}
-      <AppBar
-        position="static"
-        elevation={0}
+      {/* Clean top bar */}
+      <Box
         sx={{
-          background: "rgba(0,0,0,0.3)",
-          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2,
+          py: 1.5,
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={onClose}>
-            <Icon icon="mdi:close" />
-          </IconButton>
-          <Typography
-            variant="h6"
-            sx={{ flexGrow: 1, textAlign: "center", fontWeight: 700 }}
-          >
-            Game Review
-          </Typography>
-          <IconButton color="inherit">
-            <Icon icon="mdi:cog" />
-          </IconButton>
-          <IconButton color="inherit">
-            <Icon icon="mdi:help-circle" />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+        <Button
+          onClick={onClose}
+          sx={{
+            color: "rgba(255,255,255,0.7)",
+            minWidth: 0,
+            p: 0.5,
+            "&:hover": { color: "white" },
+          }}
+        >
+          <Icon icon="mdi:close" style={{ fontSize: 24 }} />
+        </Button>
+        <Typography sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
+          Game Review
+        </Typography>
+        <Box sx={{ width: 36 }} />
+      </Box>
 
       <DialogContent
         sx={{
-          padding: 0,
-          height: "100%",
+          p: 0,
           display: "flex",
           flexDirection: "column",
-          background: `linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)`,
+          overflow: "auto",
         }}
       >
         {isAnalyzing ? (
+          /* --- Analyzing Screen --- */
           <Box
             sx={{
               flex: 1,
@@ -296,195 +414,200 @@ export default function GameAnalysisModal({
               justifyContent: "center",
               alignItems: "center",
               px: 4,
+              py: 8,
+              minHeight: 400,
             }}
           >
+            <Box sx={{ position: "relative", mb: 4 }}>
+              <CircularProgress
+                variant="determinate"
+                value={evaluationProgress}
+                size={100}
+                thickness={3}
+                sx={{
+                  color: "#66BB6A",
+                  "& .MuiCircularProgress-circle": {
+                    strokeLinecap: "round",
+                  },
+                }}
+              />
+              <CircularProgress
+                variant="indeterminate"
+                size={100}
+                thickness={3}
+                sx={{
+                  color: "rgba(255,255,255,0.08)",
+                  position: "absolute",
+                  left: 0,
+                }}
+                disableShrink
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon
+                  icon="mdi:chess-knight"
+                  style={{ fontSize: 36, color: "rgba(255,255,255,0.6)" }}
+                />
+              </Box>
+            </Box>
             <Typography
-              variant="h4"
-              sx={{ mb: 4, fontWeight: 700, textAlign: "center" }}
+              sx={{ fontSize: "1.3rem", fontWeight: 700, mb: 2, textAlign: "center" }}
             >
-              Analyzing Game
+              Analyzing Game...
             </Typography>
             <LinearProgress
               variant="determinate"
               value={evaluationProgress}
               sx={{
-                width: "100%",
-                height: 12,
-                borderRadius: 6,
-                backgroundColor: "rgba(255,255,255,0.1)",
+                width: "80%",
+                maxWidth: 300,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: "rgba(255,255,255,0.08)",
                 "& .MuiLinearProgress-bar": {
-                  background: "linear-gradient(45deg, #4ecdc4, #45b7d1)",
-                  borderRadius: 6,
+                  background: "linear-gradient(90deg, #66BB6A, #42A5F5)",
+                  borderRadius: 3,
                 },
               }}
             />
             <Typography
-              variant="h6"
               sx={{
-                mt: 3,
-                color: "rgba(255,255,255,0.8)",
-                textAlign: "center",
+                mt: 2,
+                color: "rgba(255,255,255,0.5)",
+                fontSize: "0.9rem",
               }}
             >
-              {evaluationProgress.toFixed(0)}% Complete
+              {evaluationProgress.toFixed(0)}%
             </Typography>
           </Box>
         ) : analysisComplete && gameEval ? (
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              p: 2,
-            }}
-          >
-            {/* Compact Chess.com layout - 4 columns with icon centered */}
+          /* --- Results Screen --- */
+          <Box sx={{ px: 2.5, py: 3 }}>
+            {/* Accuracy Rings */}
+            <Stack
+              direction="row"
+              justifyContent="center"
+              spacing={4}
+              sx={{ mb: 4 }}
+            >
+              <AccuracyRing
+                value={gameEval.accuracy.white}
+                playerName={getPlayerName("white")}
+                color="white"
+              />
+              <AccuracyRing
+                value={gameEval.accuracy.black}
+                playerName={getPlayerName("black")}
+                color="black"
+              />
+            </Stack>
+
+            {/* Move Stats */}
             <Box
               sx={{
-                display: "grid",
-                gridTemplateColumns: "100px 60px 60px 60px",
-                gap: 1,
-                alignItems: "center",
+                background: "rgba(255,255,255,0.04)",
+                borderRadius: "14px",
+                border: "1px solid rgba(255,255,255,0.06)",
+                overflow: "hidden",
               }}
             >
-              {/* Header row with player names */}
-              <Box></Box>
-              <Typography
-                variant="body1"
-                sx={{ color: "white", fontWeight: 600, textAlign: "center" }}
+              {/* Stats header */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 50px 40px 50px",
+                  alignItems: "center",
+                  px: 2,
+                  py: 1.2,
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                }}
               >
-                {getPlayerName("white")}
-              </Typography>
-              <Box></Box>
-              <Typography
-                variant="body1"
-                sx={{ color: "white", fontWeight: 600, textAlign: "center" }}
-              >
-                {getPlayerName("black")}
-              </Typography>
-
-              {/* Players row */}
-              <Typography
-                variant="body1"
-                sx={{ color: "white", fontWeight: 600 }}
-              >
-                Players
-              </Typography>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Box
+                <Typography
                   sx={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 2,
-                    background: "rgba(255,255,255,0.9)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "3px solid #4ecdc4",
+                    fontSize: "0.7rem",
+                    color: "rgba(255,255,255,0.4)",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
                   }}
                 >
-                  <Icon
-                    icon="mdi:chess-pawn"
-                    style={{ fontSize: 32, color: "#666" }}
-                  />
-                </Box>
-              </Box>
-              <Box></Box>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Box
+                  Move Type
+                </Typography>
+                <Typography
+                  noWrap
                   sx={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 2,
-                    background: "rgba(255,255,255,0.9)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "3px solid #4ecdc4",
+                    fontSize: "0.7rem",
+                    color: "rgba(255,255,255,0.4)",
+                    fontWeight: 600,
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                    maxWidth: 50,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  <Icon
-                    icon="mdi:chess-pawn"
-                    style={{ fontSize: 32, color: "#666" }}
-                  />
-                </Box>
+                  {getPlayerName("white")}
+                </Typography>
+                <Box />
+                <Typography
+                  noWrap
+                  sx={{
+                    fontSize: "0.7rem",
+                    color: "rgba(255,255,255,0.4)",
+                    fontWeight: 600,
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                    maxWidth: 50,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {getPlayerName("black")}
+                </Typography>
               </Box>
 
-              {/* Accuracy row */}
-              <Typography
-                variant="body1"
-                sx={{ color: "white", fontWeight: 600 }}
-              >
-                Accuracy
-              </Typography>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              {/* Stats rows */}
+              {getDisplayStats().map((stat, i) => (
                 <Box
+                  key={stat.type}
                   sx={{
-                    background: "rgba(255,255,255,0.9)",
-                    borderRadius: 2,
+                    display: "grid",
+                    gridTemplateColumns: "1fr 50px 40px 50px",
+                    alignItems: "center",
                     px: 2,
                     py: 1,
-                    textAlign: "center",
+                    borderBottom:
+                      i < getDisplayStats().length - 1
+                        ? "1px solid rgba(255,255,255,0.04)"
+                        : "none",
+                    "&:hover": {
+                      background: "rgba(255,255,255,0.02)",
+                    },
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{ color: "#000", fontWeight: 700 }}
+                  {/* Label with icon */}
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
                   >
-                    {gameEval.accuracy.white.toFixed(1)}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box></Box>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Box
-                  sx={{
-                    background: "rgba(255,255,255,0.2)",
-                    borderRadius: 2,
-                    px: 2,
-                    py: 1,
-                    textAlign: "center",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ color: "white", fontWeight: 700 }}
-                  >
-                    {gameEval.accuracy.black.toFixed(1)}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Move statistics rows */}
-              {getDisplayStats().map((stat) => (
-                <React.Fragment key={stat.type}>
-                  <Typography
-                    variant="body1"
-                    sx={{ color: "white", fontWeight: 600 }}
-                  >
-                    {stat.label}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: stat.whiteCount > 0 ? stat.color : "#666",
-                      fontWeight: 700,
-                      textAlign: "center",
-                    }}
-                  >
-                    {stat.whiteCount}
-                  </Typography>
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <Box
                       sx={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
+                        width: 26,
+                        height: 26,
+                        borderRadius: "7px",
                         background: stat.color,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
                       {stat.type === MoveClassification.Splendid ? (
@@ -492,7 +615,7 @@ export default function GameAnalysisModal({
                           sx={{
                             color: "white",
                             fontWeight: 900,
-                            fontSize: "16px",
+                            fontSize: "11px",
                           }}
                         >
                           !!
@@ -500,45 +623,97 @@ export default function GameAnalysisModal({
                       ) : (
                         <Icon
                           icon={stat.icon}
-                          style={{ fontSize: 16, color: "white" }}
+                          style={{ fontSize: 14, color: "white" }}
                         />
                       )}
                     </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight: 500,
+                        color: "rgba(255,255,255,0.85)",
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
                   </Box>
+
+                  {/* White count */}
                   <Typography
-                    variant="h6"
                     sx={{
-                      color: stat.blackCount > 0 ? stat.color : "#666",
+                      fontSize: "1rem",
                       fontWeight: 700,
                       textAlign: "center",
+                      color:
+                        stat.whiteCount > 0
+                          ? "rgba(255,255,255,0.9)"
+                          : "rgba(255,255,255,0.2)",
+                    }}
+                  >
+                    {stat.whiteCount}
+                  </Typography>
+
+                  {/* Divider */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 1,
+                        height: 20,
+                        background: "rgba(255,255,255,0.08)",
+                      }}
+                    />
+                  </Box>
+
+                  {/* Black count */}
+                  <Typography
+                    sx={{
+                      fontSize: "1rem",
+                      fontWeight: 700,
+                      textAlign: "center",
+                      color:
+                        stat.blackCount > 0
+                          ? "rgba(255,255,255,0.9)"
+                          : "rgba(255,255,255,0.2)",
                     }}
                   >
                     {stat.blackCount}
                   </Typography>
-                </React.Fragment>
+                </Box>
               ))}
             </Box>
 
-            {/* Show more button */}
+            {/* Show more toggle */}
             {moveStats.length > 6 && (
-              <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Box sx={{ textAlign: "center", mt: 1.5 }}>
                 <Button
                   onClick={() => setShowMore(!showMore)}
+                  size="small"
                   sx={{
-                    color: "#4ecdc4",
+                    color: "rgba(255,255,255,0.5)",
                     textTransform: "none",
-                    fontWeight: 600,
+                    fontWeight: 500,
+                    fontSize: "0.8rem",
                     "&:hover": {
-                      background: "rgba(78, 205, 196, 0.1)",
+                      color: "rgba(255,255,255,0.8)",
+                      background: "rgba(255,255,255,0.05)",
                     },
                   }}
                 >
-                  {showMore ? "▲" : "▼"}
+                  {showMore ? "Show Less" : "Show More"}
+                  <Icon
+                    icon={showMore ? "mdi:chevron-up" : "mdi:chevron-down"}
+                    style={{ fontSize: 18, marginLeft: 4 }}
+                  />
                 </Button>
               </Box>
             )}
 
-            {/* Bottom spacer for button */}
+            {/* Spacer for bottom button */}
             <Box sx={{ height: 80 }} />
           </Box>
         ) : null}
@@ -552,14 +727,13 @@ export default function GameAnalysisModal({
               left: 0,
               right: 0,
               p: 2,
+              pt: 4,
               background:
-                "linear-gradient(180deg, transparent 0%, rgba(26,26,46,0.95) 50%)",
-              backdropFilter: "blur(10px)",
+                "linear-gradient(180deg, transparent 0%, #1a1a2e 60%)",
             }}
           >
             <Button
               onClick={() => {
-                // Trigger interstitial ad in Flutter WebView
                 try {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const w: any =
@@ -582,20 +756,18 @@ export default function GameAnalysisModal({
               fullWidth
               size="large"
               sx={{
-                background: "linear-gradient(45deg, #4ecdc4, #45b7d1)",
+                background: "linear-gradient(135deg, #66BB6A, #42A5F5)",
                 color: "white",
                 fontWeight: 700,
-                py: 2,
-                borderRadius: 3,
+                py: 1.8,
+                borderRadius: "14px",
                 textTransform: "none",
-                fontSize: "1.1rem",
-                boxShadow: "0 8px 32px rgba(78, 205, 196, 0.4)",
+                fontSize: "1rem",
+                boxShadow: "0 8px 24px rgba(66, 165, 245, 0.3)",
                 "&:hover": {
-                  background: "linear-gradient(45deg, #26a69a, #1976d2)",
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 12px 40px rgba(78, 205, 196, 0.5)",
+                  background: "linear-gradient(135deg, #4CAF50, #1E88E5)",
+                  boxShadow: "0 12px 32px rgba(66, 165, 245, 0.4)",
                 },
-                transition: "all 0.3s ease",
               }}
             >
               Start Review

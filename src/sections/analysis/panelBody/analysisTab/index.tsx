@@ -44,18 +44,16 @@ export default function AnalysisTab(props: GridProps) {
         rowGap={2}
         minWidth={gameEval ? "min(25rem, 95vw)" : undefined}
         sx={{
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-          width: '100%'
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: '14px',
+          padding: '16px',
+          border: '1px solid rgba(255,255,255,0.06)',
+          width: '100%',
         }}
       >
         {gameEval && (
           <PlayersMetric
-            title="🎯 Accuracy"
+            title="Accuracy"
             whiteValue={`${gameEval.accuracy.white.toFixed(1)}%`}
             blackValue={`${gameEval.accuracy.black.toFixed(1)}%`}
           />
@@ -63,7 +61,7 @@ export default function AnalysisTab(props: GridProps) {
 
         {gameEval?.estimatedElo && (
           <PlayersMetric
-            title="📊 Game Rating"
+            title="Rating"
             whiteValue={Math.round(gameEval.estimatedElo.white)}
             blackValue={Math.round(gameEval.estimatedElo.black)}
           />
@@ -77,17 +75,17 @@ export default function AnalysisTab(props: GridProps) {
           <Typography 
             align="center" 
             sx={{
-              fontSize: '1rem',
-              color: '#4CAF50',
+              fontSize: '0.85rem',
+              color: '#66BB6A',
               fontWeight: 600,
-              background: 'rgba(76,175,80,0.1)',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              border: '1px solid rgba(76,175,80,0.3)',
-              marginTop: 2
+              background: 'rgba(102,187,106,0.08)',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              border: '1px solid rgba(102,187,106,0.2)',
+              marginTop: 1,
             }}
           >
-            🏁 Game Completed
+            Game Completed
           </Typography>
         )}
       </Stack>

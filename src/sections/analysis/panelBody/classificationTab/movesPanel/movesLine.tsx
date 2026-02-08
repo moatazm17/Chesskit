@@ -15,8 +15,22 @@ export default function MovesLine({ moves, moveNb }: Props) {
       alignItems="center"
       wrap="nowrap"
       size={12}
+      sx={{
+        borderRadius: "6px",
+        "&:hover": {
+          background: "rgba(255,255,255,0.02)",
+        },
+      }}
     >
-      <Typography width="2rem" fontSize="0.9rem">
+      <Typography
+        sx={{
+          width: "2rem",
+          fontSize: "0.8rem",
+          color: "rgba(255,255,255,0.35)",
+          fontWeight: 600,
+          textAlign: "center",
+        }}
+      >
         {moveNb}.
       </Typography>
 

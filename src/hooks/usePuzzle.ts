@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { getRandomPuzzle, getDailyPuzzle, PUZZLES } from "@/data/puzzles";
 import { Chess } from "chess.js";
-import { playSoundFromMove } from "@/lib/sounds";
+import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
 
 interface LastMove {
@@ -263,7 +263,8 @@ export const usePuzzle = () => {
         }
         return true;
       } else {
-        // Wrong move - but still track where user tried to move
+        // Wrong move - play error sound and track where user tried to move
+        playIllegalMoveSound();
         setLastMove({ from, to });
         setPuzzleState("failed");
         logAnalyticsEvent("puzzle_failed", {

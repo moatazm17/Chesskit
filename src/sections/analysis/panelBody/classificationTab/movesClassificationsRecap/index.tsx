@@ -1,5 +1,5 @@
 import { usePlayersData } from "@/hooks/usePlayersData";
-import { Grid2 as Grid, Typography } from "@mui/material";
+import { Box, Grid2 as Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { gameAtom, gameEvalAtom } from "../../../states";
 import { MoveClassification } from "@/types/enums";
 import ClassificationRow from "./classificationRow";
@@ -8,6 +8,8 @@ import { useAtomValue } from "jotai";
 export default function MovesClassificationsRecap() {
   const { white, black } = usePlayersData(gameAtom);
   const gameEval = useAtomValue(gameEvalAtom);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   if (!gameEval?.positions.length) return null;
 
@@ -16,29 +18,62 @@ export default function MovesClassificationsRecap() {
       container
       justifyContent="center"
       alignItems="center"
-      rowGap={0.7}
-      sx={{ scrollbarWidth: "thin", overflowY: "auto" }}
-      height="100%"
-      maxHeight="22rem"
-      size={6}
+      rowGap={0.5}
+      sx={{
+        scrollbarWidth: "thin",
+        overflowY: "auto",
+        ...(isMobile
+          ? {
+              width: "100%",
+              maxHeight: "none",
+              pb: 1,
+            }
+          : {
+              height: "100%",
+              maxHeight: "22rem",
+            }),
+      }}
+      size={isMobile ? 12 : 6}
     >
-      <Grid
-        container
-        alignItems="center"
-        justifyContent="space-evenly"
-        wrap="nowrap"
-        size={12}
+      {/* Header */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          width: "100%",
+          px: 1,
+          py: 0.8,
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          mb: 0.5,
+        }}
       >
-        <Typography width="12rem" align="center" noWrap fontSize="0.9rem">
+        <Typography
+          align="center"
+          noWrap
+          sx={{
+            fontSize: "0.75rem",
+            color: "rgba(255,255,255,0.5)",
+            fontWeight: 600,
+          }}
+        >
           {white.name}
         </Typography>
 
-        <Typography width="7rem" />
+        <Box sx={{ width: "7rem" }} />
 
-        <Typography width="12rem" align="center" noWrap fontSize="0.9rem">
+        <Typography
+          align="center"
+          noWrap
+          sx={{
+            fontSize: "0.75rem",
+            color: "rgba(255,255,255,0.5)",
+            fontWeight: 600,
+          }}
+        >
           {black.name}
         </Typography>
-      </Grid>
+      </Box>
 
       {sortedMoveClassfications.map((classification) => (
         <ClassificationRow

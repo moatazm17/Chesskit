@@ -271,10 +271,9 @@ export default function Puzzles() {
     legalMoves.forEach((square) => {
       const piece = game.get(square);
       if (piece) {
-        // Capture move - ring indicator visible on top of opponent piece
+        // Capture move - thick inset ring visible on top of opponent piece
         styles[square] = {
-          background:
-            "radial-gradient(transparent 0%, transparent 79%, rgba(0,0,0,0.3) 80%, transparent 81%)",
+          boxShadow: "inset 0 0 0 5px rgba(0,0,0,0.45)",
           borderRadius: "50%",
         };
       } else {

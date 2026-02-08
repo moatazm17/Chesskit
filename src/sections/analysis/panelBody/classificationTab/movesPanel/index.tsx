@@ -1,4 +1,4 @@
-import { Grid2 as Grid } from "@mui/material";
+import { Grid2 as Grid, useMediaQuery, useTheme } from "@mui/material";
 import MovesLine from "./movesLine";
 import { useMemo } from "react";
 import { useAtomValue } from "jotai";
@@ -9,6 +9,8 @@ export default function MovesPanel() {
   const game = useAtomValue(gameAtom);
   const board = useAtomValue(boardAtom);
   const gameEval = useAtomValue(gameEvalAtom);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const gameMoves = useMemo(() => {
     const gameHistory = game.history();
@@ -52,11 +54,20 @@ export default function MovesPanel() {
       container
       justifyContent="center"
       alignItems="start"
-      gap={0.5}
+      gap={0.3}
       paddingY={1}
-      sx={{ scrollbarWidth: "thin", overflowY: "auto" }}
+      sx={{
+        scrollbarWidth: "thin",
+        overflowY: "auto",
+        ...(isMobile
+          ? {
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              pt: 1.5,
+            }
+          : {}),
+      }}
       maxHeight="100%"
-      size={6}
+      size={isMobile ? 12 : 6}
       id="moves-panel"
     >
       {gameMoves?.map((moves, idx) => (

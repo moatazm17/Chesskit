@@ -10,7 +10,6 @@ import {
   Grid2 as Grid,
   Tab,
   Tabs,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -392,13 +391,6 @@ export default function GameAnalysis() {
                 disableFocusRipple
               />
 
-              <Tab
-                label="Notes"
-                id="tab3"
-                icon={<Icon icon="mdi:note-text" className="tab-icon" />}
-                iconPosition="start"
-                disableFocusRipple
-              />
               </Tabs>
             </Box>
           </Box>
@@ -421,22 +413,6 @@ export default function GameAnalysis() {
           hidden={tab !== 1 && !isLgOrGreater}
           id="tabContent1"
         />
-
-        <Box
-          role="tabpanel"
-          hidden={tab !== 3 && !isLgOrGreater}
-          id="tabContent3"
-          sx={{
-            padding: 2,
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderRadius: 2,
-            marginTop: 1
-          }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Game comments and annotations will appear here.
-          </Typography>
-        </Box>
 
 
 

@@ -123,7 +123,7 @@ const captureSquareStyles: CSSProperties = {
   width: "100%",
   height: "100%",
   background:
-    "radial-gradient(transparent 0%, transparent 79%, rgba(0,0,0,0.3) 80%, transparent 81%)",
+    "radial-gradient(transparent 0%, transparent 74%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.45) 82%, transparent 83%)",
   boxSizing: "border-box",
   zIndex: 1,
 };
