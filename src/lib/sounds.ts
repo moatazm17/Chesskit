@@ -79,10 +79,10 @@ export const playSoundFromMove = (move: Move | null, game?: Chess) => {
   // Check if the game is over (checkmate, stalemate, draw)
   if (game && game.isGameOver()) return playGameEndSound();
 
-  // Check sound + funny sound
+  // Check — play check sound first, then funny sound after a short delay
   if (game && game.inCheck()) {
     play("check");
-    play("checkFunny");
+    setTimeout(() => play("checkFunny"), 350);
     return;
   }
 

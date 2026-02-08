@@ -80,8 +80,8 @@ export default function Puzzles() {
 
       if (kingSquare) {
         if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
-        setCheckAnimSquare(kingSquare);
-        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2000);
+        setTimeout(() => setCheckAnimSquare(kingSquare), 350);
+        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2350);
       }
     } else {
       setCheckAnimSquare(null);
