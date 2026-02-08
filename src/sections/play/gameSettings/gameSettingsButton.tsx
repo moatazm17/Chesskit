@@ -63,8 +63,8 @@ export default function GameSettingsButton() {
     router.push("/bots");
   };
 
-  // If a bot is active and game ended, show rematch + change opponent buttons
-  if (activeBot && hasHistory) {
+  // If a bot is active, show rematch + change opponent buttons
+  if (activeBot) {
     return (
       <Stack spacing={1.5} sx={{ width: "100%", maxWidth: isMobile ? 280 : 320 }}>
         <Button
