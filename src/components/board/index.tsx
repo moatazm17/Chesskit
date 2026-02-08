@@ -75,7 +75,7 @@ export default function Board({
     if (gameFen === prevFenRef.current) return;
     prevFenRef.current = gameFen;
 
-    if (game.inCheck()) {
+    if (game.inCheck() && !game.isGameOver()) {
       // Find king square
       const turn = game.turn();
       const files = "abcdefgh";
@@ -94,9 +94,8 @@ export default function Board({
 
       if (kingSquare) {
         if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
-        // Delay GIF to match the funny sound (350ms after check sound)
-        setTimeout(() => setCheckAnimSquare(kingSquare), 350);
-        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2350);
+        setCheckAnimSquare(kingSquare);
+        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2000);
       }
     } else {
       setCheckAnimSquare(null);

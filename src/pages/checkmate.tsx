@@ -67,7 +67,7 @@ export default function CheckmatePuzzles() {
     if (currentFen === prevCheckmateFenRef.current) return;
     prevCheckmateFenRef.current = currentFen;
 
-    if (game.inCheck()) {
+    if (game.inCheck() && !game.isGameOver()) {
       const turn = game.turn();
       const files = "abcdefgh";
       let kingSquare: Square | null = null;
@@ -85,8 +85,8 @@ export default function CheckmatePuzzles() {
 
       if (kingSquare) {
         if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
-        setTimeout(() => setCheckAnimSquare(kingSquare), 350);
-        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2350);
+        setCheckAnimSquare(kingSquare);
+        checkTimerRef.current = setTimeout(() => setCheckAnimSquare(null), 2000);
       }
     } else {
       setCheckAnimSquare(null);
