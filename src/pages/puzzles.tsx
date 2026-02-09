@@ -187,8 +187,8 @@ export default function Puzzles() {
       // Increment puzzle counter
       puzzleCountRef.current += 1;
       
-      // Show ad every 2 puzzles
-      if (puzzleCountRef.current % 2 === 0) {
+      // Show ad every 3 puzzles
+      if (puzzleCountRef.current % 3 === 0) {
         const w = window as any;
         if (w.App && typeof w.App.postMessage === "function") {
           w.App.postMessage("showInterstitial");
