@@ -1,4 +1,8 @@
-import { ChessComGame } from "@/types/chessCom";
+import {
+  ChessComGame,
+  ChessComProfile,
+  ChessComPlayerStats,
+} from "@/types/chessCom";
 import { getPaddedNumber } from "./helpers";
 import { LoadedGame } from "@/types/game";
 
@@ -60,6 +64,69 @@ export const getChessComUserAvatar = async (
   const avatarUrl = data?.avatar;
 
   return typeof avatarUrl === "string" ? avatarUrl : null;
+};
+
+export const getChessComPlayerProfile = async (
+  username: string,
+  signal?: AbortSignal
+): Promise<ChessComProfile> => {
+  const usernameParam = encodeURIComponent(username.trim().toLowerCase());
+  const res = await fetch(
+    `https://api.chess.com/pub/player/${usernameParam}`,
+    { signal }
+  );
+  if (res.status >= 400) {
+    throw new Error("Player not found");
+  }
+  return res.json();
+};
+
+export const getChessComPlayerStats = async (
+  username: string,
+  signal?: AbortSignal
+): Promise<ChessComPlayerStats> => {
+  const usernameParam = encodeURIComponent(username.trim().toLowerCase());
+  const res = await fetch(
+    `https://api.chess.com/pub/player/${usernameParam}/stats`,
+    { signal }
+  );
+  if (res.status >= 400) {
+    throw new Error("Could not fetch player stats");
+  }
+  return res.json();
+};
+
+export const getChessComPlayerAllGames = async (
+  username: string,
+  months: number = 3,
+  signal?: AbortSignal
+): Promise<ChessComGame[]> => {
+  const usernameParam = encodeURIComponent(username.trim().toLowerCase());
+  const allGames: ChessComGame[] = [];
+  const now = new Date();
+
+  for (let i = 0; i < months; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = d.getFullYear();
+    const month = getPaddedNumber(d.getMonth() + 1);
+
+    try {
+      const res = await fetch(
+        `https://api.chess.com/pub/player/${usernameParam}/games/${year}/${month}`,
+        { signal }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        allGames.push(...(data?.games ?? []));
+      }
+    } catch (e) {
+      if (signal?.aborted) throw e;
+    }
+  }
+
+  return allGames
+    .filter((g) => g.pgn && g.end_time)
+    .sort((a, b) => b.end_time - a.end_time);
 };
 
 const formatChessComGame = (data: ChessComGame): LoadedGame => {

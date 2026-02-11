@@ -40,6 +40,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
     },
     { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
     { text: "Saved Games", icon: "streamline:database", href: "/database" },
+    { text: "Player Insights", icon: "mdi:chart-areaspline", href: "/stats" },
   ];
 
   return (

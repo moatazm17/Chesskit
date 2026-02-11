@@ -227,6 +227,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
+              title="Player Insights"
+              description="Analyze your Chess.com stats"
+              icon="mdi:chart-areaspline"
+              color="#26C6DA"
+              onClick={() => (window.location.href = "/stats")}
+              badge="HOT"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
               title="Puzzles"
               description="Solve daily puzzles and improve"
               icon="mdi:puzzle"
@@ -314,6 +325,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={onSavedGames}
             />
           </Grid>
+
         </Grid>
       </Box>
     </Box>
