@@ -9,6 +9,7 @@ import {
   useTheme,
   useMediaQuery,
   Autocomplete,
+  IconButton,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
@@ -101,6 +102,13 @@ export default function StatsPage() {
     logAnalyticsEvent("insights_search", { username: trimmed });
   }, [inputUsername, updateHistory]);
 
+  const handleRefresh = useCallback(() => {
+    profileQuery.refetch();
+    statsQuery.refetch();
+    gamesQuery.refetch();
+    logAnalyticsEvent("insights_refresh", { username: searchUsername });
+  }, [profileQuery, statsQuery, gamesQuery, searchUsername]);
+
   // ── Queries ────────────────────────────────────────────────────
 
   const profileQuery = useQuery({
@@ -188,10 +196,25 @@ export default function StatsPage() {
               />
               <Typography
                 variant="subtitle1"
-                sx={{ fontWeight: 700, color: "white" }}
+                sx={{ fontWeight: 700, color: "white", flex: 1 }}
               >
                 Chess.com Username
               </Typography>
+              {allDataReady && (
+                <IconButton
+                  onClick={handleRefresh}
+                  size="small"
+                  sx={{
+                    color: "rgba(255,255,255,0.5)",
+                    "&:hover": {
+                      color: "#4ecdc4",
+                      background: "rgba(78,205,196,0.1)",
+                    },
+                  }}
+                >
+                  <Icon icon="mdi:refresh" style={{ fontSize: 20 }} />
+                </IconButton>
+              )}
             </Stack>
 
             <Stack direction="row" spacing={1}>
