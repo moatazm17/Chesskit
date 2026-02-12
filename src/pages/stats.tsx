@@ -102,13 +102,6 @@ export default function StatsPage() {
     logAnalyticsEvent("insights_search", { username: trimmed });
   }, [inputUsername, updateHistory]);
 
-  const handleRefresh = useCallback(() => {
-    profileQuery.refetch();
-    statsQuery.refetch();
-    gamesQuery.refetch();
-    logAnalyticsEvent("insights_refresh", { username: searchUsername });
-  }, [profileQuery, statsQuery, gamesQuery, searchUsername]);
-
   // ── Queries ────────────────────────────────────────────────────
 
   const profileQuery = useQuery({
@@ -148,6 +141,13 @@ export default function StatsPage() {
 
   const isError =
     profileQuery.isError || statsQuery.isError || gamesQuery.isError;
+
+  const handleRefresh = useCallback(() => {
+    profileQuery.refetch();
+    statsQuery.refetch();
+    gamesQuery.refetch();
+    logAnalyticsEvent("insights_refresh", { username: searchUsername });
+  }, [profileQuery, statsQuery, gamesQuery, searchUsername]);
 
   // ── Calculate insights ─────────────────────────────────────────
 
