@@ -108,6 +108,8 @@ export default function StatsPage() {
     enabled: !!searchUsername,
     queryFn: ({ signal }) => getChessComPlayerProfile(searchUsername, signal),
     retry: 1,
+    staleTime: 1000 * 60 * 10, // 10 minutes - prevent refetch on window focus
+    refetchOnWindowFocus: false,
   });
 
   const statsQuery = useQuery({
@@ -115,6 +117,8 @@ export default function StatsPage() {
     enabled: !!searchUsername,
     queryFn: ({ signal }) => getChessComPlayerStats(searchUsername, signal),
     retry: 1,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 
   const gamesQuery = useQuery({
@@ -123,12 +127,16 @@ export default function StatsPage() {
     queryFn: ({ signal }) =>
       getChessComPlayerAllGames(searchUsername, 3, signal),
     retry: 1,
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
   });
 
+  // Use isPending (first load only) not isFetching (includes background refetch)
+  // This keeps data visible during background refetches (e.g. after interstitial ads)
   const isLoading =
-    profileQuery.isFetching ||
-    statsQuery.isFetching ||
-    gamesQuery.isFetching;
+    (profileQuery.isPending && profileQuery.isFetching) ||
+    (statsQuery.isPending && statsQuery.isFetching) ||
+    (gamesQuery.isPending && gamesQuery.isFetching);
 
   const isError =
     profileQuery.isError || statsQuery.isError || gamesQuery.isError;
