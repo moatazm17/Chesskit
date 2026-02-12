@@ -1,3 +1,4 @@
+import { triggerInterstitialAd } from "@/lib/ads";
 import { PageTitle } from "@/components/pageTitle";
 import {
   Grid2 as Grid,
@@ -189,12 +190,7 @@ export default function Puzzles() {
       
       // Show ad every 3 puzzles
       if (puzzleCountRef.current % 3 === 0) {
-        const w = window as any;
-        if (w.App && typeof w.App.postMessage === "function") {
-          w.App.postMessage("showInterstitial");
-        } else if (w && typeof w.triggerInterstitialAd === "function") {
-          w.triggerInterstitialAd();
-        }
+        triggerInterstitialAd();
       }
       
       setPuzzleLoaded(false); // This will trigger loading a new puzzle

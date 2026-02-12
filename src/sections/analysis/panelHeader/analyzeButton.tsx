@@ -15,6 +15,7 @@ import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { LoadingButton } from "@mui/lab";
 import { useEngine } from "@/hooks/useEngine";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import { triggerInterstitialAd } from "@/lib/ads";
 import { SavedEvals } from "@/types/eval";
 import { useEffect, useCallback } from "react";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -50,18 +51,8 @@ export default function AnalyzeButton() {
       return;
     }
 
-    // Notify Flutter WebView to show an interstitial ad (if running inside the mobile app)
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const w: any = typeof window !== "undefined" ? window : undefined;
-      if (w && w.App && typeof w.App.postMessage === "function") {
-        w.App.postMessage("analysisCompleted");
-      } else if (w && typeof w.triggerInterstitialAd === "function") {
-        w.triggerInterstitialAd();
-      }
-    } catch {
-      // no-op: safe guard if not in WebView context
-    }
+    // Show interstitial ad before analysis starts
+    triggerInterstitialAd();
 
     const newGameEval = await engine.evaluateGame({
       ...params,

@@ -30,6 +30,7 @@ import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import { showInterstitialAd } from "@/lib/ads";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -71,15 +72,9 @@ export default function GameAnalysis() {
   }, [router.query]);
 
   // Navigation handlers
-  const handlePlayGame = () => {
+  const handlePlayGame = async () => {
     logAnalyticsEvent("card_click", { card: "play_game" });
-    // Show interstitial ad before navigating to play
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    await showInterstitialAd();
     window.location.href = '/play';
   };
 
@@ -93,38 +88,21 @@ export default function GameAnalysis() {
     window.location.href = '/database';
   };
 
-  const handlePuzzles = () => {
+  const handlePuzzles = async () => {
     logAnalyticsEvent("card_click", { card: "puzzles" });
-    // Show interstitial ad before navigating to puzzles
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    await showInterstitialAd();
     router.push('/puzzles');
   };
 
-  const handleCheckmate = () => {
+  const handleCheckmate = async () => {
     logAnalyticsEvent("card_click", { card: "checkmate" });
-    // Show interstitial ad before navigating to checkmate puzzles
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    await showInterstitialAd();
     router.push('/checkmate');
   };
 
-  const handleBots = () => {
+  const handleBots = async () => {
     logAnalyticsEvent("card_click", { card: "play_vs_legends" });
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    await showInterstitialAd();
     router.push('/bots');
   };
 

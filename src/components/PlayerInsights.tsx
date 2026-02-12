@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, ReactNode } from "react";
+import { triggerInterstitialAd as fireAd } from "@/lib/ads";
 import {
   Box,
   Typography,
@@ -824,12 +825,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
   const isFirst = currentStep === 0;
 
   const triggerAd = useCallback(() => {
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    fireAd();
   }, []);
 
   const handleNext = useCallback(() => {

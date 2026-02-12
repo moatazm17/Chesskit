@@ -5,6 +5,7 @@ import GameAnalysisModal from "@/components/GameAnalysisModal";
 import { Chess } from "chess.js";
 import { useChessActions } from "@/hooks/useChessActions";
 import { gameAtom, boardAtom } from "@/sections/analysis/states";
+import { triggerInterstitialAd } from "@/lib/ads";
 
 interface Props {
   setGame?: (game: Chess) => Promise<void>;
@@ -50,18 +51,7 @@ export default function LoadGameButton({ setGame, label, size }: Props) {
       <Button
         variant="contained"
         onClick={() => {
-          // Trigger interstitial ad in Flutter WebView
-          try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const w: any = typeof window !== "undefined" ? window : undefined;
-            if (w && w.App && typeof w.App.postMessage === "function") {
-              w.App.postMessage("showInterstitial");
-            } else if (w && typeof w.triggerInterstitialAd === "function") {
-              w.triggerInterstitialAd();
-            }
-          } catch {
-            // ignore if not in WebView
-          }
+          triggerInterstitialAd();
           setOpenDialog(true);
         }}
         size={size}

@@ -3,7 +3,8 @@ import { Grid2 as Grid, IconButton, Tooltip } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { boardAtom, gameAtom } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { triggerInterstitialAd } from "@/lib/ads";
 
 export default function NextMoveButton() {
   const { playMove: playBoardMove } = useChessActions(boardAtom);
@@ -17,6 +18,8 @@ export default function NextMoveButton() {
     boardHistory.length < gameHistory.length &&
     gameHistory.slice(0, boardHistory.length).join() === boardHistory.join();
 
+  const moveCountRef = useRef(0);
+
   const addNextGameMoveToBoard = useCallback(() => {
     if (!isButtonEnabled) return;
 
@@ -27,20 +30,10 @@ export default function NextMoveButton() {
       .find((c) => c.fen === nextMove.after)?.comment;
 
     if (nextMove) {
-      // Notify Flutter WebView to show an interstitial ad occasionally
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const w: any = typeof window !== "undefined" ? window : undefined;
-        // Throttle via random chance (10%) to avoid too frequent ads
-        if (Math.random() < 0.1) {
-          if (w && w.App && typeof w.App.postMessage === "function") {
-            w.App.postMessage("nextMoveClicked");
-          } else if (w && typeof w.triggerInterstitialAd === "function") {
-            w.triggerInterstitialAd();
-          }
-        }
-      } catch {
-        // ignore if not in WebView
+      // Show ad every 15 moves instead of random 10%
+      moveCountRef.current += 1;
+      if (moveCountRef.current % 15 === 0) {
+        triggerInterstitialAd();
       }
 
       playBoardMove({
