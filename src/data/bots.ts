@@ -36,7 +36,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "Legendary endgame wizard with flawless technique",
     style: "Positional",
     avatar: "♚",
-    image: "/bots/capablanca.png",
+    image: "/bots/capablanca.webp",
     color: "#B8860B",
     openings: {
       // Capablanca overwhelmingly played 1.d4 and the Queen's Gambit
@@ -77,7 +77,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "Ultra-aggressive sacrificial genius, 362 Sicilian games as White",
     style: "Aggressive",
     avatar: "♞",
-    image: "/bots/tal.png",
+    image: "/bots/tal.webp",
     color: "#DC143C",
     openings: {
       // Tal's most played: Sicilian (362), Ruy Lopez (264), Caro-Kann responses
@@ -121,7 +121,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "Positional mastery, 242 Sicilian games and Caro-Kann specialist",
     style: "Positional",
     avatar: "♜",
-    image: "/bots/karpov.png",
+    image: "/bots/karpov.webp",
     color: "#4682B4",
     openings: {
       // Early career: 1.e4 (Sicilian 242, Ruy Lopez 143, KID 191)
@@ -168,7 +168,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "1.e4 devotee, Najdorf master, 'Best by test'",
     style: "Classical",
     avatar: "♗",
-    image: "/bots/fischer.png",
+    image: "/bots/fischer.webp",
     color: "#228B22",
     openings: {
       // Fischer almost exclusively played 1.e4
@@ -215,7 +215,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "Opening mastermind, 158 KID games and deep preparation",
     style: "Dynamic",
     avatar: "♛",
-    image: "/bots/kasparov.png",
+    image: "/bots/kasparov.webp",
     color: "#8B0000",
     openings: {
       // Kasparov: Sicilian (192 as White), Ruy Lopez (104), QGD (91), Scotch
@@ -258,7 +258,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "652 Sicilian games, rapid calculation master",
     style: "Tactical",
     avatar: "♝",
-    image: "/bots/anand.png",
+    image: "/bots/anand.webp",
     color: "#FF8C00",
     openings: {
       // Anand: Sicilian (652!), Ruy Lopez (488), Najdorf specialist (165)
@@ -298,7 +298,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "1.b3 specialist, bullet chess master, Dutch Defense player",
     style: "Unorthodox",
     avatar: "♘",
-    image: "/bots/nakamura.png",
+    image: "/bots/nakamura.webp",
     color: "#9400D3",
     openings: {
       // Nakamura: 1.b3 (signature!), King's Gambit, 1.e4
@@ -344,7 +344,7 @@ export const CHESS_BOTS: ChessBot[] = [
     description: "Universal player, London System expert, Berlin endgame master",
     style: "Universal",
     avatar: "♔",
-    image: "/bots/carlsen.png",
+    image: "/bots/carlsen.webp",
     color: "#1E90FF",
     openings: {
       // Carlsen: London System, Ruy Lopez, English, Italian, Catalan

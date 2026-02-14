@@ -18,14 +18,22 @@ import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
 import EngineSettingsButton from "@/sections/engineSettings/engineSettingsButton";
-import GraphTab from "@/sections/analysis/panelBody/graphTab";
+import dynamic from "next/dynamic";
 import { PageTitle } from "@/components/pageTitle";
 import HomeScreen from "@/components/HomeScreen";
 import LoadGameScreen from "@/components/LoadGameScreen";
 import PremiumNavBar from "@/components/PremiumNavBar";
 
 import NewGameDialog from "@/sections/loadGame/loadGameDialog";
-import GameAnalysisModal from "@/components/GameAnalysisModal";
+
+const GraphTab = dynamic(
+  () => import("@/sections/analysis/panelBody/graphTab"),
+  { ssr: false }
+);
+const GameAnalysisModal = dynamic(
+  () => import("@/components/GameAnalysisModal"),
+  { ssr: false }
+);
 import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
@@ -183,7 +191,7 @@ export default function GameAnalysis() {
       <Box
         sx={{
           minHeight: 'calc(100vh - 64px)',
-          background: `linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(22,33,62,0.8) 50%, rgba(15,52,96,0.8) 100%), url('/chessreviewbg.png')`,
+          background: `linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(22,33,62,0.8) 50%, rgba(15,52,96,0.8) 100%), url('/chessreviewbg.webp')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

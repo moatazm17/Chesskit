@@ -144,7 +144,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     <Box
       sx={{
         minHeight: "calc(100vh - 64px)",
-        background: `linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(22,33,62,0.8) 50%, rgba(15,52,96,0.8) 100%), url('/chessreviewbg.png')`,
+        background: `linear-gradient(135deg, rgba(26,26,46,0.8) 0%, rgba(22,33,62,0.8) 50%, rgba(15,52,96,0.8) 100%), url('/chessreviewbg.webp')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -274,7 +274,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     marginBottom: isMobile ? "0.5rem" : "1rem",
                   }}
                 >
-                  {["/bots/carlsen.png", "/bots/nakamura.png", "/bots/fischer.png"].map(
+                  {["/bots/carlsen.webp", "/bots/nakamura.webp", "/bots/fischer.webp"].map(
                     (src, i) => (
                       <Box
                         key={src}

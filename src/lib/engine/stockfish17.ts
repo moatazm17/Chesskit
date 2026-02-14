@@ -9,7 +9,7 @@ export class Stockfish17 {
     }
 
     const multiThreadIsSupported = isMultiThreadSupported();
-    if (!multiThreadIsSupported) console.log("Single thread mode");
+    // Single thread fallback if SharedArrayBuffer is not available
 
     const enginePath = `engines/stockfish-17/stockfish-17${
       lite ? "-lite" : ""

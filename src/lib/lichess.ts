@@ -60,8 +60,9 @@ export const getLichessUserRecentGames = async (
   username: string,
   signal?: AbortSignal
 ): Promise<LoadedGame[]> => {
+  const usernameParam = encodeURIComponent(username.trim().toLowerCase());
   const res = await fetch(
-    `https://lichess.org/api/games/user/${username}?until=${Date.now()}&max=50&pgnInJson=true&sort=dateDesc&clocks=true`,
+    `https://lichess.org/api/games/user/${usernameParam}?until=${Date.now()}&max=50&pgnInJson=true&sort=dateDesc&clocks=true`,
     { method: "GET", headers: { accept: "application/x-ndjson" }, signal }
   );
 
@@ -89,9 +90,7 @@ const fetchLichessEval = async (
     );
 
     return res.json();
-  } catch (error) {
-    console.error(error);
-
+  } catch {
     return { error: LichessError.NotFound };
   }
 };
@@ -113,8 +112,6 @@ export const fetchLichessGame = async (
     const gameData: LichessGame = await res.json();
     return gameData.pgn;
   } catch (error) {
-    console.error(error);
-
     return { error: error instanceof Error ? error.message : "Unknown error" };
   }
 };

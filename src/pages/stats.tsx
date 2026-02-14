@@ -15,7 +15,12 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import PremiumNavBar from "@/components/PremiumNavBar";
 import { PageTitle } from "@/components/pageTitle";
-import PlayerInsights from "@/components/PlayerInsights";
+import dynamic from "next/dynamic";
+
+const PlayerInsights = dynamic(
+  () => import("@/components/PlayerInsights"),
+  { ssr: false }
+);
 import {
   getChessComPlayerProfile,
   getChessComPlayerStats,

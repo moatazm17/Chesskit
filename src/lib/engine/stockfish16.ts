@@ -11,7 +11,7 @@ export class Stockfish16 {
     }
 
     const multiThreadIsSupported = isMultiThreadSupported();
-    if (!multiThreadIsSupported) console.log("Single thread mode");
+    // Single thread fallback if SharedArrayBuffer is not available
 
     const enginePath = multiThreadIsSupported
       ? "engines/stockfish-16/stockfish-nnue-16.js"

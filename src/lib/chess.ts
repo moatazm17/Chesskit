@@ -18,7 +18,13 @@ export const getEvaluateGameParams = (game: Chess): EvaluateGameParams => {
   return { fens, uciMoves };
 };
 
+const MAX_PGN_LENGTH = 50_000; // ~500 moves is extremely long
+
 export const getGameFromPgn = (pgn: string): Chess => {
+  if (pgn.length > MAX_PGN_LENGTH) {
+    throw new Error("PGN is too large to parse");
+  }
+
   const game = new Chess();
   game.loadPgn(pgn);
 
