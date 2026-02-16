@@ -11,7 +11,7 @@ import {
 import { WebView } from 'react-native-webview';
 import { useColorScheme } from 'react-native';
 
-const CHESS_REVIEW_URL = 'https://chesskit-production.up.railway.app';
+const CHESS_REVIEW_URL = 'https://chessplus.pages.dev';
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
