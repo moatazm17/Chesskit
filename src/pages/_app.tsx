@@ -50,7 +50,7 @@ function MaintenancePage() {
           }}
         >
           <div style={{ padding: "8px 0", fontSize: "15px", color: "#ddd" }}>
-            ١. امسح تطبيق ChessPlus من موبايلك
+            ١. امسح تطبيق Chess Analysis + من موبايلك
           </div>
           <div style={{ padding: "8px 0", fontSize: "15px", color: "#ddd" }}>
             ٢. حمّله تاني من المتجر
