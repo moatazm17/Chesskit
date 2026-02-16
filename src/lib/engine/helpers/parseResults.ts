@@ -1,6 +1,8 @@
 import { formatUciPv } from "@/lib/chess";
 import { LineEval, PositionEval } from "@/types/eval";
 
+const SHALLOW_DEPTH = 8;
+
 export const parseEvaluationResults = (
   results: string[],
   fen: string
@@ -9,6 +11,7 @@ export const parseEvaluationResults = (
     lines: [],
   };
   const tempResults: Record<string, LineEval> = {};
+  let shallowBestMove: string | undefined = undefined;
 
   for (const result of results) {
     if (result.startsWith("bestmove")) {
@@ -24,9 +27,17 @@ export const parseEvaluationResults = (
       const depth = getResultProperty(result, "depth");
       if (!pv || !multiPv || !depth) continue;
 
+      const depthNum = parseInt(depth);
+
+      // Capture the engine's best move at shallow depth for brilliant move detection.
+      // If the engine finds a move at shallow depth, it's "obvious" and not brilliant.
+      if (depthNum === SHALLOW_DEPTH && multiPv === "1" && pv.length > 0) {
+        shallowBestMove = pv[0];
+      }
+
       if (
         tempResults[multiPv] &&
-        parseInt(depth) < tempResults[multiPv].depth
+        depthNum < tempResults[multiPv].depth
       ) {
         continue;
       }
@@ -38,13 +49,14 @@ export const parseEvaluationResults = (
         pv,
         cp: cp ? parseInt(cp) : undefined,
         mate: mate ? parseInt(mate) : undefined,
-        depth: parseInt(depth),
+        depth: depthNum,
         multiPv: parseInt(multiPv),
       };
     }
   }
 
   parsedResults.lines = Object.values(tempResults).sort(sortLines);
+  parsedResults.shallowBestMove = shallowBestMove;
 
   const whiteToPlay = fen.split(" ")[1] === "w";
   if (!whiteToPlay) {

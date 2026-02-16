@@ -93,6 +93,7 @@ export const sortedMoveClassfications = [
   MoveClassification.Okay,
   MoveClassification.Opening,
   MoveClassification.Inaccuracy,
+  MoveClassification.Miss,
   MoveClassification.Mistake,
   MoveClassification.Blunder,
 ];

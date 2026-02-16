@@ -197,12 +197,17 @@ export const isSimplePieceRecapture = (
   return false;
 };
 
+/**
+ * Returns the material value of the sacrifice (in piece value points).
+ * Returns 0 if the move is not a sacrifice.
+ * e.g., knight sacrifice = 3, rook sacrifice = 5, queen sacrifice = 9
+ */
 export const getIsPieceSacrifice = (
   fen: string,
   playedMove: string,
   bestLinePvToPlay: string[]
-): boolean => {
-  if (!bestLinePvToPlay.length) return false;
+): number => {
+  if (!bestLinePvToPlay.length) return 0;
 
   const game = new Chess(fen);
   const whiteToPlay = game.turn() === "w";
@@ -230,7 +235,7 @@ export const getIsPieceSacrifice = (
       }
     } catch (e) {
       console.error(e);
-      return false;
+      return 0;
     }
   }
 
@@ -245,7 +250,7 @@ export const getIsPieceSacrifice = (
     Math.abs(capturedPieces["w"].length - capturedPieces["b"].length) <= 1 &&
     capturedPieces["w"].concat(capturedPieces["b"]).every((p) => p === "p")
   ) {
-    return false;
+    return 0;
   }
 
   const endingMaterialDifference = getMaterialDifference(game.fen());
@@ -253,7 +258,19 @@ export const getIsPieceSacrifice = (
   const materialDiff = endingMaterialDifference - startingMaterialDifference;
   const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
 
-  return materialDiffPlayerRelative < 0;
+  return materialDiffPlayerRelative < 0 ? -materialDiffPlayerRelative : 0;
+};
+
+/**
+ * Count non-king pieces on the board from a FEN string.
+ */
+export const getPieceCount = (fen: string): number => {
+  const placement = fen.split(" ")[0];
+  let count = 0;
+  for (const c of placement) {
+    if (/[pnbrqPNBRQ]/.test(c)) count++;
+  }
+  return count;
 };
 
 export const getMaterialDifference = (fen: string): number => {

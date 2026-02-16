@@ -60,6 +60,8 @@ const getMoveClassificationIcon = (classification: MoveClassification) => {
       return { icon: "mdi:circle-medium", color: "#AED581", label: "Good" };
     case MoveClassification.Inaccuracy:
       return { icon: "mdi:help", color: "#FFA726", label: "Inaccuracy" };
+    case MoveClassification.Miss:
+      return { icon: "mdi:target", color: "#FF8F00", label: "Miss" };
     case MoveClassification.Mistake:
       return { icon: "mdi:close-thick", color: "#FF7043", label: "Mistake" };
     case MoveClassification.Blunder:
@@ -331,8 +333,9 @@ export default function GameAnalysisModal({
       MoveClassification.Splendid,
       MoveClassification.Perfect,
       MoveClassification.Best,
-      MoveClassification.Mistake,
       MoveClassification.Inaccuracy,
+      MoveClassification.Miss,
+      MoveClassification.Mistake,
       MoveClassification.Blunder,
     ];
 

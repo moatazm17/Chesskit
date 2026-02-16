@@ -243,7 +243,7 @@ export class UciEngine {
   public async evaluateGame({
     fens,
     uciMoves,
-    depth = 16,
+    depth = 18,
     multiPv = this.multiPv,
     setEvaluationProgress,
     playersRatings,
@@ -310,9 +310,10 @@ export class UciEngine {
     const positionsWithClassification = getMovesClassification(
       positions,
       uciMoves,
-      fens
+      fens,
+      playersRatings
     );
-    const accuracy = computeAccuracy(positions);
+    const accuracy = computeAccuracy(positions, playersRatings);
     const estimatedElo = computeEstimatedElo(
       positions,
       playersRatings?.white,
@@ -334,7 +335,7 @@ export class UciEngine {
 
   private async evaluatePosition(
     fen: string,
-    depth = 16,
+    depth = 18,
     workersNb: number
   ): Promise<PositionEval> {
     if (workersNb < 2) {

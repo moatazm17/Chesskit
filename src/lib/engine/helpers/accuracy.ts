@@ -7,15 +7,28 @@ import {
 import { Accuracy, PositionEval } from "@/types/eval";
 import { getPositionWinPercentage } from "./winPercentage";
 
-export const computeAccuracy = (positions: PositionEval[]): Accuracy => {
+export const computeAccuracy = (
+  positions: PositionEval[],
+  playersRatings?: { white?: number; black?: number }
+): Accuracy => {
   const positionsWinPercentage = positions.map(getPositionWinPercentage);
 
   const weights = getAccuracyWeights(positionsWinPercentage);
 
   const movesAccuracy = getMovesAccuracy(positionsWinPercentage);
 
-  const whiteAccuracy = getPlayerAccuracy(movesAccuracy, weights, "white");
-  const blackAccuracy = getPlayerAccuracy(movesAccuracy, weights, "black");
+  const whiteAccuracy = getPlayerAccuracy(
+    movesAccuracy,
+    weights,
+    "white",
+    playersRatings?.white
+  );
+  const blackAccuracy = getPlayerAccuracy(
+    movesAccuracy,
+    weights,
+    "black",
+    playersRatings?.black
+  );
 
   return {
     white: whiteAccuracy,
@@ -26,7 +39,8 @@ export const computeAccuracy = (positions: PositionEval[]): Accuracy => {
 const getPlayerAccuracy = (
   movesAccuracy: number[],
   weights: number[],
-  player: "white" | "black"
+  player: "white" | "black",
+  playerRating?: number
 ): number => {
   const remainder = player === "white" ? 0 : 1;
   const playerAccuracies = movesAccuracy.filter(
@@ -37,7 +51,18 @@ const getPlayerAccuracy = (
   const weightedMean = getWeightedMean(playerAccuracies, playerWeights);
   const harmonicMean = getHarmonicMean(playerAccuracies);
 
-  return (weightedMean + harmonicMean) / 2;
+  // Heavier weight on harmonic mean to penalize bad moves more (closer to Chess.com CAPS2)
+  // Harmonic mean is always <= arithmetic mean and penalizes outliers (blunders) heavily
+  let accuracy = (weightedMean + 2 * harmonicMean) / 3;
+
+  // Rating-based adjustment: higher-rated players are expected to play more accurately,
+  // so the same centipawn loss results in a slightly lower accuracy score
+  if (playerRating && playerRating > 1500) {
+    const ratingPenalty = Math.min(0.04, (playerRating - 1500) / 25000);
+    accuracy = accuracy * (1 - ratingPenalty);
+  }
+
+  return Math.max(0, Math.min(100, accuracy));
 };
 
 const getAccuracyWeights = (movesWinPercentage: number[]): number[] => {
@@ -83,11 +108,11 @@ const getMovesAccuracy = (movesWinPercentage: number[]): number[] =>
       ? Math.max(0, lastWinPercent - winPercent)
       : Math.max(0, winPercent - lastWinPercent);
 
-    // Source: https://github.com/lichess-org/lila/blob/a320a93b68dabee862b8093b1b2acdfe132b9966/modules/analyse/src/main/AccuracyPercent.scala#L44
-
+    // Chess.com CAPS2-like accuracy curve
+    // Steeper decay than Lichess to produce more realistic accuracy scores (typically 50-95%)
+    // Original Lichess multiplier: -0.04354, adjusted to -0.055 for stricter scoring
     const rawAccuracy =
-      103.1668100711649 * Math.exp(-0.04354415386753951 * winDiff) -
-      3.166924740191411;
+      103.1668100711649 * Math.exp(-0.055 * winDiff) - 3.166924740191411;
 
     return Math.min(100, Math.max(0, rawAccuracy + 1));
   });

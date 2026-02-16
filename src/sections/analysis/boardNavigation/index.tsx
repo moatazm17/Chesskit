@@ -29,6 +29,7 @@ export default function BoardNavigation() {
       MoveClassification.Splendid,
       MoveClassification.Perfect, 
       MoveClassification.Best,
+      MoveClassification.Miss,
       MoveClassification.Mistake,
       MoveClassification.Inaccuracy,
       MoveClassification.Blunder

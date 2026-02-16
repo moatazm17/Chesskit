@@ -224,6 +224,20 @@ export const getMoveExplanation = (
         evalChange,
       };
 
+    case MoveClassification.Miss:
+      return {
+        title: "Miss",
+        description: `${playedMoveSan} lets the winning advantage slip away`,
+        details: [
+          bestMoveSan ? `${bestMoveSan} would have maintained the advantage` : undefined,
+          tactic,
+          evalChange,
+        ].filter(Boolean) as string[],
+        bestLine: bestLineSan,
+        consequence: threat,
+        evalChange,
+      };
+
     case MoveClassification.Inaccuracy:
       return {
         title: "Inaccuracy",

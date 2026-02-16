@@ -18,11 +18,12 @@ export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Excellent]: "#22ac38",
   [MoveClassification.Okay]: "#74b038",
   [MoveClassification.Inaccuracy]: "#f2be1f",
+  [MoveClassification.Miss]: "#e68a00",
   [MoveClassification.Mistake]: "#e69f00",
   [MoveClassification.Blunder]: "#df5353",
 };
 
-export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish17Lite;
+export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish17;
 export const STRONGEST_ENGINE: EngineName = EngineName.Stockfish17;
 
 export const ENGINE_LABELS: Record<

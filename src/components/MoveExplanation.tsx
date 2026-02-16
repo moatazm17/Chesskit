@@ -17,6 +17,7 @@ import PrettyMoveSan from "@/components/prettyMoveSan";
 const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Blunder]: "#e53935",
   [MoveClassification.Mistake]: "#f57c00",
+  [MoveClassification.Miss]: "#e68a00",
   [MoveClassification.Inaccuracy]: "#ffb74d",
   [MoveClassification.Okay]: "#9ccc65",
   [MoveClassification.Excellent]: "#66bb6a",
@@ -30,6 +31,7 @@ const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
 const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
   [MoveClassification.Blunder]: "mdi:close-circle",
   [MoveClassification.Mistake]: "mdi:close",
+  [MoveClassification.Miss]: "mdi:target",
   [MoveClassification.Inaccuracy]: "mdi:help-circle",
   [MoveClassification.Okay]: "mdi:circle-outline",
   [MoveClassification.Excellent]: "mdi:thumb-up",
@@ -73,6 +75,7 @@ export default function MoveExplanationComponent() {
   const isNegative = [
     MoveClassification.Blunder,
     MoveClassification.Mistake,
+    MoveClassification.Miss,
     MoveClassification.Inaccuracy,
   ].includes(moveClassification);
 

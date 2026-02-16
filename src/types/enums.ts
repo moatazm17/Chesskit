@@ -17,6 +17,7 @@ export enum EngineName {
 export enum MoveClassification {
   Blunder = "blunder",
   Mistake = "mistake",
+  Miss = "miss",
   Inaccuracy = "inaccuracy",
   Okay = "okay",
   Excellent = "excellent",

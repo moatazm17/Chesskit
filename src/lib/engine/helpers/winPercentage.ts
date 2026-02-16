@@ -22,10 +22,12 @@ const getWinPercentageFromMate = (mate: number): number => {
   return getWinPercentageFromCp(mateInf);
 };
 
-// Source: https://github.com/lichess-org/lila/blob/a320a93b68dabee862b8093b1b2acdfe132b9966/modules/analyse/src/main/WinPercent.scala#L27
+// Win percentage sigmoid curve.
+// Steeper than the original Lichess curve (-0.00368208) to better reflect
+// how advantages convert in practice, closer to Chess.com's model.
 const getWinPercentageFromCp = (cp: number): number => {
   const cpCeiled = ceilsNumber(cp, -1000, 1000);
-  const MULTIPLIER = -0.00368208; // Source : https://github.com/lichess-org/lila/pull/11148
+  const MULTIPLIER = -0.004;
   const winChances = 2 / (1 + Math.exp(MULTIPLIER * cpCeiled)) - 1;
   return 50 + 50 * winChances;
 };

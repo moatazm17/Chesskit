@@ -3,6 +3,7 @@ import { EngineName, MoveClassification } from "./enums";
 
 export interface PositionEval {
   bestMove?: string;
+  shallowBestMove?: string;
   moveClassification?: MoveClassification;
   opening?: string;
   lines: LineEval[];

@@ -24,6 +24,7 @@ export default function PanelToolBar() {
       MoveClassification.Splendid,
       MoveClassification.Perfect, 
       MoveClassification.Best,
+      MoveClassification.Miss,
       MoveClassification.Mistake,
       MoveClassification.Inaccuracy,
       MoveClassification.Blunder
