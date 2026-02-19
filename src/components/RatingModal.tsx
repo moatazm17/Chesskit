@@ -55,11 +55,20 @@ const canShowAgain = (state: RatingState): boolean => {
   return daysSince >= 3;
 };
 
-// App Store URLs
+// Store URLs
 const APP_STORE_URL =
   "https://apps.apple.com/us/app/chess-analysis/id6751201688";
 const APP_STORE_ITMS =
   "itms-apps://itunes.apple.com/app/id6751201688";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.m3tz.freechessanalysis";
+const PLAY_STORE_MARKET =
+  "market://details?id=com.m3tz.freechessanalysis";
+
+const getIsAndroid = (): boolean => {
+  if (typeof navigator === "undefined") return false;
+  return /android/i.test(navigator.userAgent);
+};
 
 interface RatingModalProps {
   open: boolean;
@@ -71,26 +80,26 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose }) => {
   const [hoveredStars, setHoveredStars] = useState(0);
 
   const handleRate = () => {
-    logAnalyticsEvent("rating_modal_rate", { stars: selectedStars || hoveredStars });
+    const isAndroid = getIsAndroid();
+    logAnalyticsEvent("rating_modal_rate", {
+      stars: selectedStars || hoveredStars,
+      platform: isAndroid ? "android" : "ios",
+    });
     const state = loadRatingState();
     state.hasRated = true;
     saveRatingState(state);
 
-    // Try native bridge first (Flutter app), then fallback to URL
     const w = window as any;
     if (w.App && typeof w.App.postMessage === "function") {
       w.App.postMessage("requestReview");
     }
 
-    // Also open App Store as fallback
-    // Try itms:// scheme first (opens App Store directly on iOS)
     const link = document.createElement("a");
-    link.href = APP_STORE_ITMS;
+    link.href = isAndroid ? PLAY_STORE_MARKET : APP_STORE_ITMS;
     link.click();
 
-    // Fallback to web URL after short delay
     setTimeout(() => {
-      window.open(APP_STORE_URL, "_blank");
+      window.open(isAndroid ? PLAY_STORE_URL : APP_STORE_URL, "_blank");
     }, 500);
 
     onClose();
@@ -244,7 +253,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose }) => {
             },
           }}
         >
-          ⭐ Rate on App Store
+          ⭐ Rate Us
         </Button>
 
         {/* Maybe later */}
