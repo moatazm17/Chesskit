@@ -17,6 +17,7 @@ interface HomeCardProps {
   color: string;
   onClick: () => void;
   badge?: string;
+  badgeVariant?: "default" | "popular";
   customIcon?: React.ReactNode;
 }
 
@@ -27,10 +28,12 @@ const HomeCard: React.FC<HomeCardProps> = ({
   color,
   onClick,
   badge,
+  badgeVariant = "default",
   customIcon,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isPopular = badgeVariant === "popular";
 
   return (
     <Card
@@ -39,16 +42,24 @@ const HomeCard: React.FC<HomeCardProps> = ({
         width: isMobile ? "100%" : 280,
         height: isMobile ? 160 : 200,
         position: "relative",
-        background: `linear-gradient(135deg, ${color}20, ${color}08)`,
+        background: isPopular
+          ? `linear-gradient(135deg, ${color}30, ${color}12)`
+          : `linear-gradient(135deg, ${color}20, ${color}08)`,
         backdropFilter: "blur(20px)",
-        border: `1px solid ${color}35`,
+        border: isPopular
+          ? `1.5px solid ${color}60`
+          : `1px solid ${color}35`,
         borderRadius: 4,
         cursor: "pointer",
         transition: "all 0.3s ease",
-        boxShadow: `0 8px 32px ${color}25`,
+        boxShadow: isPopular
+          ? `0 8px 32px ${color}35, 0 0 20px ${color}15`
+          : `0 8px 32px ${color}25`,
         "&:hover": {
           transform: "translateY(-8px)",
-          boxShadow: `0 16px 48px ${color}45`,
+          boxShadow: isPopular
+            ? `0 16px 48px ${color}55, 0 0 30px ${color}25`
+            : `0 16px 48px ${color}45`,
           border: `1px solid ${color}55`,
         },
       }}
@@ -59,17 +70,24 @@ const HomeCard: React.FC<HomeCardProps> = ({
             position: "absolute",
             top: 8,
             right: 8,
-            background: "linear-gradient(135deg, #FF6B6B, #FF3D3D)",
+            background: isPopular
+              ? "linear-gradient(135deg, #4ecdc4, #45b7d1)"
+              : "linear-gradient(135deg, #FF6B6B, #FF3D3D)",
             color: "white",
             fontSize: "0.6rem",
             fontWeight: 700,
-            padding: "2px 8px",
+            padding: isPopular ? "3px 10px" : "2px 8px",
             borderRadius: "10px",
             letterSpacing: "0.5px",
-            boxShadow: "0 2px 8px rgba(255, 61, 61, 0.4)",
+            boxShadow: isPopular
+              ? "0 2px 10px rgba(78, 205, 196, 0.5)"
+              : "0 2px 8px rgba(255, 61, 61, 0.4)",
+            display: "flex",
+            alignItems: "center",
+            gap: "3px",
           }}
         >
-          {badge}
+          {isPopular && "⭐ "}{badge}
         </Box>
       )}
       <CardContent
@@ -222,6 +240,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               icon="mdi:folder-open"
               color="#45b7d1"
               onClick={onLoadGame}
+              badge="MOST POPULAR"
+              badgeVariant="popular"
             />
           </Grid>
 
