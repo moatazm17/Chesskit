@@ -22,7 +22,6 @@ import {
 import { useEngine } from "@/hooks/useEngine";
 import {
   engineNameAtom,
-  engineDepthAtom,
   engineMultiPvAtom,
   engineWorkersNbAtom,
 } from "@/sections/analysis/states";
@@ -219,7 +218,7 @@ export default function GameAnalysisModal({
   const engine = useEngine(engineName);
   const engineRef = useRef(engine);
   engineRef.current = engine;
-  const engineDepth = useAtomValue(engineDepthAtom);
+  const [selectedDepth, setSelectedDepth] = useState<number | null>(null);
   const engineMultiPv = useAtomValue(engineMultiPvAtom);
   const engineWorkersNb = useAtomValue(engineWorkersNbAtom);
   const setGameEval = useSetAtom(gameEvalAtom);
@@ -261,12 +260,14 @@ export default function GameAnalysisModal({
       setIsAnalyzing(false);
       setAnalysisComplete(false);
       setShowMore(false);
+      setSelectedDepth(null);
     }
   }, [open]);
 
   useEffect(() => {
     if (
       open &&
+      selectedDepth &&
       game.history().length > 0 &&
       !isAnalyzing &&
       !analysisComplete
@@ -290,7 +291,7 @@ export default function GameAnalysisModal({
 
           const newGameEval = await currentEngine.evaluateGame({
             ...params,
-            depth: engineDepth,
+            depth: selectedDepth,
             multiPv: engineMultiPv,
             setEvaluationProgress,
             playersRatings: {
@@ -306,6 +307,7 @@ export default function GameAnalysisModal({
           setAnalysisComplete(true);
           logAnalyticsEvent("analysis_complete", {
             total_moves: game.history().length,
+            depth: selectedDepth,
             white_player: game.getHeaders()["White"] || "unknown",
             black_player: game.getHeaders()["Black"] || "unknown",
           });
@@ -318,7 +320,7 @@ export default function GameAnalysisModal({
 
       startAnalysis();
     }
-  }, [open, game.pgn(), isAnalyzing, analysisComplete]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, selectedDepth, game.pgn(), isAnalyzing, analysisComplete]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getPlayerName = (color: "white" | "black") => {
     const headers = game.getHeaders();
@@ -408,7 +410,99 @@ export default function GameAnalysisModal({
           overflow: "auto",
         }}
       >
-        {isAnalyzing ? (
+        {!selectedDepth && !isAnalyzing && !analysisComplete ? (
+          /* --- Depth Choice Screen --- */
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              px: 3,
+              py: 6,
+              minHeight: 400,
+              gap: 3,
+            }}
+          >
+            <Icon
+              icon="mdi:chart-line"
+              style={{ fontSize: 48, color: "rgba(255,255,255,0.6)" }}
+            />
+            <Typography sx={{ fontSize: "1.3rem", fontWeight: 700, textAlign: "center" }}>
+              Choose Analysis Type
+            </Typography>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%", maxWidth: 320 }}>
+              <Button
+                variant="contained"
+                onClick={() => setSelectedDepth(16)}
+                sx={{
+                  background: "linear-gradient(135deg, #66BB6A, #43A047)",
+                  borderRadius: "14px",
+                  py: 2,
+                  px: 3,
+                  textTransform: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #43A047, #2E7D32)",
+                    transform: "translateY(-1px)",
+                  },
+                  transition: "all 0.2s",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
+                  <Icon icon="mdi:lightning-bolt" style={{ fontSize: 22 }} />
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Quick Analysis</Typography>
+                  <Box sx={{
+                    ml: "auto",
+                    background: "rgba(255,255,255,0.2)",
+                    borderRadius: "8px",
+                    px: 1,
+                    py: 0.2,
+                  }}>
+                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 600 }}>Recommended</Typography>
+                  </Box>
+                </Box>
+                <Typography sx={{ fontSize: "0.8rem", opacity: 0.85, mt: 0.5 }}>
+                  Fast and accurate for most games
+                </Typography>
+              </Button>
+
+              <Button
+                variant="outlined"
+                onClick={() => setSelectedDepth(18)}
+                sx={{
+                  borderColor: "rgba(255,255,255,0.15)",
+                  borderRadius: "14px",
+                  py: 2,
+                  px: 3,
+                  textTransform: "none",
+                  color: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  "&:hover": {
+                    borderColor: "rgba(255,255,255,0.3)",
+                    background: "rgba(255,255,255,0.04)",
+                    transform: "translateY(-1px)",
+                  },
+                  transition: "all 0.2s",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Icon icon="mdi:microscope" style={{ fontSize: 22 }} />
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Deep Analysis</Typography>
+                </Box>
+                <Typography sx={{ fontSize: "0.8rem", opacity: 0.6, mt: 0.5 }}>
+                  More precise, takes longer
+                </Typography>
+              </Button>
+            </Box>
+          </Box>
+        ) : isAnalyzing ? (
           /* --- Analyzing Screen --- */
           <Box
             sx={{
