@@ -289,10 +289,11 @@ export default function GameAnalysisModal({
             return;
           }
 
+          const isQuick = selectedDepth === 14;
           const newGameEval = await currentEngine.evaluateGame({
             ...params,
             depth: selectedDepth,
-            multiPv: engineMultiPv,
+            multiPv: isQuick ? 2 : engineMultiPv,
             setEvaluationProgress,
             playersRatings: {
               white: white?.rating,
@@ -436,7 +437,7 @@ export default function GameAnalysisModal({
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%", maxWidth: 320 }}>
               <Button
                 variant="contained"
-                onClick={() => setSelectedDepth(16)}
+                onClick={() => setSelectedDepth(14)}
                 sx={{
                   background: "linear-gradient(135deg, #66BB6A, #43A047)",
                   borderRadius: "14px",
