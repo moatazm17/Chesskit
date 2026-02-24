@@ -38,7 +38,7 @@ import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
-import { showInterstitialAd } from "@/lib/ads";
+import { showInterstitialAd, triggerInterstitialAd } from "@/lib/ads";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -88,6 +88,7 @@ export default function GameAnalysis() {
 
   const handleLoadGame = () => {
     logAnalyticsEvent("card_click", { card: "review_game" });
+    triggerInterstitialAd();
     setCurrentScreen('load');
   };
 
