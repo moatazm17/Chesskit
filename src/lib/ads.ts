@@ -1,11 +1,31 @@
+let lastAdTime = 0;
+const AD_COOLDOWN_MS = 15_000;
+
+function sendAdMessage(): void {
+  const w = window as any;
+  if (w.App && typeof w.App.postMessage === "function") {
+    w.App.postMessage("showInterstitial");
+  } else if (w && typeof w.triggerInterstitialAd === "function") {
+    w.triggerInterstitialAd();
+  }
+  lastAdTime = Date.now();
+}
+
+function isCooldownActive(): boolean {
+  return Date.now() - lastAdTime < AD_COOLDOWN_MS;
+}
+
 /**
- * Show an interstitial ad via the native Flutter WebView bridge.
- *
- * Returns a promise that resolves when the ad is closed (via callback)
- * or after a fallback timeout so navigation is never blocked forever.
+ * Show an interstitial ad and wait for it to close before proceeding.
+ * Used before navigation so the ad has time to display.
  */
 export function showInterstitialAd(): Promise<void> {
   return new Promise((resolve) => {
+    if (isCooldownActive()) {
+      resolve();
+      return;
+    }
+
     const w = window as any;
     const hasNativeBridge =
       w.App && typeof w.App.postMessage === "function";
@@ -17,7 +37,6 @@ export function showInterstitialAd(): Promise<void> {
       return;
     }
 
-    // Listen for callback from native side when ad is closed
     let resolved = false;
     const done = () => {
       if (resolved) return;
@@ -26,34 +45,19 @@ export function showInterstitialAd(): Promise<void> {
       resolve();
     };
 
-    // Native side can call window._onAdClosed() when ad dismisses
     w._onAdClosed = done;
-
-    // Fallback: resolve after 500ms in case native never calls back
     setTimeout(done, 500);
-
-    // Trigger the ad
-    if (hasNativeBridge) {
-      w.App.postMessage("showInterstitial");
-    } else {
-      w.triggerInterstitialAd();
-    }
+    sendAdMessage();
   });
 }
 
 /**
- * Fire-and-forget ad trigger for non-navigation contexts
- * (e.g. between puzzles, between analysis steps).
- * Does not block execution.
+ * Fire-and-forget ad trigger. Does not block execution.
  */
 export function triggerInterstitialAd(): void {
   try {
-    const w = window as any;
-    if (w.App && typeof w.App.postMessage === "function") {
-      w.App.postMessage("showInterstitial");
-    } else if (w && typeof w.triggerInterstitialAd === "function") {
-      w.triggerInterstitialAd();
-    }
+    if (isCooldownActive()) return;
+    sendAdMessage();
   } catch {
     // ignore
   }

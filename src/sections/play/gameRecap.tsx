@@ -14,6 +14,7 @@ import {
   gameAtom as analysisGameAtom,
 } from "@/sections/analysis/states";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import { triggerInterstitialAd } from "@/lib/ads";
 
 export default function GameRecap() {
   const game = useAtomValue(gameAtom);
@@ -31,22 +32,25 @@ export default function GameRecap() {
   const { setPgn: setAnalysisGamePgn } = useChessActions(analysisGameAtom);
   const { resetToStartingPosition: resetAnalysisBoard } = useChessActions(boardAtom);
 
-  // Log bot game end analytics
+  // Log game end analytics and show ad
   const moveCount = game.history().length;
   useEffect(() => {
-    if (!isGameInProgress && moveCount > 0 && activeBot && !analyticsLoggedRef.current) {
+    if (!isGameInProgress && moveCount > 0 && !analyticsLoggedRef.current) {
       analyticsLoggedRef.current = true;
       const result = game.isCheckmate()
         ? (game.turn() === playerColor ? "loss" : "win")
         : game.isGameOver()
         ? "draw"
         : "resigned";
-      logAnalyticsEvent("bot_game_end", {
-        bot_id: activeBot.id,
-        bot_name: activeBot.name,
-        result,
-        total_moves: moveCount,
-      });
+      if (activeBot) {
+        logAnalyticsEvent("bot_game_end", {
+          bot_id: activeBot.id,
+          bot_name: activeBot.name,
+          result,
+          total_moves: moveCount,
+        });
+      }
+      triggerInterstitialAd();
     }
     if (isGameInProgress) {
       analyticsLoggedRef.current = false;
