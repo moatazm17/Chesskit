@@ -20,3 +20,6 @@ tsconfig.tsbuildinfo
 .cdk.staging
 cdk.out
 cdk.context.json
+
+# Engine files (served from R2)
+public/engines/
