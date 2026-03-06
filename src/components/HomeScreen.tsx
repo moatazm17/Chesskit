@@ -297,6 +297,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
+              title="Brilliant Puzzles"
+              description="Find the winning sacrifice !!"
+              icon="mdi:star-four-points"
+              color="#26C6DA"
+              onClick={() => (window.location.href = "/brilliant")}
+              badge="NEW"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
               title="Play vs Legends"
               description="Challenge famous chess players"
               icon="mdi:account-star"

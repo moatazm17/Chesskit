@@ -51,6 +51,7 @@ export function requestRestore(): void {
 
 const PUZZLE_LIMIT_KEY = "chesskit_puzzle_limit";
 const CHECKMATE_LIMIT_KEY = "chesskit_checkmate_limit";
+const BRILLIANT_LIMIT_KEY = "chesskit_brilliant_limit";
 
 interface DailyLimit {
   date: string;
@@ -89,6 +90,7 @@ function incrementDailyLimit(key: string): DailyLimit {
 
 export const FREE_PUZZLE_LIMIT = 5;
 export const FREE_CHECKMATE_LIMIT = 3;
+export const FREE_BRILLIANT_LIMIT = 5;
 
 export function getPuzzleCount(): number {
   return getDailyLimit(PUZZLE_LIMIT_KEY).count;
@@ -114,4 +116,17 @@ export function incrementCheckmateCount(): number {
 export function canPlayCheckmate(): boolean {
   if (!supportsIAP() || isPremium()) return true;
   return getDailyLimit(CHECKMATE_LIMIT_KEY).count < FREE_CHECKMATE_LIMIT;
+}
+
+export function getBrilliantCount(): number {
+  return getDailyLimit(BRILLIANT_LIMIT_KEY).count;
+}
+
+export function incrementBrilliantCount(): number {
+  return incrementDailyLimit(BRILLIANT_LIMIT_KEY).count;
+}
+
+export function canPlayBrilliant(): boolean {
+  if (!supportsIAP() || isPremium()) return true;
+  return getDailyLimit(BRILLIANT_LIMIT_KEY).count < FREE_BRILLIANT_LIMIT;
 }
