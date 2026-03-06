@@ -28,6 +28,7 @@ const FEATURES = [
   { icon: "mdi:puzzle", label: "Unlimited Puzzles", desc: "No daily limits on practice puzzles" },
   { icon: "mdi:crown", label: "Unlimited Checkmate", desc: "No daily limits on checkmate puzzles" },
   { icon: "mdi:chess-knight", label: "Play vs Legends", desc: "Challenge legendary chess players" },
+  { icon: "mdi:lightbulb", label: "Unlimited Hints", desc: "Get hints whenever you need them" },
   { icon: "mdi:cancel", label: "No Ads", desc: "Ad-free experience throughout the app" },
 ];
 

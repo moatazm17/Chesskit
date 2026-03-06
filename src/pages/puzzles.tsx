@@ -1,5 +1,5 @@
 import { triggerInterstitialAd } from "@/lib/ads";
-import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature } from "@/lib/premium";
+import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
@@ -183,6 +183,11 @@ export default function Puzzles() {
 
   // Handle hint
   const handleHint = useCallback(() => {
+    if (!canUseHint()) {
+      setPremiumModalOpen(true);
+      return;
+    }
+    incrementHintCount();
     logAnalyticsEvent("puzzle_hint", { mode, puzzle_id: puzzle?.id });
     const hint = getHint();
     if (hint) {

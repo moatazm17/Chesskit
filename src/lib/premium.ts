@@ -130,3 +130,19 @@ export function canPlayBrilliant(): boolean {
   if (!supportsIAP() || isPremium()) return true;
   return getDailyLimit(BRILLIANT_LIMIT_KEY).count < FREE_BRILLIANT_LIMIT;
 }
+
+const HINT_LIMIT_KEY = "chesskit_hint_limit";
+export const FREE_HINT_LIMIT = 3;
+
+export function getHintCount(): number {
+  return getDailyLimit(HINT_LIMIT_KEY).count;
+}
+
+export function incrementHintCount(): number {
+  return incrementDailyLimit(HINT_LIMIT_KEY).count;
+}
+
+export function canUseHint(): boolean {
+  if (!supportsIAP() || isPremium()) return true;
+  return getDailyLimit(HINT_LIMIT_KEY).count < FREE_HINT_LIMIT;
+}

@@ -1,5 +1,5 @@
 import { triggerInterstitialAd } from "@/lib/ads";
-import { canPlayCheckmate, incrementCheckmateCount, FREE_CHECKMATE_LIMIT, shouldGateFeature } from "@/lib/premium";
+import { canPlayCheckmate, incrementCheckmateCount, FREE_CHECKMATE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
@@ -190,6 +190,11 @@ export default function CheckmatePuzzles() {
 
   // Handle hint
   const handleHint = useCallback(() => {
+    if (!canUseHint()) {
+      setPremiumModalOpen(true);
+      return;
+    }
+    incrementHintCount();
     logAnalyticsEvent("checkmate_hint", { mate_type: mateType, puzzle_id: puzzle?.id });
     const hint = getHint();
     if (hint) {
