@@ -303,6 +303,39 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#26C6DA"
               onClick={() => (window.location.href = "/brilliant")}
               badge="NEW"
+              customIcon={
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: isMobile ? "0.5rem" : "1rem",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      background: "linear-gradient(135deg, #26C6DA 0%, #00ACC1 100%)",
+                      borderRadius: "10px",
+                      px: 1.5,
+                      py: 0.5,
+                      boxShadow: "0 4px 15px rgba(38,198,218,0.5), 0 0 25px rgba(38,198,218,0.2)",
+                      border: "2px solid rgba(255,255,255,0.25)",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "white",
+                        fontWeight: 900,
+                        fontSize: isMobile ? "2rem" : "2.5rem",
+                        lineHeight: 1,
+                        fontFamily: "'Roboto Mono', monospace",
+                        textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                      }}
+                    >
+                      !!
+                    </Typography>
+                  </Box>
+                </Box>
+              }
             />
           </Grid>
 

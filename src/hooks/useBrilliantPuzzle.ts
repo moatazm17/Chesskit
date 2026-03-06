@@ -198,6 +198,7 @@ export const useBrilliantPuzzle = () => {
           setMoveIndex(nextMoveIndex);
           setTimeout(() => {
             try {
+              setBrilliantSquare(null);
               const responseGame = new Chess(fenAfterUserMove);
               const opponentMoveResult = responseGame.move({
                 from: opponentMove.slice(0, 2),
