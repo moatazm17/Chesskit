@@ -1,4 +1,6 @@
 import { triggerInterstitialAd } from "@/lib/ads";
+import { canPlayCheckmate, incrementCheckmateCount, FREE_CHECKMATE_LIMIT, shouldGateFeature } from "@/lib/premium";
+import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
   Grid2 as Grid,
@@ -9,6 +11,8 @@ import {
   Button,
   Stack,
   Chip,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import PremiumNavBar from "@/components/PremiumNavBar";
@@ -58,6 +62,8 @@ export default function CheckmatePuzzles() {
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [puzzleLoaded, setPuzzleLoaded] = useState(false);
   const puzzleCountRef = useRef(0);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevCheckmateFenRef = useRef(game.fen());
@@ -112,6 +118,11 @@ export default function CheckmatePuzzles() {
 
   useEffect(() => {
     if (puzzleLoaded) return;
+    if (!canPlayCheckmate()) {
+      setLimitReached(true);
+      setPuzzleLoaded(true);
+      return;
+    }
     loadPuzzle();
     setPuzzleLoaded(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,10 +203,14 @@ export default function CheckmatePuzzles() {
     setSelectedSquare(null);
     setLegalMoves([]);
 
-    // Increment puzzle counter
-    puzzleCountRef.current += 1;
+    incrementCheckmateCount();
 
-    // Show ad every 3 puzzles
+    if (!canPlayCheckmate()) {
+      setLimitReached(true);
+      return;
+    }
+
+    puzzleCountRef.current += 1;
     if (puzzleCountRef.current % 3 === 0) {
       triggerInterstitialAd();
     }
@@ -756,6 +771,61 @@ export default function CheckmatePuzzles() {
         </Grid>
       </Box>
       <RatingModal open={showRating} onClose={closeRating} />
+
+      <Dialog
+        open={limitReached && shouldGateFeature()}
+        onClose={() => setLimitReached(false)}
+        PaperProps={{
+          sx: {
+            background: "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            color: "white",
+            borderRadius: "20px",
+            maxWidth: 360,
+          },
+        }}
+      >
+        <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
+          <Icon icon="mdi:lock" style={{ fontSize: 48, color: "#FFA500", marginBottom: 12 }} />
+          <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
+            Daily Limit Reached
+          </Typography>
+          <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
+            You&apos;ve completed {FREE_CHECKMATE_LIMIT} checkmate puzzles today. Upgrade to Premium for unlimited!
+          </Typography>
+          <Button
+            onClick={() => {
+              setLimitReached(false);
+              setPremiumModalOpen(true);
+            }}
+            variant="contained"
+            fullWidth
+            sx={{
+              background: "linear-gradient(135deg, #FFD700, #FFA500)",
+              color: "#1a1a2e",
+              fontWeight: 700,
+              py: 1.5,
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              mb: 1,
+            }}
+          >
+            Upgrade to Premium
+          </Button>
+          <Button
+            onClick={() => setLimitReached(false)}
+            sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
+          >
+            Maybe Later
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <PremiumModal
+        open={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
+        trigger="checkmate_limit"
+      />
     </>
   );
 }

@@ -1,4 +1,6 @@
 import { triggerInterstitialAd } from "@/lib/ads";
+import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature } from "@/lib/premium";
+import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
   Grid2 as Grid,
@@ -9,6 +11,8 @@ import {
   Button,
   Stack,
   Chip,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import PremiumNavBar from "@/components/PremiumNavBar";
@@ -52,7 +56,9 @@ export default function Puzzles() {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [puzzleLoaded, setPuzzleLoaded] = useState(false);
-  const puzzleCountRef = useRef(0); // Track puzzles for ad frequency
+  const puzzleCountRef = useRef(0);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevPuzzleFenRef = useRef(game.fen());
@@ -110,6 +116,11 @@ export default function Puzzles() {
     if (mode === "daily") {
       loadDailyPuzzle();
     } else {
+      if (!canPlayPuzzle()) {
+        setLimitReached(true);
+        setPuzzleLoaded(true);
+        return;
+      }
       loadRandomPuzzle();
     }
     setPuzzleLoaded(true);
@@ -185,15 +196,19 @@ export default function Puzzles() {
     setSelectedSquare(null);
     setLegalMoves([]);
     if (mode === "practice") {
-      // Increment puzzle counter
+      incrementPuzzleCount();
+
+      if (!canPlayPuzzle()) {
+        setLimitReached(true);
+        return;
+      }
+
       puzzleCountRef.current += 1;
-      
-      // Show ad every 3 puzzles
       if (puzzleCountRef.current % 3 === 0) {
         triggerInterstitialAd();
       }
       
-      setPuzzleLoaded(false); // This will trigger loading a new puzzle
+      setPuzzleLoaded(false);
     }
   }, [mode]);
 
@@ -741,6 +756,62 @@ export default function Puzzles() {
         </Grid>
       </Box>
       <RatingModal open={showRating} onClose={closeRating} />
+
+      {/* Daily limit reached overlay */}
+      <Dialog
+        open={limitReached && shouldGateFeature()}
+        onClose={() => setLimitReached(false)}
+        PaperProps={{
+          sx: {
+            background: "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            color: "white",
+            borderRadius: "20px",
+            maxWidth: 360,
+          },
+        }}
+      >
+        <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
+          <Icon icon="mdi:lock" style={{ fontSize: 48, color: "#FFA500", marginBottom: 12 }} />
+          <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
+            Daily Limit Reached
+          </Typography>
+          <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
+            You&apos;ve solved {FREE_PUZZLE_LIMIT} puzzles today. Upgrade to Premium for unlimited puzzles!
+          </Typography>
+          <Button
+            onClick={() => {
+              setLimitReached(false);
+              setPremiumModalOpen(true);
+            }}
+            variant="contained"
+            fullWidth
+            sx={{
+              background: "linear-gradient(135deg, #FFD700, #FFA500)",
+              color: "#1a1a2e",
+              fontWeight: 700,
+              py: 1.5,
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              mb: 1,
+            }}
+          >
+            Upgrade to Premium
+          </Button>
+          <Button
+            onClick={() => setLimitReached(false)}
+            sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
+          >
+            Maybe Later
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <PremiumModal
+        open={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
+        trigger="puzzle_limit"
+      />
     </>
   );
 }

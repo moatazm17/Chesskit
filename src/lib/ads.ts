@@ -1,3 +1,5 @@
+import { isPremium } from "./premium";
+
 let lastAdTime = 0;
 const AD_COOLDOWN_MS = 15_000;
 
@@ -21,7 +23,7 @@ function isCooldownActive(): boolean {
  */
 export function showInterstitialAd(): Promise<void> {
   return new Promise((resolve) => {
-    if (isCooldownActive()) {
+    if (isPremium() || isCooldownActive()) {
       resolve();
       return;
     }
@@ -56,7 +58,7 @@ export function showInterstitialAd(): Promise<void> {
  */
 export function triggerInterstitialAd(): void {
   try {
-    if (isCooldownActive()) return;
+    if (isPremium() || isCooldownActive()) return;
     sendAdMessage();
   } catch {
     // ignore

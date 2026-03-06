@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { triggerInterstitialAd } from "@/lib/ads";
+import { isPremium, shouldGateFeature } from "@/lib/premium";
+import PremiumModal from "@/components/PremiumModal";
 import {
   Dialog,
   DialogContent,
@@ -219,6 +221,7 @@ export default function GameAnalysisModal({
   const engineRef = useRef(engine);
   engineRef.current = engine;
   const [selectedDepth, setSelectedDepth] = useState<number | null>(null);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const engineMultiPv = useAtomValue(engineMultiPvAtom);
   const engineWorkersNb = useAtomValue(engineWorkersNbAtom);
   const setGameEval = useSetAtom(gameEvalAtom);
@@ -474,9 +477,17 @@ export default function GameAnalysisModal({
 
               <Button
                 variant="outlined"
-                onClick={() => setSelectedDepth(18)}
+                onClick={() => {
+                  if (!shouldGateFeature()) {
+                    setSelectedDepth(18);
+                  } else {
+                    setPremiumModalOpen(true);
+                  }
+                }}
                 sx={{
-                  borderColor: "rgba(255,255,255,0.15)",
+                  borderColor: !shouldGateFeature()
+                    ? "rgba(255,255,255,0.15)"
+                    : "rgba(255,165,0,0.3)",
                   borderRadius: "14px",
                   py: 2,
                   px: 3,
@@ -486,16 +497,31 @@ export default function GameAnalysisModal({
                   flexDirection: "column",
                   alignItems: "flex-start",
                   "&:hover": {
-                    borderColor: "rgba(255,255,255,0.3)",
+                    borderColor: !shouldGateFeature()
+                      ? "rgba(255,255,255,0.3)"
+                      : "rgba(255,165,0,0.5)",
                     background: "rgba(255,255,255,0.04)",
                     transform: "translateY(-1px)",
                   },
                   transition: "all 0.2s",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
                   <Icon icon="mdi:microscope" style={{ fontSize: 22 }} />
                   <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Deep Analysis</Typography>
+                  {shouldGateFeature() && (
+                    <Box sx={{
+                      ml: "auto",
+                      background: "linear-gradient(135deg, #FFD700, #FFA500)",
+                      borderRadius: "8px",
+                      px: 1,
+                      py: 0.2,
+                    }}>
+                      <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#1a1a2e" }}>
+                        PRO
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
                 <Typography sx={{ fontSize: "0.8rem", opacity: 0.6, mt: 0.5 }}>
                   More precise, takes longer
@@ -860,6 +886,12 @@ export default function GameAnalysisModal({
           </Box>
         )}
       </DialogContent>
+
+      <PremiumModal
+        open={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
+        trigger="deep_analysis"
+      />
     </Dialog>
   );
 }

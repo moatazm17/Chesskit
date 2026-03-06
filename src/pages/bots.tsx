@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import PremiumNavBar from "@/components/PremiumNavBar";
+import { shouldGateFeature } from "@/lib/premium";
+import PremiumModal from "@/components/PremiumModal";
 import { CHESS_BOTS, ChessBot } from "@/data/bots";
 import { useState, useEffect } from "react";
 import { useSetAtom } from "jotai";
@@ -38,6 +40,7 @@ export default function BotsPage() {
 
   const [selectedBot, setSelectedBot] = useState<ChessBot | null>(null);
   const [colorDialogOpen, setColorDialogOpen] = useState(false);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
 
   useEffect(() => {
     logAnalyticsEvent("page_view", { page: "bots" });
@@ -51,6 +54,10 @@ export default function BotsPage() {
   const { reset: resetGame } = useChessActions(gameAtom);
 
   const handleBotClick = (bot: ChessBot) => {
+    if (shouldGateFeature()) {
+      setPremiumModalOpen(true);
+      return;
+    }
     setSelectedBot(bot);
     setColorDialogOpen(true);
   };
@@ -191,6 +198,7 @@ export default function BotsPage() {
                   cursor: "pointer",
                   transition: "all 0.3s ease",
                   boxShadow: `0 4px 20px ${bot.color}15`,
+                  position: "relative",
                   "&:hover": {
                     transform: "translateY(-6px)",
                     boxShadow: `0 12px 40px ${bot.color}35`,
@@ -198,6 +206,22 @@ export default function BotsPage() {
                   },
                 }}
               >
+                {shouldGateFeature() && (
+                  <Box sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    background: "linear-gradient(135deg, #FFD700, #FFA500)",
+                    borderRadius: "6px",
+                    px: 0.8,
+                    py: 0.2,
+                    zIndex: 1,
+                  }}>
+                    <Typography sx={{ fontSize: "0.55rem", fontWeight: 800, color: "#1a1a2e" }}>
+                      PRO
+                    </Typography>
+                  </Box>
+                )}
                 <CardContent
                   sx={{
                     display: "flex",
@@ -305,6 +329,12 @@ export default function BotsPage() {
           </Box>
         </Box>
       </Box>
+
+      <PremiumModal
+        open={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
+        trigger="bots"
+      />
 
       {/* Color Selection Dialog */}
       <Dialog
