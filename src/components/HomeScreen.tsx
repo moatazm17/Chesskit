@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -9,6 +9,15 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
+
+interface PromoCardData {
+  title: string;
+  description: string;
+  icon?: string;
+  image?: string;
+  link: string;
+  color?: string;
+}
 
 interface HomeCardProps {
   title: string;
@@ -157,6 +166,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [promoCard, setPromoCard] = useState<PromoCardData | null>(null);
+
+  useEffect(() => {
+    const w = window as any;
+    if (w._promoCard) {
+      setPromoCard(w._promoCard);
+    }
+  }, []);
 
   return (
     <Box
@@ -345,6 +362,107 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={onSavedGames}
             />
           </Grid>
+
+          {promoCard && (
+            <Grid item xs={12} sm={6} md={3}>
+              <Card
+                onClick={() => {
+                  const w = window as any;
+                  if (w.App && typeof w.App.postMessage === "function") {
+                    w.App.postMessage(`open_url:${promoCard.link}`);
+                  } else {
+                    window.open(promoCard.link, "_blank");
+                  }
+                }}
+                sx={{
+                  width: isMobile ? "100%" : 280,
+                  height: isMobile ? 160 : 200,
+                  position: "relative",
+                  background: `linear-gradient(135deg, ${promoCard.color || "#FF6B35"}20, ${promoCard.color || "#FF6B35"}08)`,
+                  backdropFilter: "blur(20px)",
+                  border: `1px solid ${promoCard.color || "#FF6B35"}35`,
+                  borderRadius: 4,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  boxShadow: `0 8px 32px ${promoCard.color || "#FF6B35"}25`,
+                  "&:hover": {
+                    transform: "translateY(-8px)",
+                    boxShadow: `0 16px 48px ${promoCard.color || "#FF6B35"}45`,
+                    border: `1px solid ${promoCard.color || "#FF6B35"}55`,
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    background: "rgba(255,255,255,0.12)",
+                    color: "rgba(255,255,255,0.5)",
+                    fontSize: "0.5rem",
+                    fontWeight: 600,
+                    padding: "2px 6px",
+                    borderRadius: "6px",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  AD
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                    textAlign: "center",
+                    padding: 3,
+                  }}
+                >
+                  {promoCard.image ? (
+                    <Box
+                      component="img"
+                      src={promoCard.image}
+                      alt={promoCard.title}
+                      sx={{
+                        width: isMobile ? 56 : 64,
+                        height: isMobile ? 56 : 64,
+                        borderRadius: "14px",
+                        objectFit: "cover",
+                        marginBottom: isMobile ? "0.5rem" : "1rem",
+                      }}
+                    />
+                  ) : (
+                    <Icon
+                      icon={promoCard.icon || "mdi:rocket-launch"}
+                      style={{
+                        fontSize: "4rem",
+                        color: promoCard.color || "#FF6B35",
+                        marginBottom: isMobile ? "0.5rem" : "1rem",
+                      }}
+                    />
+                  )}
+                  <Typography
+                    variant={isMobile ? "h6" : "h5"}
+                    sx={{ fontWeight: 600, color: "white", marginBottom: isMobile ? 0.5 : 1 }}
+                  >
+                    {promoCard.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "rgba(255,255,255,0.8)",
+                      lineHeight: 1.5,
+                      fontSize: isMobile ? "0.75rem" : "0.875rem",
+                      marginTop: isMobile ? 0.5 : 1,
+                    }}
+                  >
+                    {promoCard.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
 
         </Grid>
       </Box>
