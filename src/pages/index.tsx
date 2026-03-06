@@ -115,6 +115,12 @@ export default function GameAnalysis() {
     router.push('/bots');
   };
 
+  const handleBrilliant = async () => {
+    logAnalyticsEvent("card_click", { card: "brilliant" });
+    await showInterstitialAd();
+    router.push('/brilliant');
+  };
+
   const handleBackToHome = () => {
     // If coming back from analysis, show rating prompt
     if (currentScreen === 'analysis') {
@@ -160,6 +166,7 @@ export default function GameAnalysis() {
           onPuzzles={handlePuzzles}
           onCheckmate={handleCheckmate}
           onBots={handleBots}
+          onBrilliant={handleBrilliant}
         />
         <RatingModal open={showRating} onClose={closeRating} />
       </>

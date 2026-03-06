@@ -154,6 +154,7 @@ interface HomeScreenProps {
   onPuzzles?: () => void;
   onCheckmate?: () => void;
   onBots?: () => void;
+  onBrilliant?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -163,6 +164,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onPuzzles,
   onCheckmate,
   onBots,
+  onBrilliant,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -301,7 +303,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description="Find the winning sacrifice !!"
               icon="mdi:star-four-points"
               color="#26C6DA"
-              onClick={() => (window.location.href = "/brilliant")}
+              onClick={onBrilliant || (() => (window.location.href = "/brilliant"))}
               badge="NEW"
               customIcon={
                 <Box
