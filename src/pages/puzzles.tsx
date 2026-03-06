@@ -1,5 +1,5 @@
 import { triggerInterstitialAd } from "@/lib/ads";
-import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount } from "@/lib/premium";
+import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
@@ -59,6 +59,7 @@ export default function Puzzles() {
   const puzzleCountRef = useRef(0);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [hintLimitReached, setHintLimitReached] = useState(false);
   const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevPuzzleFenRef = useRef(game.fen());
@@ -184,7 +185,7 @@ export default function Puzzles() {
   // Handle hint
   const handleHint = useCallback(() => {
     if (!canUseHint()) {
-      setPremiumModalOpen(true);
+      setHintLimitReached(true);
       return;
     }
     incrementHintCount();
@@ -761,6 +762,56 @@ export default function Puzzles() {
         </Grid>
       </Box>
       <RatingModal open={showRating} onClose={closeRating} />
+
+      {/* Hint limit reached dialog */}
+      <Dialog
+        open={hintLimitReached && shouldGateFeature()}
+        onClose={() => setHintLimitReached(false)}
+        PaperProps={{
+          sx: {
+            background: "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            color: "white",
+            borderRadius: "20px",
+            maxWidth: 360,
+          },
+        }}
+      >
+        <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
+          <Icon icon="mdi:lightbulb-off" style={{ fontSize: 48, color: "#FFC107", marginBottom: 12 }} />
+          <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
+            Hints Used Up
+          </Typography>
+          <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
+            You&apos;ve used all {FREE_HINT_LIMIT} free hints today. Upgrade to Premium for unlimited hints!
+          </Typography>
+          <Button
+            onClick={() => {
+              setHintLimitReached(false);
+              setPremiumModalOpen(true);
+            }}
+            variant="contained"
+            fullWidth
+            sx={{
+              background: "linear-gradient(135deg, #FFD700, #FFA500)",
+              color: "#1a1a2e",
+              fontWeight: 700,
+              py: 1.5,
+              borderRadius: "12px",
+              textTransform: "none",
+              fontSize: "1rem",
+              mb: 1,
+            }}
+          >
+            Upgrade to Premium
+          </Button>
+          <Button
+            onClick={() => setHintLimitReached(false)}
+            sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
+          >
+            Maybe Later
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       {/* Daily limit reached overlay */}
       <Dialog
