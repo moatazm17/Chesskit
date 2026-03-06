@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chess Analysis - Update Required</title>
+  <title>Update Required</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -16,97 +16,48 @@
       justify-content: center;
       padding: 20px;
     }
-    .container {
-      text-align: center;
-      max-width: 400px;
-    }
-    .icon {
-      font-size: 80px;
-      margin-bottom: 24px;
-    }
+    .container { text-align: center; max-width: 380px; }
+    .icon { font-size: 72px; margin-bottom: 20px; }
     h1 {
-      font-size: 24px;
-      margin-bottom: 12px;
+      font-size: 22px;
+      margin-bottom: 8px;
       background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     p {
-      color: rgba(255,255,255,0.8);
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 32px;
+      color: rgba(255,255,255,0.75);
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 28px;
     }
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .buttons { display: flex; flex-direction: column; gap: 10px; }
     a {
       display: block;
-      padding: 14px 24px;
+      padding: 14px;
       border-radius: 12px;
       text-decoration: none;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      transition: transform 0.2s;
-    }
-    a:active { transform: scale(0.97); }
-    .ios {
-      background: linear-gradient(135deg, #4ecdc4, #45b7d1);
       color: white;
     }
-    .android {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: white;
-    }
-    .features {
-      margin-top: 32px;
-      padding: 20px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .features h3 {
-      font-size: 14px;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 12px;
-    }
-    .features ul {
-      list-style: none;
-      text-align: right;
-      font-size: 14px;
-      color: rgba(255,255,255,0.7);
-    }
-    .features li {
-      padding: 4px 0;
-    }
-    .features li::before {
-      content: "✓ ";
-      color: #4ecdc4;
-    }
+    a:active { opacity: 0.9; }
+    .ios { background: linear-gradient(135deg, #4ecdc4, #45b7d1); }
+    .android { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="icon">♟️</div>
-    <h1>تحديث مطلوب</h1>
-    <p>فيه نسخة جديدة من التطبيق متاحة! حدّث دلوقتي عشان تستمتع بأفضل تجربة.</p>
+    <h1>Update Available</h1>
+    <p>A new version is available with improved performance and new features. Please update to continue.</p>
     <div class="buttons">
       <a href="https://apps.apple.com/app/chess-analysis-review/id6740692984" class="ios">
-        تحديث من App Store
+        Update on App Store
       </a>
       <a href="https://play.google.com/store/apps/details?id=com.chessreview.app" class="android">
-        تحديث من Google Play
+        Update on Google Play
       </a>
-    </div>
-    <div class="features">
-      <h3>الجديد في التحديث</h3>
-      <ul>
-        <li>أداء أسرع وتحليل محسّن</li>
-        <li>ألغاز شطرنج جديدة</li>
-        <li>تحسينات في الواجهة</li>
-      </ul>
     </div>
   </div>
 </body>
