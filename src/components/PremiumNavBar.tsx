@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   AppBar,
@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import NavLink from "@/components/NavLink";
+import { isPremium, shouldGateFeature } from "@/lib/premium";
+import PremiumModal from "@/components/PremiumModal";
 
 interface PremiumNavBarProps {
   onHomeClick?: () => void;
@@ -29,6 +31,14 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [userIsPremium, setUserIsPremium] = useState(false);
+  const [showPremiumButton, setShowPremiumButton] = useState(false);
+
+  useEffect(() => {
+    setUserIsPremium(isPremium());
+    setShowPremiumButton(shouldGateFeature() || isPremium());
+  }, []);
 
   const MenuOptions = [
     { text: "Home", icon: "mdi:home", href: "/", action: onHomeClick },
@@ -110,8 +120,51 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
         {/* Spacer */}
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* Right side buttons (removed settings/help) */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }} />
+        {showPremiumButton && (
+          <Box
+            onClick={() => {
+              if (!userIsPremium) setPremiumModalOpen(true);
+            }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              cursor: userIsPremium ? "default" : "pointer",
+              background: userIsPremium
+                ? "linear-gradient(135deg, #FFD700, #FFA500)"
+                : "rgba(255,215,0,0.12)",
+              border: userIsPremium
+                ? "none"
+                : "1px solid rgba(255,215,0,0.3)",
+              borderRadius: "20px",
+              padding: "5px 12px",
+              transition: "all 0.2s",
+              ...(!userIsPremium && {
+                "&:hover": {
+                  background: "rgba(255,215,0,0.2)",
+                  border: "1px solid rgba(255,215,0,0.5)",
+                },
+              }),
+            }}
+          >
+            <Icon
+              icon="mdi:crown"
+              style={{
+                fontSize: "16px",
+                color: userIsPremium ? "#1a1a2e" : "#FFD700",
+              }}
+            />
+            <Typography
+              sx={{
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                color: userIsPremium ? "#1a1a2e" : "#FFD700",
+              }}
+            >
+              {userIsPremium ? "PRO" : "Upgrade"}
+            </Typography>
+          </Box>
+        )}
       </Toolbar>
 
       {/* Navigation Drawer */}
@@ -282,6 +335,11 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
           </List>
         </Box>
       </Drawer>
+      <PremiumModal
+        open={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
+        trigger="navbar"
+      />
     </AppBar>
   );
 };

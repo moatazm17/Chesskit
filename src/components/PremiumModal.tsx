@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,8 @@ import {
   useMediaQuery,
   IconButton,
   Chip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { requestPurchase, requestRestore } from "@/lib/premium";
@@ -29,19 +31,56 @@ const FEATURES = [
   { icon: "mdi:cancel", label: "No Ads", desc: "Ad-free experience throughout the app" },
 ];
 
+function getPrices() {
+  const w = (typeof window !== "undefined" ? window : {}) as any;
+  const p = w._premiumPrices;
+  return {
+    monthlyPrice: p?.monthlyPrice || "$0.99",
+    yearlyPrice: p?.yearlyPrice || "$4.99",
+    monthlyPerMonth: p?.monthlyPerMonth || "$0.99",
+    yearlyPerMonth: p?.yearlyPerMonth || "$0.42",
+  };
+}
+
 export default function PremiumModal({ open, onClose, trigger }: PremiumModalProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
+  const [loading, setLoading] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: "success" | "error" | "info" }>({
+    open: false, message: "", severity: "info",
+  });
+  const prices = getPrices();
+
+  const handleFeedback = useCallback((type: string, message: string) => {
+    setLoading(false);
+    if (type === "success") {
+      setSnack({ open: true, message, severity: "success" });
+      setTimeout(() => onClose(), 1500);
+    } else if (type === "error") {
+      setSnack({ open: true, message, severity: "error" });
+    } else if (type === "info") {
+      setSnack({ open: true, message, severity: "info" });
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const w = window as any;
+    w._onPurchaseFeedback = handleFeedback;
+    return () => { delete w._onPurchaseFeedback; };
+  }, [open, handleFeedback]);
 
   const handlePurchase = () => {
     const productId = selectedPlan === "monthly" ? "premium_monthly" as const : "premium_yearly" as const;
     logAnalyticsEvent("premium_purchase_tap", { plan: selectedPlan, trigger: trigger || "unknown" });
+    setLoading(true);
     requestPurchase(productId);
   };
 
   const handleRestore = () => {
     logAnalyticsEvent("premium_restore_tap", { trigger: trigger || "unknown" });
+    setLoading(true);
     requestRestore();
   };
 
@@ -93,7 +132,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
             <Icon icon="mdi:crown" style={{ fontSize: 36, color: "white" }} />
           </Box>
           <Typography sx={{ fontSize: "1.6rem", fontWeight: 800, mb: 0.5 }}>
-            Chesskit Premium
+            Chess Analysis Pro
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)" }}>
             Unlock the full power of your chess training
@@ -185,12 +224,12 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
                 <Box>
                   <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Yearly</Typography>
                   <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
-                    $0.42/month
+                    {prices.yearlyPerMonth}/month
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "right" }}>
-                  <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>$4.99</Typography>
-                  <Typography sx={{ fontSize: "0.7rem", color: "#4CAF50" }}>Save 58%</Typography>
+                  <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>{prices.yearlyPrice}</Typography>
+                  <Typography sx={{ fontSize: "0.7rem", color: "#4CAF50" }}>Best Value</Typography>
                 </Box>
               </Box>
             </Box>
@@ -216,7 +255,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
             >
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Monthly</Typography>
-                <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>$0.99</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>{prices.monthlyPrice}</Typography>
               </Box>
             </Box>
           </Stack>
@@ -246,7 +285,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               transition: "all 0.2s",
             }}
           >
-            Subscribe Now
+            {loading ? "Processing..." : "Subscribe Now"}
           </Button>
 
           <Button
@@ -266,6 +305,21 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
           </Button>
         </Box>
       </DialogContent>
+
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={4000}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={snack.severity}
+          onClose={() => setSnack((s) => ({ ...s, open: false }))}
+          sx={{ width: "100%", fontWeight: 600 }}
+        >
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }
