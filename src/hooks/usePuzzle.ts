@@ -190,10 +190,20 @@ export const usePuzzle = () => {
       const effectivePromotion = promotion || expectedPromotion;
 
       // Check if move is correct
-      const isCorrect =
+      let isCorrect =
         from === expectedFrom &&
         to === expectedTo &&
         (effectivePromotion || undefined) === expectedPromotion;
+
+      // Accept alternative checkmates: if the expected move leads to mate,
+      // any other legal move that also leads to mate is correct
+      if (!isCorrect && moveIndex === puzzle.moves.length - 1) {
+        const testGame = new Chess(game.fen());
+        const testMove = testGame.move({ from, to, promotion: effectivePromotion });
+        if (testMove && testGame.isCheckmate()) {
+          isCorrect = true;
+        }
+      }
 
       if (isCorrect) {
         // Play user's move (use effectivePromotion for auto-promotion)
