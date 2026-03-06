@@ -167,9 +167,24 @@ export const useBrilliantPuzzle = () => {
         setLastMove({ from, to });
         playSoundFromMove(userMoveResult, newGame);
 
-        // Show !! on the first player move (the sacrifice/brilliant move)
-        if (moveIndex === 1) {
-          setBrilliantSquare(to);
+        // Show !! only if this move is a real sacrifice (losing material)
+        if (userMoveResult) {
+          const isSacrifice = (() => {
+            const moved = userMoveResult.piece;
+            const captured = userMoveResult.captured;
+            const pieceValues: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+            // Sacrifice = moved piece is worth more than what it captured (or captured nothing)
+            // AND the piece can be recaptured by opponent
+            if (!captured || pieceValues[moved] > pieceValues[captured]) {
+              const opponentMoves = newGame.moves({ verbose: true });
+              const canRecapture = opponentMoves.some(m => m.to === to);
+              if (canRecapture) return true;
+            }
+            return false;
+          })();
+          if (isSacrifice) {
+            setBrilliantSquare(to);
+          }
         }
 
         const nextMoveIndex = moveIndex + 1;
