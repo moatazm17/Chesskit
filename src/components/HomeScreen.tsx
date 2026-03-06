@@ -261,6 +261,50 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={onLoadGame}
               badge="MOST POPULAR"
               badgeVariant="popular"
+              customIcon={
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 1.5,
+                    marginBottom: isMobile ? "0.5rem" : "1rem",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: isMobile ? 40 : 48,
+                      height: isMobile ? 40 : 48,
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                    }}
+                  >
+                    <img
+                      src="/chesscom-logo.png"
+                      alt="Chess.com"
+                      style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      width: isMobile ? 40 : 48,
+                      height: isMobile ? 40 : 48,
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(255,255,255,0.1)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                    }}
+                  >
+                    <Icon
+                      icon="simple-icons:lichess"
+                      style={{ fontSize: isMobile ? 30 : 36, color: "white" }}
+                    />
+                  </Box>
+                </Box>
+              }
             />
           </Grid>
 
@@ -272,28 +316,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#26C6DA"
               onClick={() => (window.location.href = "/stats")}
               badge="HOT"
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <HomeCard
-              title="Puzzles"
-              description="Solve daily puzzles and improve"
-              icon="mdi:puzzle"
-              color="#FFA726"
-              onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
-              badge="NEW"
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <HomeCard
-              title="Checkmate"
-              description="Mate in 2 and 3 puzzles"
-              icon="mdi:crown"
-              color="#EC407A"
-              onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
-              badge="NEW"
             />
           </Grid>
 
@@ -338,6 +360,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                   </Box>
                 </Box>
               }
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Puzzles"
+              description="Solve daily puzzles and improve"
+              icon="mdi:puzzle"
+              color="#FFA726"
+              onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
+              badge="NEW"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Checkmate"
+              description="Mate in 2 and 3 puzzles"
+              icon="mdi:crown"
+              color="#EC407A"
+              onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
+              badge="NEW"
             />
           </Grid>
 
