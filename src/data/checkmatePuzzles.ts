@@ -802,7 +802,6 @@ export const MATE_IN_2_PUZZLES: Puzzle[] = [
     themes: ["kingsideAttack", "mate", "mateIn2", "middlegame", "short"],
     popularity: 100,
   },
-,
   {
     id: "00GRa",
     fen: "1r3rk1/2p1Nppb/p2nq3/1p2p1Pp/4Qn1P/2P1N3/PPB2P1K/3R2R1 b - - 5 28",
