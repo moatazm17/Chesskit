@@ -2,19 +2,19 @@ import { isPremium } from "./premium";
 
 let lastAdTime = 0;
 const AD_COOLDOWN_MS = 60_000;
-const FIRST_ANALYSIS_KEY = "chesskit_first_analysis_done";
+const GRACE_PERIOD_KEY = "chesskit_grace_period_done";
 
-function isFirstAnalysisDone(): boolean {
+function isGracePeriodOver(): boolean {
   try {
-    return localStorage.getItem(FIRST_ANALYSIS_KEY) === "true";
+    return localStorage.getItem(GRACE_PERIOD_KEY) === "true";
   } catch {
     return true;
   }
 }
 
-export function markFirstAnalysisDone(): void {
+export function markGracePeriodDone(): void {
   try {
-    localStorage.setItem(FIRST_ANALYSIS_KEY, "true");
+    localStorage.setItem(GRACE_PERIOD_KEY, "true");
   } catch {
     // ignore
   }
@@ -40,7 +40,7 @@ function isCooldownActive(): boolean {
  */
 export function showInterstitialAd(): Promise<void> {
   return new Promise((resolve) => {
-    if (isPremium() || isCooldownActive() || !isFirstAnalysisDone()) {
+    if (isPremium() || isCooldownActive() || !isGracePeriodOver()) {
       resolve();
       return;
     }
@@ -75,7 +75,7 @@ export function showInterstitialAd(): Promise<void> {
  */
 export function triggerInterstitialAd(): void {
   try {
-    if (isPremium() || isCooldownActive() || !isFirstAnalysisDone()) return;
+    if (isPremium() || isCooldownActive() || !isGracePeriodOver()) return;
     sendAdMessage();
   } catch {
     // ignore

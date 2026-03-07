@@ -38,7 +38,7 @@ import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
-import { showInterstitialAd, triggerInterstitialAd, markFirstAnalysisDone } from "@/lib/ads";
+import { showInterstitialAd, triggerInterstitialAd, markGracePeriodDone } from "@/lib/ads";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -64,6 +64,11 @@ export default function GameAnalysis() {
   useEffect(() => {
     checkOnOpen();
   }, [checkOnOpen]);
+
+  // End the grace period after the first session so ads show from the second session onward
+  useEffect(() => {
+    markGracePeriodDone();
+  }, []);
 
   useEffect(() => {
     if (tab === 1 && !showMovesTab) setTab(0);
@@ -123,7 +128,6 @@ export default function GameAnalysis() {
 
   const handleBackToHome = () => {
     if (currentScreen === 'analysis') {
-      markFirstAnalysisDone();
       checkAfterAnalysis();
     }
     setCurrentScreen('home');
