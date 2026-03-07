@@ -38,7 +38,7 @@ import { useChessActions } from "@/hooks/useChessActions";
 import { Chess } from "chess.js";
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
-import { showInterstitialAd, triggerInterstitialAd } from "@/lib/ads";
+import { showInterstitialAd, triggerInterstitialAd, markFirstAnalysisDone } from "@/lib/ads";
 
 export default function GameAnalysis() {
   const theme = useTheme();
@@ -122,8 +122,8 @@ export default function GameAnalysis() {
   };
 
   const handleBackToHome = () => {
-    // If coming back from analysis, show rating prompt
     if (currentScreen === 'analysis') {
+      markFirstAnalysisDone();
       checkAfterAnalysis();
     }
     setCurrentScreen('home');

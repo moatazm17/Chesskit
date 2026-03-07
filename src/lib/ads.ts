@@ -1,7 +1,24 @@
 import { isPremium } from "./premium";
 
 let lastAdTime = 0;
-const AD_COOLDOWN_MS = 15_000;
+const AD_COOLDOWN_MS = 60_000;
+const FIRST_ANALYSIS_KEY = "chesskit_first_analysis_done";
+
+function isFirstAnalysisDone(): boolean {
+  try {
+    return localStorage.getItem(FIRST_ANALYSIS_KEY) === "true";
+  } catch {
+    return true;
+  }
+}
+
+export function markFirstAnalysisDone(): void {
+  try {
+    localStorage.setItem(FIRST_ANALYSIS_KEY, "true");
+  } catch {
+    // ignore
+  }
+}
 
 function sendAdMessage(): void {
   const w = window as any;
@@ -23,7 +40,7 @@ function isCooldownActive(): boolean {
  */
 export function showInterstitialAd(): Promise<void> {
   return new Promise((resolve) => {
-    if (isPremium() || isCooldownActive()) {
+    if (isPremium() || isCooldownActive() || !isFirstAnalysisDone()) {
       resolve();
       return;
     }
@@ -58,7 +75,7 @@ export function showInterstitialAd(): Promise<void> {
  */
 export function triggerInterstitialAd(): void {
   try {
-    if (isPremium() || isCooldownActive()) return;
+    if (isPremium() || isCooldownActive() || !isFirstAnalysisDone()) return;
     sendAdMessage();
   } catch {
     // ignore
