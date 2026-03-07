@@ -126,6 +126,12 @@ export default function GameAnalysis() {
     router.push('/brilliant');
   };
 
+  const handleOpenings = async () => {
+    logAnalyticsEvent("card_click", { card: "opening_trainer" });
+    await showInterstitialAd();
+    router.push('/openings');
+  };
+
   const handleBackToHome = () => {
     if (currentScreen === 'analysis') {
       checkAfterAnalysis();
@@ -171,6 +177,7 @@ export default function GameAnalysis() {
           onCheckmate={handleCheckmate}
           onBots={handleBots}
           onBrilliant={handleBrilliant}
+          onOpenings={handleOpenings}
         />
         <RatingModal open={showRating} onClose={closeRating} />
       </>

@@ -155,6 +155,7 @@ interface HomeScreenProps {
   onCheckmate?: () => void;
   onBots?: () => void;
   onBrilliant?: () => void;
+  onOpenings?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -165,6 +166,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onCheckmate,
   onBots,
   onBrilliant,
+  onOpenings,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -316,6 +318,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#26C6DA"
               onClick={() => (window.location.href = "/stats")}
               badge="HOT"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title="Opening Trainer"
+              description="Find & fix your opening weaknesses"
+              icon="mdi:chess-knight"
+              color="#3B9AC6"
+              onClick={onOpenings || (() => (window.location.href = "/openings"))}
+              badge="NEW"
             />
           </Grid>
 
