@@ -14,6 +14,7 @@ export interface MoveStats {
 
 export interface OpeningTreeNode {
   fen: string;
+  parentFen: string;  // Position before this move was played
   move: string;       // UCI: "e2e4"
   san: string;        // SAN: "e4"
   openingName?: string;
@@ -80,12 +81,14 @@ function findOrCreateChild(
   children: OpeningTreeNode[],
   uci: string,
   san: string,
-  fen: string
+  fen: string,
+  parentFen: string
 ): OpeningTreeNode {
-  let node = children.find((c) => c.move === uci);
+  let node = children.find((c) => c.move === uci && c.parentFen === parentFen);
   if (!node) {
     node = {
       fen,
+      parentFen,
       move: uci,
       san,
       openingName: getOpeningName(fen),
@@ -144,16 +147,16 @@ export function buildOpeningTree(
     for (let i = 0; i < Math.min(history.length, MAX_OPENING_MOVES * 2); i++) {
       const move = history[i];
       if (!isPlayerMove(i)) {
-        // Opponent's move — just advance position but don't add to tree
         tempGame.move(move.san);
         continue;
       }
 
+      const parentFen = tempGame.fen();
       tempGame.move(move.san);
       const fen = tempGame.fen();
       const uci = move.from + move.to + (move.promotion ?? "");
 
-      const node = findOrCreateChild(currentChildren, uci, move.san, fen);
+      const node = findOrCreateChild(currentChildren, uci, move.san, fen, parentFen);
       updateNodeStats(node, result);
       currentChildren = node.children;
     }
@@ -169,62 +172,52 @@ function collectWeaknessesFromChildren(
   color: "white" | "black",
   weaknesses: OpeningWeakness[]
 ): void {
-  // At this level, children = all moves the user played from the same parent position.
-  // A "weakness" exists when:
-  //   1. The most-played move has games >= MIN_GAMES_FOR_WEAKNESS
-  //   2. Its win rate is <= MAX_WIN_RATE_FOR_WEAKNESS, OR
-  //      there's a better move with win rate >= (this move's rate + MIN_WIN_RATE_GAP_FOR_WEAKNESS)
-  //      and that better move has games >= MIN_GAMES_FOR_WEAKNESS
-
-  const qualified = children.filter((c) => c.stats.games >= MIN_GAMES_FOR_WEAKNESS);
-  if (qualified.length < 2) {
-    // No comparison possible; recurse into children
-    for (const child of children) {
-      collectWeaknessesFromChildren(child.children, color, weaknesses);
-    }
-    return;
+  // Group children by parentFen so we only compare moves from the same position
+  const byParent = new Map<string, OpeningTreeNode[]>();
+  for (const child of children) {
+    const group = byParent.get(child.parentFen) ?? [];
+    group.push(child);
+    byParent.set(child.parentFen, group);
   }
 
-  // Sort by games descending — most-played first
-  const sorted = [...qualified].sort((a, b) => b.stats.games - a.stats.games);
-  const mostPlayed = sorted[0];
+  for (const group of byParent.values()) {
+    const qualified = group.filter((c) => c.stats.games >= MIN_GAMES_FOR_WEAKNESS);
+    if (qualified.length >= 2) {
+      const sorted = [...qualified].sort((a, b) => b.stats.games - a.stats.games);
+      const mostPlayed = sorted[0];
 
-  // Find moves that are strictly better
-  const betterMoves = sorted
-    .filter(
-      (c) =>
-        c.move !== mostPlayed.move &&
-        c.stats.winRate >= mostPlayed.stats.winRate + MIN_WIN_RATE_GAP_FOR_WEAKNESS
-    )
-    .map((c) => ({
-      san: c.san,
-      uci: c.move,
-      winRate: c.stats.winRate,
-      games: c.stats.games,
-    }));
+      const betterMoves = sorted
+        .filter(
+          (c) =>
+            c.move !== mostPlayed.move &&
+            c.stats.winRate >= mostPlayed.stats.winRate + MIN_WIN_RATE_GAP_FOR_WEAKNESS
+        )
+        .map((c) => ({
+          san: c.san,
+          uci: c.move,
+          winRate: c.stats.winRate,
+          games: c.stats.games,
+        }));
 
-  const isWeak =
-    mostPlayed.stats.winRate <= MAX_WIN_RATE_FOR_WEAKNESS || betterMoves.length > 0;
+      const isWeak =
+        mostPlayed.stats.winRate <= MAX_WIN_RATE_FOR_WEAKNESS || betterMoves.length > 0;
 
-  if (isWeak && betterMoves.length > 0) {
-    // Use the parent FEN (position before the weak move) — derive it by using
-    // the node's FEN and undoing the move
-    const chess = new Chess(mostPlayed.fen);
-    chess.undo();
-    const parentFen = chess.fen();
-
-    weaknesses.push({
-      fen: parentFen,
-      playerColor: color,
-      openingName: mostPlayed.openingName ?? getOpeningName(parentFen),
-      weakMove: {
-        san: mostPlayed.san,
-        uci: mostPlayed.move,
-        winRate: mostPlayed.stats.winRate,
-        games: mostPlayed.stats.games,
-      },
-      betterMoves: betterMoves.sort((a, b) => b.winRate - a.winRate),
-    });
+      if (isWeak && betterMoves.length > 0) {
+        const parentFen = mostPlayed.parentFen;
+        weaknesses.push({
+          fen: parentFen,
+          playerColor: color,
+          openingName: mostPlayed.openingName ?? getOpeningName(parentFen),
+          weakMove: {
+            san: mostPlayed.san,
+            uci: mostPlayed.move,
+            winRate: mostPlayed.stats.winRate,
+            games: mostPlayed.stats.games,
+          },
+          betterMoves: betterMoves.sort((a, b) => b.winRate - a.winRate),
+        });
+      }
+    }
   }
 
   // Recurse into all children regardless

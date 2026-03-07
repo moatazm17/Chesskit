@@ -67,9 +67,9 @@ export function useOpeningTrainer(weaknesses: OpeningWeakness[]) {
     [weaknesses]
   );
 
-  const startTraining = useCallback(() => {
-    setCurrentIndex(0);
-    loadWeakness(0);
+  const startTraining = useCallback((startIndex = 0) => {
+    setCurrentIndex(startIndex);
+    loadWeakness(startIndex);
   }, [loadWeakness]);
 
   const makeMove = useCallback(

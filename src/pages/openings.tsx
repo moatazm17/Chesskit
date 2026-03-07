@@ -43,7 +43,6 @@ function WeaknessCard({
   onPractice: () => void;
 }) {
   const bestMove = weakness.betterMoves[0];
-  const colorIcon = weakness.playerColor === "white" ? "mdi:chess-king" : "mdi:chess-king";
   const colorLabel = weakness.playerColor === "white" ? "as White" : "as Black";
 
   return (
@@ -168,10 +167,16 @@ function WeaknessCard({
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 
+const COMING_SOON = true;
+
 export default function OpeningTrainer() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pieceSet = useAtomValue(pieceSetAtom);
+
+  useEffect(() => {
+    if (COMING_SOON) window.location.href = "/";
+  }, []);
 
   const [pageState, setPageState] = useState<PageState>("input");
   const [username, setUsername] = useState("");
@@ -254,16 +259,7 @@ export default function OpeningTrainer() {
 
   const handlePracticeWeakness = useCallback(
     (index: number) => {
-      trainer.startTraining();
-      // Navigate to the selected weakness directly
-      if (index > 0) {
-        // Re-init trainer at this specific index by calling loadWeakness internally
-        // We achieve this by setting the correct weakness as first
-        setWeaknesses((prev) => {
-          const reordered = [...prev.slice(index), ...prev.slice(0, index)];
-          return reordered;
-        });
-      }
+      trainer.startTraining(index);
       triggerInterstitialAd();
       setPageState("training");
       logAnalyticsEvent("opening_trainer_start", { weakness_index: index });
@@ -303,7 +299,9 @@ export default function OpeningTrainer() {
   const onDrop = useCallback(
     (from: Square, to: Square, piece: Piece): boolean => {
       if (trainer.trainerState !== "playing") return false;
-      const promotion = piece[1]?.toLowerCase() !== "p" ? undefined : undefined;
+      const isPawn = piece[1]?.toLowerCase() === "p";
+      const isPromotionRank = to[1] === "8" || to[1] === "1";
+      const promotion = isPawn && isPromotionRank ? "q" : undefined;
       return trainer.makeMove(from, to, promotion);
     },
     [trainer]

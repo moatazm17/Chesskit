@@ -327,8 +327,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description="Find & fix your opening weaknesses"
               icon="mdi:chess-knight"
               color="#3B9AC6"
-              onClick={onOpenings || (() => (window.location.href = "/openings"))}
-              badge="NEW"
+              onClick={() => {}}
+              badge="COMING SOON"
             />
           </Grid>
 
