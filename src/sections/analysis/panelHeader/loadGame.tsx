@@ -14,8 +14,10 @@ import { Chess } from "chess.js";
 import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
 import { fetchLichessGame } from "@/lib/lichess";
+import { useTranslation } from "@/lib/i18n";
 
 export default function LoadGame() {
+  const { t } = useTranslation();
   const router = useRouter();
   const game = useAtomValue(gameAtom);
   const { setPgn: setGamePgn } = useChessActions(gameAtom);
@@ -90,7 +92,7 @@ export default function LoadGame() {
 
   return (
     <LoadGameButton
-      label={isGameLoaded ? "Load another game" : "Load game"}
+      label={isGameLoaded ? t("loadAnotherGame") : t("loadGameButton")}
       size="small"
       setGame={async (game) => {
         await router.push("/");

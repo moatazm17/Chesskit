@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n";
 import {
   Box,
   Grid,
@@ -168,6 +169,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onBrilliant,
   onOpenings,
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [promoCard, setPromoCard] = useState<PromoCardData | null>(null);
@@ -230,7 +232,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               fontSize: isMobile ? "2rem" : "4rem",
             }}
           >
-            ♟️ CHESS ANALYSIS
+            {t("chessAnalysis")}
           </Typography>
           <Typography
             variant="h6"
@@ -240,7 +242,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               fontSize: isMobile ? "0.9rem" : "1.25rem",
             }}
           >
-            The Ultimate Chess Experience
+            {t("ultimateExperience")}
           </Typography>
         </Box>
 
@@ -256,12 +258,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         >
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Review Game"
-              description="Analyze from Chess.com or Lichess"
+              title={t("reviewGame")}
+              description={t("analyzeFromPlatforms")}
               icon="mdi:folder-open"
               color="#45b7d1"
               onClick={onLoadGame}
-              badge="MOST POPULAR"
+              badge={t("mostPopular")}
               badgeVariant="popular"
               customIcon={
                 <Box
@@ -312,8 +314,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Player Insights"
-              description="Analyze your Chess.com stats"
+              title={t("playerInsights")}
+              description={t("analyzeStats")}
               icon="mdi:chart-areaspline"
               color="#26C6DA"
               onClick={() => (window.location.href = "/stats")}
@@ -321,25 +323,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <HomeCard
-              title="Opening Trainer"
-              description="Find & fix your opening weaknesses"
-              icon="mdi:chess-knight"
-              color="#3B9AC6"
-              onClick={() => {}}
-              badge="COMING SOON"
-            />
-          </Grid>
+          {typeof window !== "undefined" && window.location.hostname === "localhost" && (
+            <Grid item xs={12} sm={6} md={3}>
+              <HomeCard
+                title={t("openingTrainer")}
+                description={t("findFixWeaknesses")}
+                icon="mdi:chess-knight"
+                color="#3B9AC6"
+                onClick={onOpenings || (() => (window.location.href = "/openings"))}
+                badge={t("new")}
+              />
+            </Grid>
+          )}
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Brilliant Puzzles"
-              description="Find the winning sacrifice !!"
+              title={t("brilliantPuzzles")}
+              description={t("findWinningSacrifice")}
               icon="mdi:star-four-points"
               color="#26C6DA"
               onClick={onBrilliant || (() => (window.location.href = "/brilliant"))}
-              badge="NEW"
+              badge={t("new")}
               customIcon={
                 <Box
                   sx={{
@@ -378,34 +382,34 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Puzzles"
-              description="Solve daily puzzles and improve"
+              title={t("puzzles")}
+              description={t("solveDailyPuzzles")}
               icon="mdi:puzzle"
               color="#FFA726"
               onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
-              badge="NEW"
+              badge={t("new")}
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Checkmate"
-              description="Mate in 2 and 3 puzzles"
+              title={t("checkmate")}
+              description={t("mateIn2And3")}
               icon="mdi:crown"
               color="#EC407A"
               onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
-              badge="NEW"
+              badge={t("new")}
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Play vs Legends"
-              description="Challenge famous chess players"
+              title={t("playVsLegends")}
+              description={t("challengeFamous")}
               icon="mdi:account-star"
               color="#9333EA"
               onClick={onBots || (() => (window.location.href = "/bots"))}
-              badge="NEW"
+              badge={t("new")}
               customIcon={
                 <Box
                   sx={{
@@ -448,8 +452,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Play Game"
-              description="Challenge Stockfish engine"
+              title={t("playGame")}
+              description={t("challengeStockfish")}
               icon="game-icons:chess-king"
               color="#4ecdc4"
               onClick={onPlayGame}
@@ -458,8 +462,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={3}>
             <HomeCard
-              title="Saved Games"
-              description="Your saved games and analysis"
+              title={t("savedGames")}
+              description={t("yourSavedGames")}
               icon="mdi:database"
               color="#ff6b6b"
               onClick={onSavedGames}
@@ -509,7 +513,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  AD
+                  {t("ad")}
                 </Box>
                 <CardContent
                   sx={{

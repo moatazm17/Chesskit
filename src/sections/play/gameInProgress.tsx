@@ -12,8 +12,10 @@ import { gameAtom, isGameInProgressAtom } from "./states";
 import { useEffect, useState } from "react";
 import UndoMoveButton from "./undoMoveButton";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "@/lib/i18n";
 
 export default function GameInProgress() {
+  const { t } = useTranslation();
   const game = useAtomValue(gameAtom);
   const [isGameInProgress, setIsGameInProgress] = useAtom(isGameInProgressAtom);
   const [pulse, setPulse] = useState(true);
@@ -82,7 +84,7 @@ export default function GameInProgress() {
                 }}
               />
             }
-            label="Game Active"
+            label={t("gameActive")}
             sx={{
               backgroundColor: 'rgba(76,175,80,0.2)',
               color: '#4CAF50',
@@ -103,7 +105,7 @@ export default function GameInProgress() {
             marginBottom: 1
           }}
         >
-          🎮 Battle in Progress
+          🎮 {t("battleInProgress")}
         </Typography>
         
         <Typography 
@@ -113,7 +115,7 @@ export default function GameInProgress() {
             marginBottom: 2
           }}
         >
-          Move {Math.ceil(moveCount / 2)} • {currentPlayer} to play
+          {t("moveToPlay", { move: Math.ceil(moveCount / 2), player: currentPlayer })}
         </Typography>
       </Box>
 
@@ -145,7 +147,7 @@ export default function GameInProgress() {
               transition: 'all 0.3s ease'
             }}
           >
-            Resign
+            {t("resign")}
           </Button>
         </Grid>
       </Grid>

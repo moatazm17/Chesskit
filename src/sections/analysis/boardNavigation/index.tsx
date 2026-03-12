@@ -8,8 +8,10 @@ import { MoveClassification } from "@/types/enums";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { useRouter } from "next/router";
 import { getGameToSave } from "@/lib/chess";
+import { useTranslation } from "@/lib/i18n";
 
 export default function BoardNavigation() {
+  const { t } = useTranslation();
   const board = useAtomValue(boardAtom);
   const game = useAtomValue(gameAtom);
   const gameEval = useAtomValue(gameEvalAtom);
@@ -124,7 +126,7 @@ export default function BoardNavigation() {
       >
         {/* Left side - Previous and Reload */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Tooltip title="Previous Move">
+          <Tooltip title={t("previousMove")}>
             <IconButton
               onClick={() => undoBoardMove()}
               disabled={boardHistory.length === 0}
@@ -146,7 +148,7 @@ export default function BoardNavigation() {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Retry Position">
+          <Tooltip title={t("retryPosition")}>
             <IconButton
               onClick={() => resetBoard()}
               disabled={boardHistory.length === 0}
@@ -194,12 +196,12 @@ export default function BoardNavigation() {
             transition: 'all 0.2s ease'
           }}
         >
-          Next
+          {t("next")}
         </Button>
 
         {/* Right side - Next and Save */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Tooltip title="Next Move">
+          <Tooltip title={t("nextMove")}>
             <IconButton
               onClick={() => addNextGameMoveToBoard()}
               disabled={!hasNextMove}
@@ -223,7 +225,7 @@ export default function BoardNavigation() {
 
           {/* Save Button */}
           {gameFromUrl ? (
-            <Tooltip title="Game saved in database">
+            <Tooltip title={t("gameSavedInDb")}>
               <IconButton 
                 disabled={true} 
                 sx={{
@@ -239,7 +241,7 @@ export default function BoardNavigation() {
               </IconButton>
             </Tooltip>
           ) : (
-            <Tooltip title="Save game">
+            <Tooltip title={t("saveGame")}>
               <IconButton
                 onClick={handleSave}
                 disabled={!enableSave}

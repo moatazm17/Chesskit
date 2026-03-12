@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n";
 import {
   Box,
   AppBar,
@@ -28,6 +29,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   onHomeClick,
   onLoadGameClick,
 }) => {
+  const { t, locale, setLocale } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -41,16 +43,16 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   }, []);
 
   const MenuOptions = [
-    { text: "Home", icon: "mdi:home", href: "/", action: onHomeClick },
+    { text: t("home"), icon: "mdi:home", href: "/", action: onHomeClick },
     {
-      text: "Review Game",
+      text: t("reviewGame"),
       icon: "streamline:magnifying-glass-solid",
       href: null,
       action: onLoadGameClick,
     },
-    { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
-    { text: "Saved Games", icon: "streamline:database", href: "/database" },
-    { text: "Player Insights", icon: "mdi:chart-areaspline", href: "/stats" },
+    { text: t("play"), icon: "streamline:chess-pawn", href: "/play" },
+    { text: t("savedGames"), icon: "streamline:database", href: "/database" },
+    { text: t("playerInsights"), icon: "mdi:chart-areaspline", href: "/stats" },
   ];
 
   return (
@@ -113,7 +115,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
               fontSize: isMobile ? "1.25rem" : "1.5rem",
             }}
           >
-            ♟️ Chess Analysis
+            {t("chessAnalysisTitle")}
           </Typography>
         </Box>
 
@@ -161,7 +163,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
                 color: userIsPremium ? "#1a1a2e" : "#FFD700",
               }}
             >
-              {userIsPremium ? "PRO" : "Upgrade"}
+              {userIsPremium ? t("pro") : t("upgrade")}
             </Typography>
           </Box>
         )}
@@ -202,7 +204,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
               marginBottom: 3,
             }}
           >
-            ♟️ Chess Analysis
+            {t("chessAnalysisTitle")}
           </Typography>
 
           <List sx={{ flexGrow: 1 }}>
@@ -272,6 +274,22 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
 
           {/* Footer links */}
           <List sx={{ mt: 1 }}>
+            {typeof window !== "undefined" && window.location.hostname === "localhost" && (
+              <ListItem disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  onClick={() => {
+                    setLocale(locale === "ar" ? "en" : "ar");
+                    setDrawerOpen(false);
+                  }}
+                  sx={{ borderRadius: "8px" }}
+                >
+                  <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
+                    <Icon icon="mdi:translate" />
+                  </ListItemIcon>
+                  <ListItemText primary={locale === "ar" ? "English" : "العربية"} />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 onClick={() => {
@@ -286,7 +304,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
                 <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
                   <Icon icon="mdi:shield-account" />
                 </ListItemIcon>
-                <ListItemText primary="Privacy" />
+                <ListItemText primary={t("privacy")} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
@@ -303,7 +321,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
                 <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
                   <Icon icon="mdi:file-document" />
                 </ListItemIcon>
-                <ListItemText primary="Terms" />
+                <ListItemText primary={t("terms")} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
@@ -315,7 +333,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
                   <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
                     <Icon icon="mdi:lifebuoy" />
                   </ListItemIcon>
-                  <ListItemText primary="Support" />
+                  <ListItemText primary={t("support")} />
                 </ListItemButton>
               </NavLink>
             </ListItem>
@@ -328,7 +346,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
                   <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
                     <Icon icon="mdi:information" />
                   </ListItemIcon>
-                  <ListItemText primary="About" />
+                  <ListItemText primary={t("about")} />
                 </ListItemButton>
               </NavLink>
             </ListItem>

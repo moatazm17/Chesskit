@@ -15,8 +15,10 @@ import {
 } from "@/sections/analysis/states";
 import { logAnalyticsEvent } from "@/lib/firebase";
 import { triggerInterstitialAd } from "@/lib/ads";
+import { useTranslation } from "@/lib/i18n";
 
 export default function GameRecap() {
+  const { t } = useTranslation();
   const game = useAtomValue(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
@@ -66,40 +68,40 @@ export default function GameRecap() {
       const isPlayerWinner = winnerColor === playerColor;
       return {
         icon: isPlayerWinner ? "🎉" : "😔",
-        title: isPlayerWinner ? "Victory!" : "Defeat",
-        message: `${isPlayerWinner ? "You" : opponentName} won by checkmate`,
+        title: isPlayerWinner ? t("victory") : t("defeat"),
+        message: isPlayerWinner ? t("wonByCheckmate") : t("opponentWonByCheckmate", { name: opponentName }),
         color: isPlayerWinner ? "#4CAF50" : "#ff6b6b"
       };
     }
     if (game.isInsufficientMaterial()) return {
       icon: "🤝",
-      title: "Draw",
-      message: "Insufficient material",
+      title: t("draw"),
+      message: t("insufficientMaterial"),
       color: "#45b7d1"
     };
     if (game.isStalemate()) return {
       icon: "🤝", 
-      title: "Draw",
-      message: "Stalemate",
+      title: t("draw"),
+      message: t("stalemate"),
       color: "#45b7d1"
     };
     if (game.isThreefoldRepetition()) return {
       icon: "🤝",
-      title: "Draw", 
-      message: "Threefold repetition",
+      title: t("draw"), 
+      message: t("threefoldRepetition"),
       color: "#45b7d1"
     };
     if (game.isDraw()) return {
       icon: "🤝",
-      title: "Draw",
-      message: "Fifty-move rule",
+      title: t("draw"),
+      message: t("fiftyMoveRule"),
       color: "#45b7d1"
     };
 
     return {
       icon: "🏳️",
-      title: "Resigned",
-      message: "You resigned the game",
+      title: t("resigned"),
+      message: t("youResigned"),
       color: "#ff6b6b"
     };
   };
@@ -195,7 +197,7 @@ export default function GameRecap() {
             fontSize: '0.9rem'
           }}
         >
-          Game completed in {moveCount} moves
+          {t("gameCompletedInMoves", { count: moveCount })}
         </Typography>
       </Box>
 
@@ -221,7 +223,7 @@ export default function GameRecap() {
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
-        Analyze This Game
+        {t("analyzeThisGame")}
       </Button>
 
       {/* Game Analysis Modal */}

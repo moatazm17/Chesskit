@@ -1,5 +1,6 @@
 import { Chip, Theme, Tooltip, useTheme } from "@mui/material";
 import React from "react";
+import { useTranslation } from "@/lib/i18n";
 
 interface Props {
   result?: string;
@@ -11,8 +12,10 @@ export default function GameResultChip({
   perspectiveUserColor,
 }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const { label, color, bgColor } = getResultSpecs(
+    t,
     theme,
     perspectiveUserColor,
     result
@@ -39,6 +42,7 @@ export default function GameResultChip({
 }
 
 const getResultSpecs = (
+  t: (key: string) => string,
   theme: Theme,
   perspectiveUserColor: "white" | "black",
   result?: string
@@ -48,7 +52,7 @@ const getResultSpecs = (
     (result === "0-1" && perspectiveUserColor === "black")
   ) {
     return {
-      label: result === "1-0" ? "White won" : "Black won",
+      label: result === "1-0" ? t("whiteWon") : t("blackWon"),
       color: theme.palette.success.main,
       bgColor: `${theme.palette.success.main}1A`,
     };
@@ -59,7 +63,7 @@ const getResultSpecs = (
     (result === "0-1" && perspectiveUserColor === "white")
   ) {
     return {
-      label: result === "1-0" ? "White won" : "Black won",
+      label: result === "1-0" ? t("whiteWon") : t("blackWon"),
       color: theme.palette.error.main,
       bgColor: `${theme.palette.error.main}1A`,
     };
@@ -67,14 +71,14 @@ const getResultSpecs = (
 
   if (result === "1/2-1/2") {
     return {
-      label: "Draw",
+      label: t("draw"),
       color: theme.palette.info.main,
       bgColor: `${theme.palette.info.main}1A`,
     };
   }
 
   return {
-    label: "Game in Progress",
+    label: t("gameInProgress"),
     color: theme.palette.text.secondary,
     bgColor: theme.palette.action.hover,
   };

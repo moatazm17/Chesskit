@@ -35,6 +35,7 @@ import { isEngineSupported } from "@/lib/engine/shared";
 import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
 import { DEFAULT_ENGINE, ENGINE_LABELS, STRONGEST_ENGINE } from "@/constants";
 import { getGameFromPgn } from "@/lib/chess";
+import { useTranslation } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -42,6 +43,7 @@ interface Props {
 }
 
 export default function GameSettingsDialog({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const [engineElo, setEngineElo] = useAtomLocalStorage(
     "engine-elo",
     engineEloAtom
@@ -158,7 +160,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          🎮 Game Setup
+          🎮 {t("gameSetup")}
         </Typography>
         <Typography 
           variant="body2" 
@@ -169,7 +171,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
             lineHeight: 1.5
           }}
         >
-          Configure your game settings and challenge Stockfish
+          {t("configureGame")}
         </Typography>
       </DialogTitle>
       
@@ -192,7 +194,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                 gap: 1
               }}
             >
-              🤖 Chess Engine
+              🤖 {t("chessEngine")}
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -259,7 +261,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                 gap: 1
               }}
             >
-              ⚡ Bot Strength: {engineElo} ELO
+              ⚡ {t("botStrength", { elo: engineElo })}
             </Typography>
             <Slider
               label=""
@@ -285,7 +287,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                 gap: 1
               }}
             >
-              ♟️ Your Color
+              ♟️ {t("yourColor")}
             </Typography>
             <FormGroup>
               <FormControlLabel
@@ -310,8 +312,8 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                 label={
                   <Typography sx={{ color: 'white', fontSize: '1.1rem' }}>
                     {playerColor === Color.White
-                      ? "🔵 You play as White"
-                      : "⚫ You play as Black"}
+                      ? `🔵 ${t("playAsWhite")}`
+                      : `⚫ ${t("playAsBlack")}`}
                   </Typography>
                 }
               />
@@ -331,11 +333,11 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                 gap: 1
               }}
             >
-              📋 Starting Position (Optional)
+              📋 {t("startingPosition")}
             </Typography>
             <TextField
               fullWidth
-              placeholder="Enter FEN or PGN for custom starting position"
+              placeholder={t("enterFenOrPgn")}
               variant="outlined"
               multiline
               rows={3}
@@ -407,7 +409,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
             }
           }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button 
           variant="contained" 
@@ -424,7 +426,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
             }
           }}
         >
-          🚀 Start Game
+          🚀 {t("startGame")}
         </Button>
       </DialogActions>
     </Dialog>

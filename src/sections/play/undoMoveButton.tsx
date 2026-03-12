@@ -3,8 +3,10 @@ import { gameAtom, playerColorAtom } from "./states";
 import { useAtomValue } from "jotai";
 import { useChessActions } from "@/hooks/useChessActions";
 import { Color } from "@/types/enums";
+import { useTranslation } from "@/lib/i18n";
 
 export default function UndoMoveButton() {
+  const { t } = useTranslation();
   const game = useAtomValue(gameAtom);
   const { goToMove, undoMove } = useChessActions(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
@@ -26,7 +28,7 @@ export default function UndoMoveButton() {
 
   return (
     <Button variant="outlined" onClick={handleClick}>
-      Undo your last move
+      {t("undoLastMove")}
     </Button>
   );
 }

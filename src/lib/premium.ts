@@ -131,6 +131,22 @@ export function canPlayBrilliant(): boolean {
   return getDailyLimit(BRILLIANT_LIMIT_KEY).count < FREE_BRILLIANT_LIMIT;
 }
 
+const OPENING_LIMIT_KEY = "chesskit_opening_limit";
+export const FREE_OPENING_LIMIT = 3;
+
+export function getOpeningCount(): number {
+  return getDailyLimit(OPENING_LIMIT_KEY).count;
+}
+
+export function incrementOpeningCount(): number {
+  return incrementDailyLimit(OPENING_LIMIT_KEY).count;
+}
+
+export function canPlayOpening(): boolean {
+  if (!supportsIAP() || isPremium()) return true;
+  return getDailyLimit(OPENING_LIMIT_KEY).count < FREE_OPENING_LIMIT;
+}
+
 const HINT_LIMIT_KEY = "chesskit_hint_limit";
 export const FREE_HINT_LIMIT = 3;
 

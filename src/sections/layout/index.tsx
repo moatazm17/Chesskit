@@ -1,15 +1,18 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import { PropsWithChildren, useMemo } from "react";
+import { PropsWithChildren, useMemo, useEffect } from "react";
 import { red } from "@mui/material/colors";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { MAIN_THEME_COLOR } from "@/constants";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Layout({ children }: PropsWithChildren) {
   const [isDarkMode, setDarkMode] = useLocalStorage("useDarkMode", true);
+  const { dir, isRTL } = useTranslation();
 
   const theme = useMemo(
     () =>
       createTheme({
+        direction: isRTL ? "rtl" : "ltr",
         palette: {
           mode: isDarkMode ? "dark" : "light",
           error: {
@@ -23,15 +26,20 @@ export default function Layout({ children }: PropsWithChildren) {
           },
         },
       }),
-    [isDarkMode]
+    [isDarkMode, isRTL]
   );
+
+  useEffect(() => {
+    document.documentElement.dir = dir;
+    document.documentElement.lang = isRTL ? "ar" : "en";
+  }, [dir, isRTL]);
 
   if (isDarkMode === null) return null;
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <main>{children}</main>
+      <main dir={dir}>{children}</main>
     </ThemeProvider>
   );
 }

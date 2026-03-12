@@ -5,6 +5,7 @@ import { AppProps } from "next/app";
 import Layout from "@/sections/layout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { I18nProvider } from "@/lib/i18n";
 
 const queryClient = new QueryClient();
 
@@ -71,11 +72,13 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </QueryClientProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClient}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </QueryClientProvider>
+      </I18nProvider>
     </ErrorBoundary>
   );
 }

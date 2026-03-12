@@ -1,6 +1,6 @@
 {
   "name": "chesskit",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {
@@ -47,7 +47,8 @@
     "eslint-plugin-deprecation": "^3.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wrangler": "^4.71.0"
   },
   "optionalDependencies": {
     "@next/swc-linux-x64-gnu": "15.5.12"

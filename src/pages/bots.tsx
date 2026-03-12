@@ -16,6 +16,7 @@ import {
 import { Icon } from "@iconify/react";
 import PremiumNavBar from "@/components/PremiumNavBar";
 import { shouldGateFeature } from "@/lib/premium";
+import { useTranslation } from "@/lib/i18n";
 import PremiumModal from "@/components/PremiumModal";
 import { CHESS_BOTS, ChessBot } from "@/data/bots";
 import { useState, useEffect } from "react";
@@ -34,6 +35,7 @@ import { useRouter } from "next/router";
 import { logAnalyticsEvent } from "@/lib/firebase";
 
 export default function BotsPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const router = useRouter();
@@ -74,12 +76,12 @@ export default function BotsPage() {
     // Reset game
     resetGame({
       white: {
-        name: color === Color.White ? "You" : selectedBot.name,
+        name: color === Color.White ? t("you") : selectedBot.name,
         rating: color === Color.White ? undefined : selectedBot.elo,
         avatarUrl: color === Color.White ? undefined : selectedBot.image,
       },
       black: {
-        name: color === Color.Black ? "You" : selectedBot.name,
+        name: color === Color.Black ? t("you") : selectedBot.name,
         rating: color === Color.Black ? undefined : selectedBot.elo,
         avatarUrl: color === Color.Black ? undefined : selectedBot.image,
       },
@@ -101,7 +103,7 @@ export default function BotsPage() {
   return (
     <>
       <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
-      <PageTitle title="Play vs Legends" />
+      <PageTitle title={t("playVsLegends")} />
       <Box
         sx={{
           minHeight: "calc(100vh - 64px)",
@@ -150,7 +152,7 @@ export default function BotsPage() {
                 marginBottom: 1,
               }}
             >
-              Play vs Legends
+              {t("playVsLegends")}
             </Typography>
             <Typography
               variant="body1"
@@ -159,7 +161,7 @@ export default function BotsPage() {
                 fontSize: isMobile ? "0.85rem" : "1.1rem",
               }}
             >
-              Challenge the greatest chess players in history
+              {t("challengeGreatest")}
             </Typography>
             <Typography
               variant="caption"
@@ -171,7 +173,7 @@ export default function BotsPage() {
                 fontStyle: "italic",
               }}
             >
-              AI opponents inspired by legendary playing styles
+              {t("aiOpponents")}
             </Typography>
           </Box>
 
@@ -218,7 +220,7 @@ export default function BotsPage() {
                     zIndex: 1,
                   }}>
                     <Typography sx={{ fontSize: "0.55rem", fontWeight: 800, color: "#1a1a2e" }}>
-                      PRO
+                      {t("pro")}
                     </Typography>
                   </Box>
                 )}
@@ -426,7 +428,7 @@ export default function BotsPage() {
                   marginBottom: 2,
                 }}
               >
-                Choose Your Color
+                {t("chooseYourColor")}
               </Typography>
 
               <Stack direction="row" spacing={2} justifyContent="center">
@@ -452,7 +454,7 @@ export default function BotsPage() {
                 >
                   <Stack alignItems="center" spacing={0.5}>
                     <Box sx={{ fontSize: "1.5rem" }}>♔</Box>
-                    <span>White</span>
+                    <span>{t("white")}</span>
                   </Stack>
                 </Button>
 
@@ -479,7 +481,7 @@ export default function BotsPage() {
                 >
                   <Stack alignItems="center" spacing={0.5}>
                     <Box sx={{ fontSize: "1.5rem" }}>♚</Box>
-                    <span>Black</span>
+                    <span>{t("black")}</span>
                   </Stack>
                 </Button>
               </Stack>

@@ -5,12 +5,14 @@ import { Box, Grid2 as Grid, Typography, Card, CardContent, Button, useTheme, us
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "@/lib/i18n";
 
 export default function Database() {
   const { games, isReady, deleteGame } = useGameDatabase(true);
   const router = useRouter();
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
+  const { t } = useTranslation();
 
   const handleGameClick = (gameId: number) => {
     router.push(`/?gameId=${gameId}`);
@@ -18,7 +20,7 @@ export default function Database() {
 
   const handleDeleteGame = async (e: React.MouseEvent, gameId: number) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this game?")) {
+    if (confirm(t("deleteGameConfirm"))) {
       await deleteGame(gameId);
     }
   };
@@ -47,12 +49,12 @@ export default function Database() {
             margin: "0 auto",
           }}
         >
-          <PageTitle title="Saved Games Database" />
+          <PageTitle title={t("savedGamesDatabase")} />
 
           {!isReady ? (
             <Grid size={12}>
               <Typography variant="h6" color="text.secondary" align="center">
-                Loading games...
+                {t("loadingGames")}
               </Typography>
             </Grid>
           ) : games.length === 0 ? (
@@ -66,7 +68,7 @@ export default function Database() {
               >
                 <CardContent>
                   <Typography variant="h6" color="text.secondary" align="center">
-                  No saved games yet. Start analyzing games to save them here.
+                  {t("noSavedGames")}
                   </Typography>
                 </CardContent>
               </Card>
@@ -94,7 +96,7 @@ export default function Database() {
                       <CardContent>
                         <Box display="flex" justifyContent="space-between" alignItems="start" mb={1}>
                           <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
-                            {game.event || "Game"}
+                            {game.event || t("game")}
                           </Typography>
                           <Button
                             size="small"
@@ -110,18 +112,18 @@ export default function Database() {
                         </Typography>
                         {game.result && (
                           <Typography variant="body2" color="text.secondary">
-                            Result: {game.result}
+                            {t("result", { value: game.result })}
                           </Typography>
                         )}
                         {game.date && (
                           <Typography variant="body2" color="text.secondary">
-                            Date: {game.date}
+                            {t("date", { value: game.date })}
                           </Typography>
                         )}
                         {game.eval && (
                           <Box mt={1}>
                             <Typography variant="caption" color="success.main">
-                              Analyzed
+                              {t("analyzed")}
                             </Typography>
                           </Box>
                         )}

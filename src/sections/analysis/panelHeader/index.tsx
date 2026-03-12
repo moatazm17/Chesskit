@@ -6,8 +6,10 @@ import AnalyzeButton from "./analyzeButton";
 import LinearProgressBar from "@/components/LinearProgressBar";
 import { useAtomValue } from "jotai";
 import { evaluationProgressAtom } from "../states";
+import { useTranslation } from "@/lib/i18n";
 
 export default function PanelHeader() {
+  const { t } = useTranslation();
   const evaluationProgress = useAtomValue(evaluationProgressAtom);
 
   return (
@@ -28,7 +30,7 @@ export default function PanelHeader() {
         <Icon icon="streamline:clipboard-check" height={24} />
 
         <Typography variant="h5" align="center">
-          Game Analysis
+          {t("gameAnalysis")}
         </Typography>
       </Grid>
 
@@ -43,7 +45,7 @@ export default function PanelHeader() {
         <GamePanel />
         <LoadGame />
         <AnalyzeButton />
-        <LinearProgressBar value={evaluationProgress} label="Analyzing..." />
+        <LinearProgressBar value={evaluationProgress} label={t("analyzing")} />
       </Grid>
     </Grid>
   );

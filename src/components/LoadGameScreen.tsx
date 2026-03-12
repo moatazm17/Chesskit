@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "@/lib/i18n";
 import {
   Box,
   Grid,
@@ -135,6 +136,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   onBack,
   onNavigateToAnalysis,
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [loadGameDialogOpen, setLoadGameDialogOpen] = useState(false);
@@ -238,7 +240,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
               },
             }}
           >
-            Back to Home
+            {t("backToHome")}
           </Button>
 
           <Typography
@@ -254,7 +256,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
               fontSize: isMobile ? "1.5rem" : "3rem",
             }}
           >
-            Review Game
+            {t("reviewGame")}
           </Typography>
           <Typography
             variant="h6"
@@ -264,7 +266,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
               fontSize: isMobile ? "0.9rem" : "1.25rem",
             }}
           >
-            Choose where to load your game from
+            {t("chooseLoadGame")}
           </Typography>
         </Box>
 
@@ -280,8 +282,8 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
         >
           <Grid item xs={12} sm={6} md={4}>
             <LoadOption
-              title="Chess.com"
-              description="Import games from your Chess.com account"
+              title={t("chessCom")}
+              description={t("importChessCom")}
               customIcon={<ChessComIcon size={isMobile ? 40 : 56} />}
               color="#4ecdc4"
               onClick={() => {
@@ -293,8 +295,8 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={4}>
             <LoadOption
-              title="Lichess.org"
-              description="Import games from your Lichess account"
+              title={t("lichessOrg")}
+              description={t("importLichess")}
               icon="simple-icons:lichess"
               color="#45b7d1"
               onClick={() => {
@@ -306,8 +308,8 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
 
           <Grid item xs={12} sm={6} md={4}>
             <LoadOption
-              title="Paste PGN"
-              description="Paste a PGN string directly"
+              title={t("pastePgn")}
+              description={t("pastePgnDesc")}
               icon="mdi:content-paste"
               color="#ff6b6b"
               onClick={() => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "@/lib/i18n";
 import {
   Dialog,
   DialogContent,
@@ -23,13 +24,13 @@ interface PremiumModalProps {
   trigger?: string;
 }
 
-const FEATURES = [
-  { icon: "mdi:microscope", label: "Deep Analysis", desc: "Advanced engine depth for precise evaluation" },
-  { icon: "mdi:puzzle", label: "Unlimited Puzzles", desc: "No daily limits on practice puzzles" },
-  { icon: "mdi:crown", label: "Unlimited Checkmate", desc: "No daily limits on checkmate puzzles" },
-  { icon: "mdi:chess-knight", label: "Play vs Legends", desc: "Challenge legendary chess players" },
-  { icon: "mdi:lightbulb", label: "Unlimited Hints", desc: "Get hints whenever you need them" },
-  { icon: "mdi:cancel", label: "No Ads", desc: "Ad-free experience throughout the app" },
+const FEATURE_KEYS = [
+  { icon: "mdi:microscope", labelKey: "deepAnalysis", descKey: "deepAnalysisDesc" },
+  { icon: "mdi:puzzle", labelKey: "unlimitedPuzzles", descKey: "unlimitedPuzzlesDesc" },
+  { icon: "mdi:crown", labelKey: "unlimitedCheckmate", descKey: "unlimitedCheckmateDesc" },
+  { icon: "mdi:chess-knight", labelKey: "playVsLegendsFeature", descKey: "playVsLegendsDesc" },
+  { icon: "mdi:lightbulb", labelKey: "unlimitedHints", descKey: "unlimitedHintsDesc" },
+  { icon: "mdi:cancel", labelKey: "noAds", descKey: "noAdsDesc" },
 ];
 
 function getPrices() {
@@ -44,6 +45,7 @@ function getPrices() {
 }
 
 export default function PremiumModal({ open, onClose, trigger }: PremiumModalProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
@@ -133,18 +135,18 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
             <Icon icon="mdi:crown" style={{ fontSize: 36, color: "white" }} />
           </Box>
           <Typography sx={{ fontSize: "1.6rem", fontWeight: 800, mb: 0.5 }}>
-            Chess Analysis Pro
+            {t("chessAnalysisPro")}
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)" }}>
-            Unlock the full power of your chess training
+            {t("unlockFullPower")}
           </Typography>
         </Box>
 
         {/* Features */}
         <Box sx={{ px: 3, py: 2 }}>
-          {FEATURES.map((feat) => (
+          {FEATURE_KEYS.map((feat) => (
             <Box
-              key={feat.label}
+              key={feat.labelKey}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -170,10 +172,10 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               </Box>
               <Box>
                 <Typography sx={{ fontSize: "0.9rem", fontWeight: 600 }}>
-                  {feat.label}
+                  {t(feat.labelKey)}
                 </Typography>
                 <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
-                  {feat.desc}
+                  {t(feat.descKey)}
                 </Typography>
               </Box>
               <Icon
@@ -208,7 +210,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               }}
             >
               <Chip
-                label="Best Value"
+                label={t("bestValue")}
                 size="small"
                 sx={{
                   position: "absolute",
@@ -223,14 +225,14 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               />
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Yearly</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>{t("yearly")}</Typography>
                   <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>
-                    {prices.yearlyPerMonth}/month
+                    {prices.yearlyPerMonth}{t("perMonth")}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "right" }}>
                   <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>{prices.yearlyPrice}</Typography>
-                  <Typography sx={{ fontSize: "0.7rem", color: "#4CAF50" }}>Best Value</Typography>
+                  <Typography sx={{ fontSize: "0.7rem", color: "#4CAF50" }}>{t("bestValue")}</Typography>
                 </Box>
               </Box>
             </Box>
@@ -255,7 +257,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Monthly</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>{t("monthly")}</Typography>
                 <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>{prices.monthlyPrice}</Typography>
               </Box>
             </Box>
@@ -286,7 +288,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               transition: "all 0.2s",
             }}
           >
-            {loading ? "Processing..." : "Subscribe Now"}
+            {loading ? t("processing") : t("subscribeNow")}
           </Button>
 
           <Button
@@ -302,7 +304,7 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
               "&:hover": { color: "rgba(255,255,255,0.7)" },
             }}
           >
-            Restore Purchase
+            {t("restorePurchase")}
           </Button>
         </Box>
       </DialogContent>

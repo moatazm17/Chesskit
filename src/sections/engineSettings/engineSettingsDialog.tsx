@@ -37,6 +37,7 @@ import {
   STRONGEST_ENGINE,
 } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
+import { useTranslation } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -44,6 +45,7 @@ interface Props {
 }
 
 export default function EngineSettingsDialog({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const [depth, setDepth] = useAtomLocalStorage(
     "engine-depth",
     engineDepthAtom
@@ -75,7 +77,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle variant="h5" sx={{ paddingBottom: 1 }}>
-        Settings
+        {t("settings")}
       </DialogTitle>
       <DialogContent sx={{ paddingBottom: 0 }}>
         <Grid
@@ -108,12 +110,12 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             size={{ xs: 12, sm: 5, md: 4 }}
           >
             <FormControl variant="outlined">
-              <InputLabel id="dialog-select-label">Engine</InputLabel>
+              <InputLabel id="dialog-select-label">{t("engine")}</InputLabel>
               <Select
                 labelId="dialog-select-label"
                 id="dialog-select"
                 displayEmpty
-                input={<OutlinedInput label="Engine" />}
+                input={<OutlinedInput label={t("engine")} />}
                 value={engineName}
                 onChange={(e) => setEngineName(e.target.value as EngineName)}
                 sx={{ width: 280, maxWidth: "100%" }}
@@ -132,7 +134,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
           </Grid>
 
           <Slider
-            label="Maximum depth"
+            label={t("maximumDepth")}
             value={depth}
             setValue={setDepth}
             min={10}
@@ -141,7 +143,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
           />
 
           <Slider
-            label="Number of lines"
+            label={t("numberOfLines")}
             value={multiPv}
             setValue={setMultiPv}
             min={2}
@@ -159,12 +161,12 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             size={{ xs: 12, sm: 4, md: 3 }}
           >
             <FormControl variant="outlined">
-              <InputLabel id="dialog-select-label">Piece set</InputLabel>
+              <InputLabel id="dialog-select-label">{t("pieceSet")}</InputLabel>
               <Select
                 labelId="dialog-select-label"
                 id="dialog-select"
                 displayEmpty
-                input={<OutlinedInput label="Piece set" />}
+                input={<OutlinedInput label={t("pieceSet")} />}
                 value={pieceSet}
                 onChange={(e) =>
                   setPieceSet(e.target.value as (typeof PIECE_SETS)[number])
@@ -196,7 +198,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             size={{ xs: 12, md: 11 }}
           >
             <Slider
-              label="Number of threads"
+              label={t("numberOfThreads")}
               value={engineWorkersNb}
               setValue={setEngineWorkersNb}
               min={1}
@@ -219,7 +221,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
       </DialogContent>
       <DialogActions sx={{ m: 1 }}>
         <Button variant="contained" onClick={onClose}>
-          Close
+          {t("close")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { triggerInterstitialAd } from "@/lib/ads";
 import { canPlayBrilliant, incrementBrilliantCount, FREE_BRILLIANT_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
@@ -27,6 +28,7 @@ import { pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
 
 export default function BrilliantPuzzles() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -49,7 +51,7 @@ export default function BrilliantPuzzles() {
   } = useBrilliantPuzzle();
 
   const pieceSet = useAtomValue(pieceSetAtom);
-  const { showRating, checkAfterPuzzle, closeRating } = useRatingPrompt();
+  const { showRating, ratingTrigger, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
@@ -335,27 +337,27 @@ export default function BrilliantPuzzles() {
   const getStatusInfo = () => {
     if (puzzleState === "solved") {
       return {
-        message: "Correct!",
+        message: t("correct"),
         color: "#4CAF50",
         icon: "mdi:check-circle",
       };
     }
     if (puzzleState === "failed") {
       return {
-        message: "Incorrect",
+        message: t("incorrect"),
         color: "#f44336",
         icon: "mdi:close-circle",
       };
     }
     if (isSettingUp) {
       return {
-        message: "Watch...",
+        message: t("watch"),
         color: "#FF9800",
         icon: "mdi:eye",
       };
     }
     return {
-      message: currentTurn === "white" ? "White to play" : "Black to play",
+      message: currentTurn === "white" ? t("whiteToPlay") : t("blackToPlay"),
       color: currentTurn === "white" ? "#f5f5f5" : "#e0e0e0",
       icon: currentTurn === "white" ? "mdi:chess-king" : "game-icons:chess-king",
     };
@@ -375,7 +377,7 @@ export default function BrilliantPuzzles() {
           padding: isMobile ? "16px" : "24px",
         }}
       >
-        <PageTitle title="Brilliant Puzzles" />
+        <PageTitle title={t("brilliantPuzzles")} />
 
         <Grid
           container
@@ -396,7 +398,7 @@ export default function BrilliantPuzzles() {
                   textShadow: "0 0 20px rgba(38,198,218,0.3)",
                 }}
               >
-                Brilliant Puzzles
+                {t("brilliantPuzzles")}
               </Typography>
               <Typography sx={{ fontSize: "1.4rem" }}>!!</Typography>
             </Stack>
@@ -408,7 +410,7 @@ export default function BrilliantPuzzles() {
                 mb: 1,
               }}
             >
-              Find the sacrifice that wins the game
+              {t("findSacrifice")}
             </Typography>
           </Grid>
 
@@ -436,7 +438,7 @@ export default function BrilliantPuzzles() {
                         fontWeight: 700,
                       }}
                     >
-                      Brilliant!
+                      {t("brilliantSolved")}
                     </Typography>
                   </Stack>
                 ) : puzzleState === "failed" ? (
@@ -452,7 +454,7 @@ export default function BrilliantPuzzles() {
                         fontWeight: 700,
                       }}
                     >
-                      Incorrect
+                      {t("incorrect")}
                     </Typography>
                   </Stack>
                 ) : (
@@ -483,7 +485,7 @@ export default function BrilliantPuzzles() {
                   <Chip
                     size="small"
                     icon={<Icon icon="mdi:star" style={{ fontSize: 14 }} />}
-                    label={`Rating: ${puzzle.rating}`}
+                    label={t("rating", { value: puzzle.rating })}
                     sx={{
                       background: "rgba(255,193,7,0.2)",
                       color: "#FFC107",
@@ -601,7 +603,7 @@ export default function BrilliantPuzzles() {
                   >
                     <img
                       src="/icons/mistake.png"
-                      alt="Incorrect"
+                      alt={t("incorrect")}
                       style={{
                         width: boardSize / 8 * 0.4,
                         height: boardSize / 8 * 0.4,
@@ -681,7 +683,7 @@ export default function BrilliantPuzzles() {
                       },
                     }}
                   >
-                    Hint
+                    {t("hint")}
                   </Button>
                 )}
 
@@ -696,7 +698,7 @@ export default function BrilliantPuzzles() {
                       background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
                     }}
                   >
-                    Retry
+                    {t("retry")}
                   </Button>
                 )}
 
@@ -711,7 +713,7 @@ export default function BrilliantPuzzles() {
                       background: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
                     }}
                   >
-                    Next Puzzle
+                    {t("nextPuzzle")}
                   </Button>
                 )}
               </Stack>
@@ -728,7 +730,7 @@ export default function BrilliantPuzzles() {
                     {stats.solved}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Solved
+                    {t("solved")}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -736,7 +738,7 @@ export default function BrilliantPuzzles() {
                     {stats.failed}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Failed
+                    {t("failed")}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -744,7 +746,7 @@ export default function BrilliantPuzzles() {
                     {stats.streak}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Streak
+                    {t("streak")}
                   </Typography>
                 </Box>
               </Stack>
@@ -752,7 +754,7 @@ export default function BrilliantPuzzles() {
           </Grid>
         </Grid>
       </Box>
-      <RatingModal open={showRating} onClose={closeRating} />
+      <RatingModal open={showRating} onClose={closeRating} trigger={ratingTrigger} />
 
       {/* Hint limit reached dialog */}
       <Dialog
@@ -770,10 +772,10 @@ export default function BrilliantPuzzles() {
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lightbulb-off" style={{ fontSize: 48, color: "#FFC107", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
-            Hints Used Up
+            {t("hintsUsedUp")}
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
-            You&apos;ve used all {FREE_HINT_LIMIT} free hints today. Upgrade to Premium for unlimited hints!
+            {t("hintsUsedUpDesc", { limit: FREE_HINT_LIMIT })}
           </Typography>
           <Button
             onClick={() => {
@@ -793,13 +795,13 @@ export default function BrilliantPuzzles() {
               mb: 1,
             }}
           >
-            Upgrade to Premium
+            {t("upgradeToPremium")}
           </Button>
           <Button
             onClick={() => setHintLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
           >
-            Maybe Later
+            {t("maybeLater")}
           </Button>
         </DialogContent>
       </Dialog>
@@ -820,10 +822,10 @@ export default function BrilliantPuzzles() {
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lock" style={{ fontSize: 48, color: "#FFA500", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
-            Daily Limit Reached
+            {t("dailyLimitReached")}
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
-            You&apos;ve solved {FREE_BRILLIANT_LIMIT} brilliant puzzles today. Upgrade to Premium for unlimited puzzles!
+            {t("brilliantLimitDesc", { limit: FREE_BRILLIANT_LIMIT })}
           </Typography>
           <Button
             onClick={() => {
@@ -843,13 +845,13 @@ export default function BrilliantPuzzles() {
               mb: 1,
             }}
           >
-            Upgrade to Premium
+            {t("upgradeToPremium")}
           </Button>
           <Button
             onClick={() => setLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
           >
-            Maybe Later
+            {t("maybeLater")}
           </Button>
         </DialogContent>
       </Dialog>

@@ -10,8 +10,10 @@ import PlayersMetric from "./playersMetric";
 import MoveInfo from "./moveInfo";
 import Opening from "./opening";
 import EngineLines from "./engineLines";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AnalysisTab(props: GridProps) {
+  const { t } = useTranslation();
   const gameEval = useAtomValue(gameEvalAtom);
   const game = useAtomValue(gameAtom);
   const board = useAtomValue(boardAtom);
@@ -53,7 +55,7 @@ export default function AnalysisTab(props: GridProps) {
       >
         {gameEval && (
           <PlayersMetric
-            title="Accuracy"
+            title={t("accuracy")}
             whiteValue={`${gameEval.accuracy.white.toFixed(1)}%`}
             blackValue={`${gameEval.accuracy.black.toFixed(1)}%`}
           />
@@ -61,7 +63,7 @@ export default function AnalysisTab(props: GridProps) {
 
         {gameEval?.estimatedElo && (
           <PlayersMetric
-            title="Rating"
+            title={t("ratingTitle")}
             whiteValue={Math.round(gameEval.estimatedElo.white)}
             blackValue={Math.round(gameEval.estimatedElo.black)}
           />
@@ -85,7 +87,7 @@ export default function AnalysisTab(props: GridProps) {
               marginTop: 1,
             }}
           >
-            Game Completed
+            {t("gameCompleted")}
           </Typography>
         )}
       </Stack>

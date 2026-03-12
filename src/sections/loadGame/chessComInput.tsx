@@ -13,12 +13,14 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { GameItem } from "./gameItem";
+import { useTranslation } from "@/lib/i18n";
 
 interface Props {
   onSelect: (pgn: string, boardOrientation?: boolean) => void;
 }
 
 export default function ChessComInput({ onSelect }: Props) {
+  const { t } = useTranslation();
   const [rawStoredValue, setStoredValues] = useLocalStorage<string>(
     "chesscom-username",
     ""
@@ -121,7 +123,7 @@ export default function ChessComInput({ onSelect }: Props) {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Enter your Chess.com username..."
+              label={t("enterChessComUsername")}
               variant="outlined"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -164,11 +166,11 @@ export default function ChessComInput({ onSelect }: Props) {
             <CircularProgress />
           ) : isError ? (
             <span style={{ color: "salmon" }}>
-              User not found. Please check your username.
+              {t("userNotFoundCheck")}
             </span>
           ) : !games?.length ? (
             <span style={{ color: "salmon" }}>
-              No games found. Please check your username.
+              {t("noGamesFoundCheck")}
             </span>
           ) : (
             <List sx={{ width: "100%" }}>

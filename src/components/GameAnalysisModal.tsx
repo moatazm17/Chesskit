@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "@/lib/i18n";
 import { triggerInterstitialAd } from "@/lib/ads";
 import { isPremium, shouldGateFeature } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
@@ -50,29 +51,29 @@ interface MoveStats {
 const getMoveClassificationIcon = (classification: MoveClassification) => {
   switch (classification) {
     case MoveClassification.Splendid:
-      return { icon: "mdi:star-four-points", color: "#26C6DA", label: "Brilliant" };
+      return { icon: "mdi:star-four-points", color: "#26C6DA", label: "brilliant" };
     case MoveClassification.Perfect:
-      return { icon: "mdi:exclamation-thick", color: "#42A5F5", label: "Great" };
+      return { icon: "mdi:exclamation-thick", color: "#42A5F5", label: "great" };
     case MoveClassification.Best:
-      return { icon: "mdi:check-bold", color: "#66BB6A", label: "Best" };
+      return { icon: "mdi:check-bold", color: "#66BB6A", label: "best" };
     case MoveClassification.Excellent:
-      return { icon: "mdi:thumb-up", color: "#9CCC65", label: "Excellent" };
+      return { icon: "mdi:thumb-up", color: "#9CCC65", label: "excellent" };
     case MoveClassification.Okay:
-      return { icon: "mdi:circle-medium", color: "#AED581", label: "Good" };
+      return { icon: "mdi:circle-medium", color: "#AED581", label: "good" };
     case MoveClassification.Inaccuracy:
-      return { icon: "mdi:help", color: "#FFA726", label: "Inaccuracy" };
+      return { icon: "mdi:help", color: "#FFA726", label: "inaccuracy" };
     case MoveClassification.Miss:
-      return { icon: "mdi:target", color: "#FF8F00", label: "Miss" };
+      return { icon: "mdi:target", color: "#FF8F00", label: "miss" };
     case MoveClassification.Mistake:
-      return { icon: "mdi:close-thick", color: "#FF7043", label: "Mistake" };
+      return { icon: "mdi:close-thick", color: "#FF7043", label: "mistake" };
     case MoveClassification.Blunder:
-      return { icon: "mdi:alert-circle", color: "#EF5350", label: "Blunder" };
+      return { icon: "mdi:alert-circle", color: "#EF5350", label: "blunder" };
     case MoveClassification.Opening:
-      return { icon: "mdi:book-open-variant", color: "#78909c", label: "Book" };
+      return { icon: "mdi:book-open-variant", color: "#78909c", label: "book" };
     case MoveClassification.Forced:
-      return { icon: "mdi:lock", color: "#90a4ae", label: "Forced" };
+      return { icon: "mdi:lock", color: "#90a4ae", label: "forced" };
     default:
-      return { icon: "mdi:circle", color: "#9e9e9e", label: "Other" };
+      return { icon: "mdi:circle", color: "#9e9e9e", label: "other" };
   }
 };
 
@@ -86,6 +87,7 @@ function AccuracyRing({
   playerName: string;
   color: "white" | "black";
 }) {
+  const { t } = useTranslation();
   const size = 120;
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
@@ -150,7 +152,7 @@ function AccuracyRing({
               textTransform: "uppercase",
             }}
           >
-            Accuracy
+            {t("accuracy")}
           </Typography>
         </Box>
       </Box>
@@ -205,6 +207,7 @@ export default function GameAnalysisModal({
   onClose,
   onAnalyzeComplete,
 }: GameAnalysisModalProps) {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const game = useAtomValue(gameAtom);
@@ -401,7 +404,7 @@ export default function GameAnalysisModal({
           <Icon icon="mdi:close" style={{ fontSize: 24 }} />
         </Button>
         <Typography sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
-          Game Review
+          {t("gameReview")}
         </Typography>
         <Box sx={{ width: 36 }} />
       </Box>
@@ -434,7 +437,7 @@ export default function GameAnalysisModal({
               style={{ fontSize: 48, color: "rgba(255,255,255,0.6)" }}
             />
             <Typography sx={{ fontSize: "1.3rem", fontWeight: 700, textAlign: "center" }}>
-              Choose Analysis Type
+              {t("chooseAnalysisType")}
             </Typography>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "100%", maxWidth: 320 }}>
@@ -459,7 +462,7 @@ export default function GameAnalysisModal({
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
                   <Icon icon="mdi:lightning-bolt" style={{ fontSize: 22 }} />
-                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Quick Analysis</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>{t("quickAnalysis")}</Typography>
                   <Box sx={{
                     ml: "auto",
                     background: "rgba(255,255,255,0.2)",
@@ -467,11 +470,11 @@ export default function GameAnalysisModal({
                     px: 1,
                     py: 0.2,
                   }}>
-                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 600 }}>Recommended</Typography>
+                    <Typography sx={{ fontSize: "0.7rem", fontWeight: 600 }}>{t("recommended")}</Typography>
                   </Box>
                 </Box>
                 <Typography sx={{ fontSize: "0.8rem", opacity: 0.85, mt: 0.5 }}>
-                  Fast and accurate for most games
+                  {t("fastAndAccurate")}
                 </Typography>
               </Button>
 
@@ -508,7 +511,7 @@ export default function GameAnalysisModal({
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
                   <Icon icon="mdi:microscope" style={{ fontSize: 22 }} />
-                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>Deep Analysis</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: "1rem" }}>{t("deepAnalysis")}</Typography>
                   {shouldGateFeature() && (
                     <Box sx={{
                       ml: "auto",
@@ -518,13 +521,13 @@ export default function GameAnalysisModal({
                       py: 0.2,
                     }}>
                       <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#1a1a2e" }}>
-                        PRO
+                        {t("pro")}
                       </Typography>
                     </Box>
                   )}
                 </Box>
                 <Typography sx={{ fontSize: "0.8rem", opacity: 0.6, mt: 0.5 }}>
-                  More precise, takes longer
+                  {t("morePrecise")}
                 </Typography>
               </Button>
             </Box>
@@ -585,7 +588,7 @@ export default function GameAnalysisModal({
             <Typography
               sx={{ fontSize: "1.3rem", fontWeight: 700, mb: 2, textAlign: "center" }}
             >
-              Analyzing Game...
+              {t("analyzingGame")}
             </Typography>
             <LinearProgress
               variant="determinate"
@@ -663,7 +666,7 @@ export default function GameAnalysisModal({
                     letterSpacing: 1,
                   }}
                 >
-                  Move Type
+                  {t("moveType")}
                 </Typography>
                 <Typography
                   noWrap
@@ -759,7 +762,7 @@ export default function GameAnalysisModal({
                         color: "rgba(255,255,255,0.85)",
                       }}
                     >
-                      {stat.label}
+                      {t(stat.label)}
                     </Typography>
                   </Box>
 
@@ -829,7 +832,7 @@ export default function GameAnalysisModal({
                     },
                   }}
                 >
-                  {showMore ? "Show Less" : "Show More"}
+                  {showMore ? t("showLess") : t("showMore")}
                   <Icon
                     icon={showMore ? "mdi:chevron-up" : "mdi:chevron-down"}
                     style={{ fontSize: 18, marginLeft: 4 }}
@@ -878,11 +881,11 @@ export default function GameAnalysisModal({
                 "&:hover": {
                   background: "linear-gradient(135deg, #4CAF50, #1E88E5)",
                   boxShadow: "0 12px 32px rgba(66, 165, 245, 0.4)",
-                },
-              }}
-            >
-              Start Review
-            </Button>
+              },
+            }}
+          >
+            {t("startReview")}
+          </Button>
           </Box>
         )}
       </DialogContent>

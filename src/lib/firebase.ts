@@ -1,5 +1,6 @@
 import { FirebaseOptions, initializeApp } from "firebase/app";
 import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const firebaseConfig: FirebaseOptions | undefined = process.env
   .NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -33,4 +34,19 @@ export const logAnalyticsEvent = async (
 
   const analytics = getAnalytics(app);
   logEvent(analytics, eventName, eventParams);
+};
+
+export const submitFeedback = async (message: string, trigger: string) => {
+  if (!app) return;
+  try {
+    const db = getFirestore(app);
+    await addDoc(collection(db, "feedback"), {
+      message,
+      trigger,
+      timestamp: new Date().toISOString(),
+      platform: navigator.userAgent,
+    });
+  } catch {
+    // silent fail
+  }
 };

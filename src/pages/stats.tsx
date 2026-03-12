@@ -12,6 +12,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import PremiumNavBar from "@/components/PremiumNavBar";
 import { PageTitle } from "@/components/pageTitle";
@@ -31,6 +32,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function StatsPage() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -180,7 +182,7 @@ export default function StatsPage() {
           padding: isMobile ? "16px" : "24px",
         }}
       >
-        <PageTitle title="Player Insights" />
+        <PageTitle title={t("playerInsights")} />
 
         <Box sx={{ maxWidth: 600, margin: "0 auto" }}>
           {/* ── Search Section ──────────────────────────────── */}
@@ -203,7 +205,7 @@ export default function StatsPage() {
                 variant="subtitle1"
                 sx={{ fontWeight: 700, color: "white", flex: 1 }}
               >
-                Chess.com Username
+                {t("chessComUsername")}
               </Typography>
               {allDataReady && (
                 <IconButton
@@ -260,7 +262,7 @@ export default function StatsPage() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="e.g. hikaru"
+                    placeholder={t("egHikaru")}
                     size="small"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -319,7 +321,7 @@ export default function StatsPage() {
                 variant="body2"
                 sx={{ color: "rgba(255,255,255,0.6)" }}
               >
-                Analyzing games...
+                {t("analyzingGames")}
               </Typography>
             </Stack>
           )}
@@ -343,13 +345,13 @@ export default function StatsPage() {
                 variant="body1"
                 sx={{ color: "#f44336", mt: 1, fontWeight: 600 }}
               >
-                Player not found
+                {t("playerNotFound")}
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "rgba(255,255,255,0.5)", mt: 0.5 }}
               >
-                Please check the username and try again
+                {t("checkUsernameError")}
               </Typography>
             </Box>
           )}
@@ -377,13 +379,13 @@ export default function StatsPage() {
                   variant="body1"
                   sx={{ color: "#FF9800", mt: 1, fontWeight: 600 }}
                 >
-                  No recent games found
+                  {t("noRecentGames")}
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{ color: "rgba(255,255,255,0.5)", mt: 0.5 }}
                 >
-                  This player hasn&apos;t played any games in the last 3 months
+                  {t("noRecentGamesDesc")}
                 </Typography>
               </Box>
             )}

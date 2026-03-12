@@ -25,6 +25,7 @@ import LoadGameScreen from "@/components/LoadGameScreen";
 import PremiumNavBar from "@/components/PremiumNavBar";
 
 import NewGameDialog from "@/sections/loadGame/loadGameDialog";
+import { useTranslation } from "@/lib/i18n";
 
 const GraphTab = dynamic(
   () => import("@/sections/analysis/panelBody/graphTab"),
@@ -41,6 +42,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { showInterstitialAd, triggerInterstitialAd, markGracePeriodDone } from "@/lib/ads";
 
 export default function GameAnalysis() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const [tab, setTab] = useState(0);
@@ -57,7 +59,7 @@ export default function GameAnalysis() {
   const { setPgn: setGamePgn } = useChessActions(gameAtom);
   const { resetToStartingPosition: resetBoard } = useChessActions(boardAtom);
 
-  const { showRating, checkOnOpen, checkAfterAnalysis, closeRating } = useRatingPrompt();
+  const { showRating, ratingTrigger, checkOnOpen, checkAfterAnalysis, closeRating } = useRatingPrompt();
   const showMovesTab = game.history().length > 0 || board.history().length > 0;
 
   // Check if we should show rating prompt on app open
@@ -179,7 +181,7 @@ export default function GameAnalysis() {
           onBrilliant={handleBrilliant}
           onOpenings={handleOpenings}
         />
-        <RatingModal open={showRating} onClose={closeRating} />
+        <RatingModal open={showRating} onClose={closeRating} trigger={ratingTrigger} />
       </>
     );
   }
@@ -228,7 +230,7 @@ export default function GameAnalysis() {
             overflow: 'hidden'
           }}
         >
-      <PageTitle title="Chesskit Game Analysis" />
+      <PageTitle title={t("gameAnalysis")} />
 
 
 
@@ -367,7 +369,7 @@ export default function GameAnalysis() {
                 }}
               >
               <Tab
-                label="Analysis"
+                label={t("analysis")}
                 id="tab0"
                 icon={<Icon icon="mdi:chart-box" className="tab-icon" />}
                 iconPosition="start"
@@ -375,7 +377,7 @@ export default function GameAnalysis() {
               />
 
               <Tab
-                label="Moves"
+                label={t("moves")}
                 id="tab1"
                 icon={<Icon icon="mdi:chess-pawn" className="tab-icon" />}
                 iconPosition="start"
@@ -386,7 +388,7 @@ export default function GameAnalysis() {
               />
 
               <Tab
-                label="Graph"
+                label={t("graph")}
                 id="tab2"
                 icon={<Icon icon="mdi:chart-line-variant" className="tab-icon" />}
                 iconPosition="start"
@@ -448,7 +450,7 @@ export default function GameAnalysis() {
       />
 
       {/* Rating Modal */}
-      <RatingModal open={showRating} onClose={closeRating} />
+      <RatingModal open={showRating} onClose={closeRating} trigger={ratingTrigger} />
     </>
   );
 }

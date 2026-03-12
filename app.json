@@ -1,5 +1,6 @@
 {
   "name": "ChessReviewApp",
-  "displayName": "Chess Review",
+  "displayName": "Chess Analysis +",
+  "version": "1.2",
   "description": "Professional chess game analysis app"
 }

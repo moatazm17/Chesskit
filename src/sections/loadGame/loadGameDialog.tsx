@@ -24,6 +24,7 @@ import ChessComInput from "./chessComInput";
 import LichessInput from "./lichessInput";
 import { useSetAtom } from "jotai";
 import { boardOrientationAtom } from "../analysis/states";
+import { useTranslation } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export default function NewGameDialog({ open, onClose, setGame }: Props) {
+  const { t } = useTranslation();
   const [pgn, setPgn] = useState("");
   const [gameOrigin, setGameOrigin] = useState(GameOrigin.ChessCom);
 
@@ -129,7 +131,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
           textAlign: 'center'
         }}
       >
-        {setGame ? "Load a game" : "Add a game to your database"}
+        {setGame ? t("loadGame") : t("addGameToDb")}
       </DialogTitle>
       <DialogContent sx={{ padding: { xs: 2, md: 3 } }}>
         <Grid
@@ -144,14 +146,14 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
               id="dialog-select-label"
               sx={{ color: 'rgba(255,255,255,0.8)' }}
             >
-              Game origin
+              {t("gameOrigin")}
             </InputLabel>
             <Select
               labelId="dialog-select-label"
               id="dialog-select"
               displayEmpty
               input={<OutlinedInput 
-                label="Game origin" 
+                label={t("gameOrigin")} 
                 sx={{
                   color: 'white',
                   '& .MuiOutlinedInput-notchedOutline': {
@@ -180,7 +182,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
                 }
               }}
             >
-              {Object.entries(gameOriginLabel).map(([origin, label]) => (
+              {Object.entries(gameOriginKeys).map(([origin, key]) => (
                 <MenuItem 
                   key={origin} 
                   value={origin}
@@ -197,7 +199,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
                     }
                   }}
                 >
-                  {label}
+                  {t(key)}
                 </MenuItem>
               ))}
             </Select>
@@ -240,7 +242,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
             }
           }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         {gameOrigin === GameOrigin.Pgn && (
           <Button
@@ -256,7 +258,7 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
               handleAddGame(pgn);
             }}
           >
-            Add
+            {t("add")}
           </Button>
         )}
       </DialogActions>
@@ -264,8 +266,8 @@ export default function NewGameDialog({ open, onClose, setGame }: Props) {
   );
 }
 
-const gameOriginLabel: Record<GameOrigin, string> = {
-  [GameOrigin.ChessCom]: "Chess.com",
-  [GameOrigin.Lichess]: "Lichess.org",
-  [GameOrigin.Pgn]: "PGN",
+const gameOriginKeys: Record<GameOrigin, string> = {
+  [GameOrigin.ChessCom]: "chessCom",
+  [GameOrigin.Lichess]: "lichessOrg",
+  [GameOrigin.Pgn]: "pgn",
 };

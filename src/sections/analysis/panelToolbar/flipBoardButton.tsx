@@ -3,8 +3,10 @@ import { boardOrientationAtom } from "../states";
 import { IconButton, Tooltip } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
+import { useTranslation } from "@/lib/i18n";
 
 export default function FlipBoardButton() {
+  const { t } = useTranslation();
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function FlipBoardButton() {
   }, [setBoardOrientation]);
 
   return (
-    <Tooltip title="Flip board">
+    <Tooltip title={t("flipBoard")}>
       <IconButton
         onClick={() => setBoardOrientation((prev) => !prev)}
         sx={{ paddingX: 1.2, paddingY: 0.5 }}

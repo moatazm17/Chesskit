@@ -1,3 +1,4 @@
+import { useTranslation } from "@/lib/i18n";
 import { triggerInterstitialAd } from "@/lib/ads";
 import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
@@ -27,6 +28,7 @@ import { pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
 
 export default function Puzzles() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -50,7 +52,7 @@ export default function Puzzles() {
   } = usePuzzle();
 
   const pieceSet = useAtomValue(pieceSetAtom);
-  const { showRating, checkAfterPuzzle, closeRating } = useRatingPrompt();
+  const { showRating, ratingTrigger, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [mode, setMode] = useState<"daily" | "practice">("daily");
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -349,27 +351,27 @@ export default function Puzzles() {
   const getStatusInfo = () => {
     if (puzzleState === "solved") {
       return {
-        message: "Correct!",
+        message: t("correct"),
         color: "#4CAF50",
         icon: "mdi:check-circle",
       };
     }
     if (puzzleState === "failed") {
       return {
-        message: "Incorrect",
+        message: t("incorrect"),
         color: "#f44336",
         icon: "mdi:close-circle",
       };
     }
     if (isSettingUp) {
       return {
-        message: "Watch...",
+        message: t("watch"),
         color: "#FF9800",
         icon: "mdi:eye",
       };
     }
     return {
-      message: currentTurn === "white" ? "White to play" : "Black to play",
+      message: currentTurn === "white" ? t("whiteToPlay") : t("blackToPlay"),
       color: currentTurn === "white" ? "#f5f5f5" : "#e0e0e0",
       icon: currentTurn === "white" ? "mdi:chess-king" : "game-icons:chess-king",
     };
@@ -389,7 +391,7 @@ export default function Puzzles() {
           padding: isMobile ? "16px" : "24px",
         }}
       >
-        <PageTitle title="Chess Puzzles" />
+        <PageTitle title={t("puzzles")} />
 
         <Grid
           container
@@ -429,7 +431,7 @@ export default function Puzzles() {
                   },
                 }}
               >
-                Daily Puzzle
+                {t("dailyPuzzle")}
               </Button>
               <Button
                 variant={mode === "practice" ? "contained" : "outlined"}
@@ -454,7 +456,7 @@ export default function Puzzles() {
                   },
                 }}
               >
-                Practice
+                {t("practice")}
               </Button>
             </Stack>
           </Grid>
@@ -484,7 +486,7 @@ export default function Puzzles() {
                           fontWeight: 700,
                         }}
                       >
-                        Puzzle Solved!
+                        {t("puzzleSolved")}
                       </Typography>
                       {mode === "daily" && (
                         <Typography
@@ -494,7 +496,7 @@ export default function Puzzles() {
                             fontSize: "0.7rem",
                           }}
                         >
-                          New puzzle tomorrow
+                          {t("newPuzzleTomorrow")}
                         </Typography>
                       )}
                     </Stack>
@@ -512,7 +514,7 @@ export default function Puzzles() {
                         fontWeight: 700,
                       }}
                     >
-                      Incorrect
+                      {t("incorrect")}
                     </Typography>
                   </Stack>
                 ) : (
@@ -543,7 +545,7 @@ export default function Puzzles() {
                   <Chip
                     size="small"
                     icon={<Icon icon="mdi:star" style={{ fontSize: 14 }} />}
-                    label={`Rating: ${puzzle.rating}`}
+                    label={t("rating", { value: puzzle.rating })}
                     sx={{
                       background: "rgba(255,193,7,0.2)",
                       color: "#FFC107",
@@ -610,7 +612,7 @@ export default function Puzzles() {
                   >
                     <img
                       src={puzzleState === "solved" ? "/icons/best.png" : "/icons/mistake.png"}
-                      alt={puzzleState === "solved" ? "Correct" : "Incorrect"}
+                      alt={puzzleState === "solved" ? t("correct") : t("incorrect")}
                       style={{
                         width: boardSize / 8 * 0.4,
                         height: boardSize / 8 * 0.4,
@@ -690,7 +692,7 @@ export default function Puzzles() {
                       },
                     }}
                   >
-                    Hint
+                    {t("hint")}
                   </Button>
                 )}
 
@@ -705,7 +707,7 @@ export default function Puzzles() {
                       background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
                     }}
                   >
-                    Retry
+                    {t("retry")}
                   </Button>
                 )}
 
@@ -720,7 +722,7 @@ export default function Puzzles() {
                       background: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
                     }}
                   >
-                    Next Puzzle
+                    {t("nextPuzzle")}
                   </Button>
                 )}
               </Stack>
@@ -737,7 +739,7 @@ export default function Puzzles() {
                     {stats.solved}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Solved
+                    {t("solved")}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -745,7 +747,7 @@ export default function Puzzles() {
                     {stats.failed}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Failed
+                    {t("failed")}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -753,7 +755,7 @@ export default function Puzzles() {
                     {stats.streak}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                    Streak
+                    {t("streak")}
                   </Typography>
                 </Box>
               </Stack>
@@ -761,7 +763,7 @@ export default function Puzzles() {
           </Grid>
         </Grid>
       </Box>
-      <RatingModal open={showRating} onClose={closeRating} />
+      <RatingModal open={showRating} onClose={closeRating} trigger={ratingTrigger} />
 
       {/* Hint limit reached dialog */}
       <Dialog
@@ -779,10 +781,10 @@ export default function Puzzles() {
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lightbulb-off" style={{ fontSize: 48, color: "#FFC107", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
-            Hints Used Up
+            {t("hintsUsedUp")}
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
-            You&apos;ve used all {FREE_HINT_LIMIT} free hints today. Upgrade to Premium for unlimited hints!
+            {t("hintsUsedUpDesc", { limit: FREE_HINT_LIMIT })}
           </Typography>
           <Button
             onClick={() => {
@@ -802,13 +804,13 @@ export default function Puzzles() {
               mb: 1,
             }}
           >
-            Upgrade to Premium
+            {t("upgradeToPremium")}
           </Button>
           <Button
             onClick={() => setHintLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
           >
-            Maybe Later
+            {t("maybeLater")}
           </Button>
         </DialogContent>
       </Dialog>
@@ -829,10 +831,10 @@ export default function Puzzles() {
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lock" style={{ fontSize: 48, color: "#FFA500", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
-            Daily Limit Reached
+            {t("dailyLimitReached")}
           </Typography>
           <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.6)", mb: 3 }}>
-            You&apos;ve solved {FREE_PUZZLE_LIMIT} puzzles today. Upgrade to Premium for unlimited puzzles!
+            {t("puzzleLimitDesc", { limit: FREE_PUZZLE_LIMIT })}
           </Typography>
           <Button
             onClick={() => {
@@ -852,13 +854,13 @@ export default function Puzzles() {
               mb: 1,
             }}
           >
-            Upgrade to Premium
+            {t("upgradeToPremium")}
           </Button>
           <Button
             onClick={() => setLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
           >
-            Maybe Later
+            {t("maybeLater")}
           </Button>
         </DialogContent>
       </Dialog>
