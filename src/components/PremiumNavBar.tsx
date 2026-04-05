@@ -60,8 +60,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
       position="static"
       sx={{
         background:
-          "linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)",
-        backdropFilter: "blur(20px)",
+          "linear-gradient(135deg, rgba(26,26,46,0.97) 0%, rgba(22,33,62,0.97) 50%, rgba(15,52,96,0.97) 100%)",
         borderBottom: "1px solid rgba(255,255,255,0.1)",
         boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
         zIndex: 1000,
@@ -199,8 +198,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
         sx={{
           "& .MuiDrawer-paper": {
             background:
-              "linear-gradient(135deg, rgba(26,26,46,0.98) 0%, rgba(22,33,62,0.98) 50%, rgba(15,52,96,0.98) 100%)",
-            backdropFilter: "blur(20px)",
+              "linear-gradient(135deg, rgba(26,26,46,0.99) 0%, rgba(22,33,62,0.99) 50%, rgba(15,52,96,0.99) 100%)",
             borderRight: "1px solid rgba(255,255,255,0.1)",
             width: 280,
             color: "white",

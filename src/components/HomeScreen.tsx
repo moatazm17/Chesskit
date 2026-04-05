@@ -55,9 +55,8 @@ const HomeCard: React.FC<HomeCardProps> = React.memo(({
         height: isMobile ? 160 : 200,
         position: "relative",
         background: isPopular
-          ? `linear-gradient(135deg, ${color}30, ${color}12)`
-          : `linear-gradient(135deg, ${color}20, ${color}08)`,
-        backdropFilter: "blur(20px)",
+          ? `linear-gradient(135deg, ${color}40, ${color}18)`
+          : `linear-gradient(135deg, ${color}30, ${color}12)`,
         border: isPopular
           ? `1.5px solid ${color}60`
           : `1px solid ${color}35`,
@@ -498,8 +497,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                   width: isMobile ? "100%" : 280,
                   height: isMobile ? 160 : 200,
                   position: "relative",
-                  background: `linear-gradient(135deg, ${promoCard.color || "#FF6B35"}20, ${promoCard.color || "#FF6B35"}08)`,
-                  backdropFilter: "blur(20px)",
+                  background: `linear-gradient(135deg, ${promoCard.color || "#FF6B35"}30, ${promoCard.color || "#FF6B35"}12)`,
                   border: `1px solid ${promoCard.color || "#FF6B35"}35`,
                   borderRadius: 4,
                   cursor: "pointer",

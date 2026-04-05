@@ -13,6 +13,17 @@ export default function Layout({ children }: PropsWithChildren) {
     () =>
       createTheme({
         direction: "ltr",
+        typography: {
+          fontFamily: [
+            '-apple-system',
+            'BlinkMacSystemFont',
+            '"Segoe UI"',
+            'Roboto',
+            '"Helvetica Neue"',
+            'Arial',
+            'sans-serif',
+          ].join(','),
+        },
         palette: {
           mode: isDarkMode ? "dark" : "light",
           error: {

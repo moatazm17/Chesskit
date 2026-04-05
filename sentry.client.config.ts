@@ -7,16 +7,7 @@ if (
   Sentry.init({
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     environment: "production",
-    integrations: [
-      Sentry.replayIntegration({
-        maskAllText: false,
-        maskAllInputs: false,
-        blockAllMedia: false,
-      }),
-    ],
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 0.2,
     debug: false,
     initialScope: {
       extra: {
