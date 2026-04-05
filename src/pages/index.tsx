@@ -59,7 +59,7 @@ export default function GameAnalysis() {
   const { setPgn: setGamePgn } = useChessActions(gameAtom);
   const { resetToStartingPosition: resetBoard } = useChessActions(boardAtom);
 
-  const { showRating, ratingTrigger, checkOnOpen, checkAfterAnalysis, closeRating } = useRatingPrompt();
+  const { showRating, ratingTrigger, checkOnOpen, checkAfterAnalysis, checkAfterLanguageSwitch, closeRating } = useRatingPrompt();
   const showMovesTab = game.history().length > 0 || board.history().length > 0;
 
   // Check if we should show rating prompt on app open
@@ -180,6 +180,7 @@ export default function GameAnalysis() {
           onBots={handleBots}
           onBrilliant={handleBrilliant}
           onOpenings={handleOpenings}
+          onLanguageSwitched={checkAfterLanguageSwitch}
         />
         <RatingModal open={showRating} onClose={closeRating} trigger={ratingTrigger} />
       </>

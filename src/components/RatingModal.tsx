@@ -375,6 +375,16 @@ export const useRatingPrompt = () => {
     }
   }, []);
 
+  const checkAfterLanguageSwitch = useCallback(() => {
+    const state = loadRatingState();
+    if (!canShowAgain(state)) return;
+    setTimeout(() => {
+      logAnalyticsEvent("rating_trigger", { trigger: "arabic_switch" });
+      setRatingTrigger("arabic_switch");
+      setShowRating(true);
+    }, 25000);
+  }, []);
+
   const closeRating = useCallback(() => {
     setShowRating(false);
   }, []);
@@ -386,6 +396,7 @@ export const useRatingPrompt = () => {
     checkAfterPuzzle,
     checkAfterAnalysis,
     checkOnOpen,
+    checkAfterLanguageSwitch,
     closeRating,
   };
 };

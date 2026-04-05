@@ -6,6 +6,8 @@ import {
   Card,
   CardContent,
   Typography,
+  Button,
+  Dialog,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
@@ -157,6 +159,7 @@ interface HomeScreenProps {
   onBots?: () => void;
   onBrilliant?: () => void;
   onOpenings?: () => void;
+  onLanguageSwitched?: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -168,11 +171,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onBots,
   onBrilliant,
   onOpenings,
+  onLanguageSwitched,
 }) => {
-  const { t } = useTranslation();
+  const { t, locale, setLocale } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [promoCard, setPromoCard] = useState<PromoCardData | null>(null);
+  const [showArabicAnnouncement, setShowArabicAnnouncement] = useState(false);
 
   useEffect(() => {
     const w = window as any;
@@ -180,6 +185,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       setPromoCard(w._promoCard);
     }
   }, []);
+
+  useEffect(() => {
+    if (locale === "ar") return;
+    const dismissed = localStorage.getItem("arabic-announcement-seen");
+    if (!dismissed) {
+      setShowArabicAnnouncement(true);
+    }
+  }, [locale]);
 
   return (
     <Box
@@ -573,6 +586,94 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
         </Grid>
       </Box>
+
+      {/* Arabic Language Announcement */}
+      <Dialog
+        open={showArabicAnnouncement}
+        onClose={() => {
+          setShowArabicAnnouncement(false);
+          localStorage.setItem("arabic-announcement-seen", "1");
+        }}
+        PaperProps={{
+          sx: {
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: "20px",
+            maxWidth: 360,
+            mx: 2,
+            overflow: "visible",
+          },
+        }}
+      >
+        <Box sx={{ textAlign: "center", p: 3.5 }}>
+          <Box sx={{ fontSize: "3rem", mb: 1 }}>🇸🇦</Box>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: "white", mb: 1, lineHeight: 1.4 }}
+          >
+            Arabic Language Added!
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              color: "#4ecdc4",
+              mb: 2,
+              lineHeight: 1.4,
+              direction: "rtl",
+            }}
+          >
+            بناءً على طلبكم، أضفنا العربية!
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "rgba(255,255,255,0.7)", mb: 3, lineHeight: 1.6 }}
+          >
+            You can now use the app in Arabic. Switch anytime from the top bar.
+          </Typography>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              setLocale("ar");
+              setShowArabicAnnouncement(false);
+              localStorage.setItem("arabic-announcement-seen", "1");
+              onLanguageSwitched?.();
+            }}
+            sx={{
+              borderRadius: "12px",
+              py: 1.2,
+              fontWeight: 700,
+              fontSize: "1rem",
+              background: "linear-gradient(135deg, #4ecdc4 0%, #44b8b0 100%)",
+              mb: 1.5,
+              "&:hover": {
+                background: "linear-gradient(135deg, #44b8b0 0%, #3aa39c 100%)",
+              },
+            }}
+          >
+            حوّل للعربية
+          </Button>
+          <Button
+            fullWidth
+            onClick={() => {
+              setShowArabicAnnouncement(false);
+              localStorage.setItem("arabic-announcement-seen", "1");
+            }}
+            sx={{
+              borderRadius: "12px",
+              py: 1,
+              color: "rgba(255,255,255,0.5)",
+              "&:hover": {
+                color: "rgba(255,255,255,0.8)",
+                background: "rgba(255,255,255,0.05)",
+              },
+            }}
+          >
+            Keep English
+          </Button>
+        </Box>
+      </Dialog>
     </Box>
   );
 };

@@ -66,6 +66,18 @@ function extractPgnHeader(pgn: string, header: string): string | null {
   return match ? match[1] : null;
 }
 
+function extractOpeningName(pgn: string): string | null {
+  const opening = extractPgnHeader(pgn, "Opening");
+  if (opening) return opening;
+
+  const ecoUrl = extractPgnHeader(pgn, "ECOUrl");
+  if (ecoUrl) {
+    const slug = ecoUrl.split("/").pop();
+    if (slug) return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return null;
+}
+
 function getPlayerColor(
   game: ChessComGame,
   username: string
@@ -187,8 +199,7 @@ export function calculateInsights(
 
     // Opening stats
     const eco = extractPgnHeader(game.pgn, "ECO") ?? "Unknown";
-    const openingName =
-      extractPgnHeader(game.pgn, "Opening") ?? eco ?? "Unknown";
+    const openingName = extractOpeningName(game.pgn) ?? eco;
     const openingKey = eco !== "Unknown" ? eco : openingName;
     const openingMap = color === "white" ? openingMapWhite : openingMapBlack;
 

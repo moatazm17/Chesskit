@@ -13,6 +13,7 @@ import {
 import { MoveClassification } from "@/types/enums";
 import { Icon } from "@iconify/react";
 import PrettyMoveSan from "@/components/prettyMoveSan";
+import { useTranslation } from "@/lib/i18n";
 
 const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Blunder]: "#e53935",
@@ -47,6 +48,7 @@ function MoveExplanationComponent() {
   const board = useAtomValue(boardAtom);
   const gameEval = useAtomValue(gameEvalAtom);
   const [expanded, setExpanded] = useState(false);
+  const { t } = useTranslation();
 
   const explanation = useMemo((): MoveExplanationType | undefined => {
     if (!position?.lastMove || !position?.eval?.moveClassification) {
@@ -61,8 +63,8 @@ function MoveExplanationComponent() {
 
     const previousEval = gameEval?.positions?.[currentMoveIdx - 1];
 
-    return getMoveExplanation(position, previousFen, previousEval);
-  }, [position, board, gameEval]);
+    return getMoveExplanation(position, previousFen, previousEval, t);
+  }, [position, board, gameEval, t]);
 
   const moveClassification = position?.eval?.moveClassification;
 
@@ -191,7 +193,7 @@ function MoveExplanationComponent() {
                   fontSize: "0.7rem",
                 }}
               >
-                Best line:
+                {t("explBestLine")}
               </Typography>
               {explanation.bestLine.map((moveSan, idx) => {
                 const moveColor =

@@ -802,7 +802,6 @@ export const PUZZLES: Puzzle[] = [
     themes: ["crushing", "endgame", "long", "pawnEndgame"],
     popularity: 75,
   },
-,
   {
     id: "00DYf",
     fen: "1R6/6kp/3p1pp1/2r1p3/P7/1P6/2r2PPP/1R4K1 w - - 4 30",

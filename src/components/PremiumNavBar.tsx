@@ -122,6 +122,28 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
         {/* Spacer */}
         <Box sx={{ flexGrow: 1 }} />
 
+        {/* Language Toggle */}
+        <IconButton
+          onClick={() => setLocale(locale === "ar" ? "en" : "ar")}
+          sx={{
+            color: "rgba(255,255,255,0.7)",
+            backgroundColor: "rgba(255,255,255,0.08)",
+            borderRadius: "10px",
+            padding: "6px 10px",
+            marginRight: 1,
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            "&:hover": {
+              backgroundColor: "rgba(255,255,255,0.15)",
+              color: "white",
+            },
+          }}
+        >
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 700 }}>
+            {locale === "ar" ? "EN" : "ع"}
+          </Typography>
+        </IconButton>
+
         {showPremiumButton && (
           <Box
             onClick={() => {
@@ -274,22 +296,20 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
 
           {/* Footer links */}
           <List sx={{ mt: 1 }}>
-            {typeof window !== "undefined" && window.location.hostname === "localhost" && (
-              <ListItem disablePadding sx={{ mb: 0.5 }}>
-                <ListItemButton
-                  onClick={() => {
-                    setLocale(locale === "ar" ? "en" : "ar");
-                    setDrawerOpen(false);
-                  }}
-                  sx={{ borderRadius: "8px" }}
-                >
-                  <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
-                    <Icon icon="mdi:translate" />
-                  </ListItemIcon>
-                  <ListItemText primary={locale === "ar" ? "English" : "العربية"} />
-                </ListItemButton>
-              </ListItem>
-            )}
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                onClick={() => {
+                  setLocale(locale === "ar" ? "en" : "ar");
+                  setDrawerOpen(false);
+                }}
+                sx={{ borderRadius: "8px" }}
+              >
+                <ListItemIcon sx={{ color: "rgba(255,255,255,0.7)" }}>
+                  <Icon icon="mdi:translate" />
+                </ListItemIcon>
+                <ListItemText primary={locale === "ar" ? "English" : "العربية"} />
+              </ListItemButton>
+            </ListItem>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 onClick={() => {

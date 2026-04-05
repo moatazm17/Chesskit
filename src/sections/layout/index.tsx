@@ -12,7 +12,7 @@ export default function Layout({ children }: PropsWithChildren) {
   const theme = useMemo(
     () =>
       createTheme({
-        direction: isRTL ? "rtl" : "ltr",
+        direction: "ltr",
         palette: {
           mode: isDarkMode ? "dark" : "light",
           error: {
@@ -30,16 +30,27 @@ export default function Layout({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    document.documentElement.dir = dir;
     document.documentElement.lang = isRTL ? "ar" : "en";
-  }, [dir, isRTL]);
+  }, [isRTL]);
 
   if (isDarkMode === null) return null;
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <main dir={dir}>{children}</main>
+      <main>{children}</main>
+      {isRTL && (
+        <style>{`
+          .MuiTypography-root, .MuiTab-root,
+          .MuiMenuItem-root, .MuiInputBase-root, .MuiFormLabel-root,
+          .MuiDialogTitle-root, .MuiDialogContent-root,
+          .MuiAlert-root, .MuiSnackbarContent-root,
+          .MuiCardContent-root, .MuiListItemText-root {
+            direction: rtl;
+            text-align: right;
+          }
+        `}</style>
+      )}
     </ThemeProvider>
   );
 }

@@ -13,81 +13,82 @@ export interface MoveExplanation {
   evalChange?: string;
 }
 
-const PIECE_NAMES: Record<PieceSymbol, string> = {
-  p: "pawn",
-  n: "knight",
-  b: "bishop",
-  r: "rook",
-  q: "queen",
-  k: "king",
+type T = (key: string, params?: Record<string, string | number>) => string;
+
+const PIECE_KEYS: Record<PieceSymbol, string> = {
+  p: "piecePawn",
+  n: "pieceKnight",
+  b: "pieceBishop",
+  r: "pieceRook",
+  q: "pieceQueen",
+  k: "pieceKing",
 };
 
-const getPieceName = (piece: PieceSymbol): string =>
-  PIECE_NAMES[piece] || piece;
+const getPieceName = (piece: PieceSymbol, t: T): string =>
+  t(PIECE_KEYS[piece] || piece);
 
 const getEvalChangeDescription = (
   prevWinPct: number,
   currWinPct: number,
-  isWhiteMove: boolean
+  isWhiteMove: boolean,
+  t: T
 ): string => {
   const diff = (currWinPct - prevWinPct) * (isWhiteMove ? 1 : -1);
   const absDiff = Math.abs(diff);
 
   if (absDiff < 2) return "";
 
+  const pct = absDiff.toFixed(0);
+
   if (diff < 0) {
-    if (absDiff > 20)
-      return `Lost ${absDiff.toFixed(0)}% winning chances`;
-    if (absDiff > 10)
-      return `Significantly worse position (−${absDiff.toFixed(0)}%)`;
-    return `Slightly worse position (−${absDiff.toFixed(0)}%)`;
+    if (absDiff > 20) return t("explLostWinChances", { pct });
+    if (absDiff > 10) return t("explSignificantlyWorse", { pct });
+    return t("explSlightlyWorse", { pct });
   }
 
-  if (absDiff > 20) return `Gained ${absDiff.toFixed(0)}% winning chances`;
-  if (absDiff > 10) return `Much better position (+${absDiff.toFixed(0)}%)`;
-  return `Improved position (+${absDiff.toFixed(0)}%)`;
+  if (absDiff > 20) return t("explGainedWinChances", { pct });
+  if (absDiff > 10) return t("explMuchBetter", { pct });
+  return t("explImproved", { pct });
 };
 
 const detectThreat = (
   fenAfterMove: string,
-  opponentBestResponse: string | undefined
+  opponentBestResponse: string | undefined,
+  t: T
 ): string | undefined => {
   if (!opponentBestResponse) return undefined;
 
   const game = new Chess(fenAfterMove);
 
-  // Check if opponent can deliver checkmate
   try {
     const testGame = new Chess(fenAfterMove);
     testGame.move(uciMoveParams(opponentBestResponse));
     if (testGame.isCheckmate()) {
-      return "This allows checkmate!";
+      return t("explAllowsCheckmate");
     }
     if (testGame.inCheck()) {
-      return "This allows a dangerous check";
+      return t("explAllowsDangerousCheck");
     }
   } catch {
-    // Move parsing failed, continue
+    // Move parsing failed
   }
 
-  // Check if the response captures a piece
   try {
     const move = game.move(uciMoveParams(opponentBestResponse));
     if (move.captured) {
-      const capturedPiece = getPieceName(move.captured);
       if (move.captured === "q") {
-        return "This loses the queen!";
+        return t("explLosesQueen");
       }
       if (move.captured === "r") {
-        return "This loses a rook";
+        return t("explLosesRook");
       }
       if (move.captured === "b" || move.captured === "n") {
-        return `This loses a ${capturedPiece}`;
+        return t("explLosesPiece", { piece: getPieceName(move.captured, t) });
       }
     }
     game.undo();
   } catch {
-    // Move parsing failed, continue
+    // Move parsing failed
   }
 
   return undefined;
@@ -96,36 +97,32 @@ const detectThreat = (
 const detectTactic = (
   fenBefore: string,
   bestMove: string,
-  bestLine: string[]
+  bestLine: string[],
+  t: T
 ): string | undefined => {
   if (!bestLine || bestLine.length < 2) return undefined;
 
   const game = new Chess(fenBefore);
 
   try {
-    // Play the best move
     game.move(uciMoveParams(bestMove));
 
-    // Check if it's a check
     if (game.inCheck()) {
-      // See if it wins material
       if (bestLine.length >= 2) {
         const responseMove = game.move(uciMoveParams(bestLine[0]));
         if (responseMove && bestLine.length >= 2) {
           const followUp = game.move(uciMoveParams(bestLine[1]));
           if (followUp?.captured) {
-            const piece = getPieceName(followUp.captured);
-            return `A check that wins the ${piece}`;
+            return t("explCheckWinsPiece", { piece: getPieceName(followUp.captured, t) });
           }
         }
       }
     }
 
-    // Reset and check for captures leading to material gain
     game.load(fenBefore);
     const firstMove = game.move(uciMoveParams(bestMove));
     if (firstMove?.captured) {
-      return `Wins material by capturing the ${getPieceName(firstMove.captured)}`;
+      return t("explWinsMaterial", { piece: getPieceName(firstMove.captured, t) });
     }
   } catch {
     // Tactic detection failed
@@ -137,7 +134,8 @@ const detectTactic = (
 export const getMoveExplanation = (
   currentPosition: CurrentPosition,
   previousFen: string | undefined,
-  previousEval: PositionEval | undefined
+  previousEval: PositionEval | undefined,
+  t: T
 ): MoveExplanation | undefined => {
   const { lastMove, eval: currentEval, lastEval } = currentPosition;
 
@@ -149,37 +147,31 @@ export const getMoveExplanation = (
   const playedMoveSan = lastMove.san;
   const isWhiteMove = lastMove.color === "w";
 
-  // Get the best move that should have been played
   const bestMove = lastEval?.bestMove;
   const bestMoveSan =
     bestMove && previousFen
       ? moveLineUciToSan(previousFen)(bestMove)
       : undefined;
 
-  // Get win percentage change
   const prevWinPct = previousEval ? getPositionWinPercentage(previousEval) : 50;
   const currWinPct = currentEval ? getPositionWinPercentage(currentEval) : 50;
   const evalChange = getEvalChangeDescription(
     prevWinPct,
     currWinPct,
-    isWhiteMove
+    isWhiteMove,
+    t
   );
 
-  // Get the opponent's best response to the played move
   const opponentBestResponse = currentEval.lines?.[0]?.pv?.[0];
   const currentFen = lastMove.after;
+  const threat = detectThreat(currentFen, opponentBestResponse, t);
 
-  // Detect threats created by the move
-  const threat = detectThreat(currentFen, opponentBestResponse);
-
-  // Get the best line continuation
   const bestLine = lastEval?.lines?.[0]?.pv;
   const tactic =
     bestMove && bestLine && previousFen
-      ? detectTactic(previousFen, bestMove, bestLine)
+      ? detectTactic(previousFen, bestMove, bestLine, t)
       : undefined;
 
-  // Format the best continuation for display
   const bestLineSan =
     bestLine && previousFen
       ? bestLine.slice(0, 4).map((uci, idx) => {
@@ -198,10 +190,10 @@ export const getMoveExplanation = (
   switch (moveClassification) {
     case MoveClassification.Blunder:
       return {
-        title: "Blunder",
-        description: threat || `${playedMoveSan} was a serious mistake`,
+        title: t("explBlunderTitle"),
+        description: threat || t("explBlunderDesc", { move: playedMoveSan }),
         details: [
-          bestMoveSan ? `Better was ${bestMoveSan}` : undefined,
+          bestMoveSan ? t("explBetterWas", { move: bestMoveSan }) : undefined,
           tactic,
           evalChange,
         ].filter(Boolean) as string[],
@@ -212,10 +204,10 @@ export const getMoveExplanation = (
 
     case MoveClassification.Mistake:
       return {
-        title: "Mistake",
-        description: threat || `${playedMoveSan} loses advantage`,
+        title: t("explMistakeTitle"),
+        description: threat || t("explMistakeDesc", { move: playedMoveSan }),
         details: [
-          bestMoveSan ? `${bestMoveSan} was stronger` : undefined,
+          bestMoveSan ? t("explWasStronger", { move: bestMoveSan }) : undefined,
           tactic,
           evalChange,
         ].filter(Boolean) as string[],
@@ -226,10 +218,10 @@ export const getMoveExplanation = (
 
     case MoveClassification.Miss:
       return {
-        title: "Miss",
-        description: `${playedMoveSan} lets the winning advantage slip away`,
+        title: t("explMissTitle"),
+        description: t("explMissDesc", { move: playedMoveSan }),
         details: [
-          bestMoveSan ? `${bestMoveSan} would have maintained the advantage` : undefined,
+          bestMoveSan ? t("explWouldMaintain", { move: bestMoveSan }) : undefined,
           tactic,
           evalChange,
         ].filter(Boolean) as string[],
@@ -240,10 +232,10 @@ export const getMoveExplanation = (
 
     case MoveClassification.Inaccuracy:
       return {
-        title: "Inaccuracy",
-        description: `${playedMoveSan} is not the most accurate`,
+        title: t("explInaccuracyTitle"),
+        description: t("explInaccuracyDesc", { move: playedMoveSan }),
         details: [
-          bestMoveSan ? `Consider ${bestMoveSan} instead` : undefined,
+          bestMoveSan ? t("explConsider", { move: bestMoveSan }) : undefined,
           evalChange,
         ].filter(Boolean) as string[],
         bestLine: bestLineSan,
@@ -252,10 +244,10 @@ export const getMoveExplanation = (
 
     case MoveClassification.Splendid:
       return {
-        title: "Brilliant!",
-        description: `${playedMoveSan} is a brilliant sacrifice!`,
+        title: t("explBrilliantTitle"),
+        description: t("explBrilliantDesc", { move: playedMoveSan }),
         details: [
-          tactic || "A deep move that sacrifices material for a winning attack",
+          tactic || t("explDeepSacrifice"),
           evalChange,
         ].filter(Boolean) as string[],
         bestLine: bestLineSan,
@@ -263,52 +255,52 @@ export const getMoveExplanation = (
 
     case MoveClassification.Perfect:
       return {
-        title: "Great Move!",
-        description: `${playedMoveSan} is the only good move here`,
+        title: t("explGreatTitle"),
+        description: t("explGreatDesc", { move: playedMoveSan }),
         details: [
-          tactic || "Finding this move required deep calculation",
-          "All other moves were significantly worse",
+          tactic || t("explRequiredCalc"),
+          t("explAllOthersWorse"),
         ].filter(Boolean) as string[],
         bestLine: bestLineSan,
       };
 
     case MoveClassification.Best:
       return {
-        title: "Best Move",
-        description: `${playedMoveSan} is the engine's top choice`,
+        title: t("explBestTitle"),
+        description: t("explBestDesc", { move: playedMoveSan }),
         details: tactic ? [tactic] : undefined,
         bestLine: bestLineSan,
       };
 
     case MoveClassification.Excellent:
       return {
-        title: "Excellent",
-        description: `${playedMoveSan} is a very strong move`,
+        title: t("explExcellentTitle"),
+        description: t("explExcellentDesc", { move: playedMoveSan }),
         details: tactic ? [tactic] : undefined,
       };
 
     case MoveClassification.Okay:
       return {
-        title: "Good Move",
-        description: `${playedMoveSan} is solid`,
+        title: t("explGoodTitle"),
+        description: t("explGoodDesc", { move: playedMoveSan }),
         details:
           bestMoveSan && bestMoveSan !== playedMoveSan
-            ? [`${bestMoveSan} was slightly better`]
+            ? [t("explSlightlyBetter", { move: bestMoveSan })]
             : undefined,
       };
 
     case MoveClassification.Forced:
       return {
-        title: "Forced",
-        description: `${playedMoveSan} was the only legal move`,
+        title: t("explForcedTitle"),
+        description: t("explForcedDesc", { move: playedMoveSan }),
       };
 
     case MoveClassification.Opening:
       return {
-        title: "Book Move",
-        description: `${playedMoveSan} is a known opening move`,
+        title: t("explBookTitle"),
+        description: t("explBookDesc", { move: playedMoveSan }),
         details: currentPosition.opening
-          ? [`Opening: ${currentPosition.opening}`]
+          ? [t("explOpening", { name: currentPosition.opening })]
           : undefined,
       };
 

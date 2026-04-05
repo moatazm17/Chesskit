@@ -23,6 +23,8 @@ import {
 } from "recharts";
 import { ChessComProfile, ChessComPlayerStats } from "@/types/chessCom";
 import { PlayerInsightsData, OpeningStats } from "@/lib/playerInsights";
+import { useTranslation } from "@/lib/i18n";
+import { ecoToArabicMap } from "@/data/openingNamesAr";
 
 // ── Glassmorphism card wrapper ─────────────────────────────────────────────
 
@@ -68,6 +70,7 @@ interface Props {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function PlayerInsights({ profile, stats, insights }: Props) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
   // ── Rating cards data ────────────────────────────────────────────────────
@@ -123,14 +126,14 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
   const lossPieData = useMemo(() => {
     const b = insights.lossBreakdown;
     const data = [
-      { name: "Checkmate", value: b.checkmate, color: "#f44336" },
-      { name: "Resigned", value: b.resignation, color: "#FF9800" },
-      { name: "Timeout", value: b.timeout, color: "#9C27B0" },
-      { name: "Abandoned", value: b.abandoned, color: "#607D8B" },
-      { name: "Other", value: b.other, color: "#78909C" },
+      { name: t("insightsCheckmate"), value: b.checkmate, color: "#f44336" },
+      { name: t("insightsResigned"), value: b.resignation, color: "#FF9800" },
+      { name: t("insightsTimeout"), value: b.timeout, color: "#9C27B0" },
+      { name: t("insightsAbandoned"), value: b.abandoned, color: "#607D8B" },
+      { name: t("insightsOther"), value: b.other, color: "#78909C" },
     ];
     return data.filter((d) => d.value > 0);
-  }, [insights.lossBreakdown]);
+  }, [insights.lossBreakdown, t]);
 
   // ── Best time control ────────────────────────────────────────────────────
 
@@ -148,7 +151,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
 
     // Step 0: Profile + Quick Stats
     s.push({
-      title: "Overview",
+      title: t("insightsOverview"),
       content: (
         <Stack spacing={2.5}>
           <GlassCard>
@@ -191,7 +194,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                     variant="caption"
                     sx={{ color: "rgba(255,255,255,0.6)" }}
                   >
-                    Joined{" "}
+                    {t("insightsJoined")}{" "}
                     {new Date(profile.joined * 1000).toLocaleDateString(
                       "en-US",
                       { year: "numeric", month: "short" }
@@ -201,7 +204,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                     variant="caption"
                     sx={{ color: "rgba(255,255,255,0.6)" }}
                   >
-                    {insights.totalGames} games analyzed
+                    {t("insightsGamesAnalyzed").replace("{count}", String(insights.totalGames))}
                   </Typography>
                 </Stack>
               </Box>
@@ -227,7 +230,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                   variant="caption"
                   sx={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  Win Rate
+                  {t("insightsWinRate")}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: "center" }}>
@@ -241,7 +244,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                   variant="caption"
                   sx={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  Avg Moves/Win
+                  {t("insightsAvgMovesWin")}
                 </Typography>
               </Box>
               {bestTC && (
@@ -256,7 +259,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                     variant="caption"
                     sx={{ color: "rgba(255,255,255,0.6)" }}
                   >
-                    Best Format
+                    {t("insightsBestFormat")}
                   </Typography>
                 </Box>
               )}
@@ -269,7 +272,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
     // Step 1: Rating Cards
     if (ratingCards.length > 0) {
       s.push({
-        title: "Ratings",
+        title: t("insightsRatings"),
         content: (
           <Box
             sx={{
@@ -320,7 +323,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                     variant="caption"
                     sx={{ color: "rgba(255,255,255,0.5)" }}
                   >
-                    Best: {best}
+                    {t("insightsBest").replace("{value}", String(best))}
                   </Typography>
                   {record && (
                     <Box sx={{ mt: 1 }}>
@@ -377,12 +380,12 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
     // Step 2: Rating Progress Chart
     if (chartData.length > 2) {
       s.push({
-        title: "Rating Progress",
+        title: t("insightsRatingProgress"),
         content: (
           <GlassCard>
             <SectionTitle
               icon="mdi:chart-line"
-              title="Rating Progress"
+              title={t("insightsRatingProgress")}
               color="#45b7d1"
             />
             <ResponsiveContainer width="100%" height={220}>
@@ -428,12 +431,12 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
 
     // Step 3: Color Performance
     s.push({
-      title: "By Color",
+      title: t("insightsByColor"),
       content: (
         <GlassCard>
           <SectionTitle
             icon="mdi:chess-pawn"
-            title="Performance by Color"
+            title={t("insightsPerformanceByColor")}
             color="#9C27B0"
           />
           <Stack direction="row" spacing={2}>
@@ -516,14 +519,14 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
       insights.openingsAsBlack.length > 0
     ) {
       s.push({
-        title: "Openings",
+        title: t("insightsOpenings"),
         content: (
           <Stack spacing={2.5}>
             {insights.openingsAsWhite.length > 0 && (
               <GlassCard>
                 <SectionTitle
                   icon="mdi:book-open-variant"
-                  title="Openings as White"
+                  title={t("insightsOpeningsAsWhite")}
                   color="#45b7d1"
                 />
                 <Stack spacing={1.5}>
@@ -537,7 +540,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
               <GlassCard>
                 <SectionTitle
                   icon="mdi:book-open-variant"
-                  title="Openings as Black"
+                  title={t("insightsOpeningsAsBlack")}
                   color="#FF9800"
                 />
                 <Stack spacing={1.5}>
@@ -554,14 +557,14 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
 
     // Step 5: How You Lose + Game Length
     s.push({
-      title: "Loss Analysis",
+      title: t("insightsLossAnalysis"),
       content: (
         <Stack spacing={2.5}>
           {lossPieData.length > 0 && (
             <GlassCard>
               <SectionTitle
                 icon="mdi:alert-circle"
-                title="How You Lose"
+                title={t("insightsHowYouLose")}
                 color="#f44336"
               />
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -647,8 +650,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                         style={{ color: "#CE93D8", fontSize: 16 }}
                       />
                       <Typography variant="caption" sx={{ color: "#CE93D8" }}>
-                        You lose on time often. Try playing with more time or
-                        work on your time management.
+                        {t("insightsTimeoutTip")}
                       </Typography>
                     </Stack>
                   </Box>
@@ -659,7 +661,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
           <GlassCard>
             <SectionTitle
               icon="mdi:counter"
-              title="Game Length"
+              title={t("insightsGameLength")}
               color="#FF9800"
             />
             <Stack direction="row" spacing={2} justifyContent="center">
@@ -683,7 +685,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                   variant="caption"
                   sx={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  Avg Moves in Wins
+                  {t("insightsAvgMovesInWins")}
                 </Typography>
               </Box>
               <Box
@@ -706,7 +708,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                   variant="caption"
                   sx={{ color: "rgba(255,255,255,0.6)" }}
                 >
-                  Avg Moves in Losses
+                  {t("insightsAvgMovesInLosses")}
                 </Typography>
               </Box>
             </Stack>
@@ -728,8 +730,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                       style={{ color: "#81C784", fontSize: 16 }}
                     />
                     <Typography variant="caption" sx={{ color: "#81C784" }}>
-                      You tend to win shorter games. You might be stronger in
-                      tactics than endgames.
+                      {t("insightsShortGamesTip")}
                     </Typography>
                   </Stack>
                 </Box>
@@ -742,12 +743,12 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
     // Step 6: Time Control Performance
     if (insights.timeControlPerformance.length > 1) {
       s.push({
-        title: "Time Controls",
+        title: t("insightsTimeControls"),
         content: (
           <GlassCard>
             <SectionTitle
               icon="mdi:timer-cog"
-              title="By Time Control"
+              title={t("insightsByTimeControl")}
               color="#2196F3"
             />
             <Stack spacing={1.5}>
@@ -768,7 +769,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
                       variant="caption"
                       sx={{ color: "rgba(255,255,255,0.5)" }}
                     >
-                      {tc.total} games
+                      {tc.total} {t("insightsGames")}
                     </Typography>
                   </Stack>
                   <Stack direction="row" alignItems="center" spacing={1}>
@@ -816,6 +817,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
     chartData,
     lossPieData,
     bestTC,
+    t,
   ]);
 
   // ── Navigation ───────────────────────────────────────────────────────────
@@ -920,7 +922,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
             },
           }}
         >
-          Back
+          {t("insightsBack")}
         </Button>
 
         {isLast ? (
@@ -937,7 +939,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
               },
             }}
           >
-            Start Over
+            {t("insightsStartOver")}
           </Button>
         ) : (
           <Button
@@ -955,7 +957,7 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
               },
             }}
           >
-            Next
+            {t("insightsNext")}
           </Button>
         )}
       </Stack>
@@ -966,6 +968,11 @@ export default function PlayerInsights({ profile, stats, insights }: Props) {
 // ── Opening Row Sub-component ──────────────────────────────────────────────
 
 function OpeningRow({ opening }: { opening: OpeningStats }) {
+  const { t, locale } = useTranslation();
+  const displayName =
+    locale === "ar"
+      ? ecoToArabicMap.get(opening.eco) ?? opening.name
+      : opening.name;
   const winPct =
     opening.games > 0 ? (opening.wins / opening.games) * 100 : 0;
   const drawPct =
@@ -991,13 +998,13 @@ function OpeningRow({ opening }: { opening: OpeningStats }) {
               textOverflow: "ellipsis",
             }}
           >
-            {opening.name}
+            {displayName}
           </Typography>
           <Typography
             variant="caption"
             sx={{ color: "rgba(255,255,255,0.4)" }}
           >
-            {opening.eco} - {opening.games} games
+            {opening.eco} - {opening.games} {t("insightsGames")}
           </Typography>
         </Box>
         <Typography
