@@ -180,6 +180,31 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose, trigger }) => 
             </Typography>
             <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
               <Button
+                onClick={handleLike}
+                sx={{
+                  flex: 1,
+                  maxWidth: 140,
+                  py: 1.5,
+                  borderRadius: "14px",
+                  background: "linear-gradient(135deg, rgba(76,175,80,0.25), rgba(76,175,80,0.1))",
+                  border: "2px solid rgba(76,175,80,0.5)",
+                  color: "white",
+                  textTransform: "none",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 0.5,
+                  "&:hover": {
+                    background: "linear-gradient(135deg, rgba(76,175,80,0.4), rgba(76,175,80,0.2))",
+                    border: "2px solid rgba(76,175,80,0.7)",
+                  },
+                }}
+              >
+                <Icon icon="mdi:thumb-up-outline" style={{ fontSize: 28 }} />
+                {t("yesLoveIt")}
+              </Button>
+              <Button
                 onClick={handleDislike}
                 sx={{
                   flex: 1,
@@ -187,7 +212,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose, trigger }) => 
                   py: 1.5,
                   borderRadius: "14px",
                   border: "2px solid rgba(255,255,255,0.15)",
-                  color: "rgba(255,255,255,0.8)",
+                  color: "rgba(255,255,255,0.6)",
                   textTransform: "none",
                   fontSize: "0.95rem",
                   fontWeight: 600,
@@ -202,30 +227,6 @@ const RatingModal: React.FC<RatingModalProps> = ({ open, onClose, trigger }) => 
               >
                 <Icon icon="mdi:thumb-down-outline" style={{ fontSize: 28 }} />
                 {t("notReally")}
-              </Button>
-              <Button
-                onClick={handleLike}
-                sx={{
-                  flex: 1,
-                  maxWidth: 140,
-                  py: 1.5,
-                  borderRadius: "14px",
-                  border: "2px solid rgba(255,255,255,0.15)",
-                  color: "rgba(255,255,255,0.8)",
-                  textTransform: "none",
-                  fontSize: "0.95rem",
-                  fontWeight: 600,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 0.5,
-                  "&:hover": {
-                    border: "2px solid rgba(76,175,80,0.5)",
-                    background: "rgba(76,175,80,0.1)",
-                  },
-                }}
-              >
-                <Icon icon="mdi:thumb-up-outline" style={{ fontSize: 28 }} />
-                {t("yesLoveIt")}
               </Button>
             </Box>
           </Box>

@@ -38,8 +38,24 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   const [showPremiumButton, setShowPremiumButton] = useState(false);
 
   useEffect(() => {
-    setUserIsPremium(isPremium());
-    setShowPremiumButton(shouldGateFeature() || isPremium());
+    const premium = isPremium();
+    setUserIsPremium(premium);
+    setShowPremiumButton(shouldGateFeature() || premium);
+
+    if (!premium && shouldGateFeature()) {
+      const key = "chesskit_paywall_sessions";
+      const countStr = localStorage.getItem(key);
+      const count = countStr ? parseInt(countStr, 10) : 0;
+      localStorage.setItem(key, String(count + 1));
+
+      const justOnboarded = !localStorage.getItem("chesskit_paywall_shown");
+      const isRecurring = count > 0 && count % 3 === 0;
+
+      if (justOnboarded || isRecurring) {
+        localStorage.setItem("chesskit_paywall_shown", "1");
+        setTimeout(() => setPremiumModalOpen(true), justOnboarded ? 1500 : 3000);
+      }
+    }
   }, []);
 
   const MenuOptions = [

@@ -14,6 +14,7 @@ import {
   Chip,
   Dialog,
   DialogContent,
+  IconButton,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import PremiumNavBar from "@/components/PremiumNavBar";
@@ -809,6 +810,12 @@ export default function CheckmatePuzzles() {
           },
         }}
       >
+        <IconButton
+          onClick={() => setHintLimitReached(false)}
+          sx={{ position: "absolute", top: 8, right: 8, color: "rgba(255,255,255,0.5)", zIndex: 1, "&:hover": { color: "white" } }}
+        >
+          <Icon icon="mdi:close" style={{ fontSize: 22 }} />
+        </IconButton>
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lightbulb-off" style={{ fontSize: 48, color: "#FFC107", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
@@ -861,19 +868,12 @@ export default function CheckmatePuzzles() {
                 borderRadius: "12px",
                 textTransform: "none",
                 fontSize: "0.95rem",
-                mb: 1,
                 "&:hover": { borderColor: "#4ecdc4", background: "rgba(78,205,196,0.1)" },
               }}
             >
               {rewardedAdLoading ? t("adLoading") : t("watchAdForHint")}
             </Button>
           )}
-          <Button
-            onClick={() => setHintLimitReached(false)}
-            sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
-          >
-            {t("maybeLater")}
-          </Button>
         </DialogContent>
       </Dialog>
 
@@ -889,6 +889,12 @@ export default function CheckmatePuzzles() {
           },
         }}
       >
+        <IconButton
+          onClick={() => setLimitReached(false)}
+          sx={{ position: "absolute", top: 8, right: 8, color: "rgba(255,255,255,0.5)", zIndex: 1, "&:hover": { color: "white" } }}
+        >
+          <Icon icon="mdi:close" style={{ fontSize: 22 }} />
+        </IconButton>
         <DialogContent sx={{ textAlign: "center", py: 4, px: 3 }}>
           <Icon icon="mdi:lock" style={{ fontSize: 48, color: "#FFA500", marginBottom: 12 }} />
           <Typography sx={{ fontSize: "1.2rem", fontWeight: 700, mb: 1 }}>
@@ -941,19 +947,12 @@ export default function CheckmatePuzzles() {
                 borderRadius: "12px",
                 textTransform: "none",
                 fontSize: "0.95rem",
-                mb: 1,
                 "&:hover": { borderColor: "#4ecdc4", background: "rgba(78,205,196,0.1)" },
               }}
             >
               {rewardedAdLoading ? t("adLoading") : t("watchAdForPuzzles")}
             </Button>
           )}
-          <Button
-            onClick={() => setLimitReached(false)}
-            sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
-          >
-            {t("maybeLater")}
-          </Button>
         </DialogContent>
       </Dialog>
 
