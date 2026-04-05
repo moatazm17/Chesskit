@@ -95,7 +95,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
             backgroundColor: "rgba(255,255,255,0.1)",
             borderRadius: "8px",
             padding: "8px",
-            marginRight: 2,
+            marginInlineEnd: 2,
             "&:hover": {
               backgroundColor: "rgba(255,255,255,0.2)",
               color: "white",
@@ -127,7 +127,11 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              fontSize: isMobile ? "1.25rem" : "1.5rem",
+              fontSize: isMobile ? "1rem" : "1.5rem",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: isMobile ? "140px" : "none",
             }}
           >
             {t("chessAnalysisTitle")}
@@ -145,7 +149,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
             backgroundColor: "rgba(255,255,255,0.08)",
             borderRadius: "10px",
             padding: "6px 10px",
-            marginRight: 1,
+            marginInlineEnd: 1,
             fontSize: "0.75rem",
             fontWeight: 700,
             "&:hover": {
