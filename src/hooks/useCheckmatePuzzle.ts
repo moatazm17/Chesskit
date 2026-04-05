@@ -178,14 +178,20 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
 
   const loadPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles(MATE_TYPE_TO_PUZZLE[mateType]);
-    const level = computeUserLevel(stats.solvedIds, puzzles);
+
+    // Read directly from localStorage to avoid race condition with React state
+    const freshStats = loadStats();
+    setAllStats(freshStats);
+    const mateStats = freshStats[mateType];
+
+    const level = computeUserLevel(mateStats.solvedIds, puzzles);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(mateStats.solvedIds, puzzles));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
     const savedPuzzleId = loadCurrentPuzzleId(mateType);
-    if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
+    if (savedPuzzleId && !mateStats.solvedIds.includes(savedPuzzleId)) {
       const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle);
@@ -193,11 +199,11 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
       }
     }
 
-    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
+    const newPuzzle = selectPuzzle(puzzles, mateStats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-  }, [mateType, stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
+  }, [mateType, setupPuzzleOnBoard, selectedLevel]);
 
   // Make a move
   const makeMove = useCallback(

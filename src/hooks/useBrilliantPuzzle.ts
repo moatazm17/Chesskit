@@ -130,14 +130,19 @@ export const useBrilliantPuzzle = () => {
 
   const loadPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("brilliant");
-    const level = computeUserLevel(stats.solvedIds, puzzles);
+
+    // Read directly from localStorage to avoid race condition with React state
+    const freshStats = loadStats();
+    setStats(freshStats);
+
+    const level = computeUserLevel(freshStats.solvedIds, puzzles);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
     const savedPuzzleId = loadCurrentPuzzleId();
-    if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
+    if (savedPuzzleId && !freshStats.solvedIds.includes(savedPuzzleId)) {
       const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle);
@@ -145,11 +150,11 @@ export const useBrilliantPuzzle = () => {
       }
     }
 
-    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
+    const newPuzzle = selectPuzzle(puzzles, freshStats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-  }, [stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
+  }, [setupPuzzleOnBoard, selectedLevel]);
 
   const makeMove = useCallback(
     (from: string, to: string, promotion?: string) => {

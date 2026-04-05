@@ -158,14 +158,25 @@ export const usePuzzle = () => {
   const loadRandomPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("regular");
 
-    const level = computeUserLevel(stats.solvedIds, puzzles);
+    // Read directly from localStorage to avoid race condition with React state
+    const freshStats = loadStats();
+    // Check if daily puzzle should reset
+    const today = new Date().toDateString();
+    if (freshStats.lastDailyDate !== today) {
+      freshStats.dailySolved = false;
+      freshStats.lastDailyDate = today;
+      saveStats(freshStats);
+    }
+    setStats(freshStats);
+
+    const level = computeUserLevel(freshStats.solvedIds, puzzles);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
     const savedPuzzleId = loadCurrentPuzzleId();
-    if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
+    if (savedPuzzleId && !freshStats.solvedIds.includes(savedPuzzleId)) {
       const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle, false);
@@ -173,20 +184,24 @@ export const usePuzzle = () => {
       }
     }
 
-    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
+    const newPuzzle = selectPuzzle(puzzles, freshStats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle, false);
     }
-  }, [stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
+  }, [setupPuzzleOnBoard, selectedLevel]);
 
   const loadDailyPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("regular");
     const dailyPuzzle = selectDaily(puzzles);
     setupPuzzleOnBoard(dailyPuzzle, true);
 
-    const level = computeUserLevel(stats.solvedIds, puzzles);
+    // Read directly from localStorage to avoid race condition with React state
+    const freshStats = loadStats();
+    setStats(freshStats);
+
+    const level = computeUserLevel(freshStats.solvedIds, puzzles);
     setUserLevel(level);
-  }, [stats.solvedIds, setupPuzzleOnBoard]);
+  }, [setupPuzzleOnBoard]);
 
   // Make a move
   const makeMove = useCallback(
