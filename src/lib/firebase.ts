@@ -1,9 +1,6 @@
-import { FirebaseOptions, initializeApp } from "firebase/app";
-import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import type { FirebaseApp } from "firebase/app";
 
-const firebaseConfig: FirebaseOptions | undefined = process.env
-  .NEXT_PUBLIC_FIREBASE_PROJECT_ID
+const firebaseConfig = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
   ? {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
       authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -15,30 +12,39 @@ const firebaseConfig: FirebaseOptions | undefined = process.env
     }
   : undefined;
 
-const app = firebaseConfig ? initializeApp(firebaseConfig) : undefined;
+let _app: FirebaseApp | undefined;
 
-isSupported().then((supported) => {
-  if (supported && app) {
-    getAnalytics(app);
-  }
-});
+async function getApp(): Promise<FirebaseApp | undefined> {
+  if (_app) return _app;
+  if (!firebaseConfig) return undefined;
+  const { initializeApp } = await import("firebase/app");
+  _app = initializeApp(firebaseConfig);
+  return _app;
+}
 
 export const logAnalyticsEvent = async (
   eventName: string,
   eventParams?: Record<string, unknown>
 ) => {
+  if (typeof window === "undefined") return;
   if (window.location.hostname === "localhost") return;
 
+  const app = await getApp();
+  if (!app) return;
+
+  const { getAnalytics, isSupported, logEvent } = await import("firebase/analytics");
   const supported = await isSupported();
-  if (!supported || !app) return;
+  if (!supported) return;
 
   const analytics = getAnalytics(app);
   logEvent(analytics, eventName, eventParams);
 };
 
 export const submitFeedback = async (message: string, trigger: string) => {
+  const app = await getApp();
   if (!app) return;
   try {
+    const { getFirestore, collection, addDoc } = await import("firebase/firestore");
     const db = getFirestore(app);
     await addDoc(collection(db, "feedback"), {
       message,

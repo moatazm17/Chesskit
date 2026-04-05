@@ -31,7 +31,7 @@ interface HomeCardProps {
   customIcon?: React.ReactNode;
 }
 
-const HomeCard: React.FC<HomeCardProps> = ({
+const HomeCard: React.FC<HomeCardProps> = React.memo(({
   title,
   description,
   icon,
@@ -146,7 +146,7 @@ const HomeCard: React.FC<HomeCardProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
 
 interface HomeScreenProps {
   onPlayGame: () => void;

@@ -1,4 +1,4 @@
-export const openings: { name: string; fen: string }[] = [
+const openingsArray: { name: string; fen: string }[] = [
   {
     name: "Amar Gambit",
     fen: "rn1qkbnr/ppp2ppp/8/3p4/5p2/6PB/PPPPP2P/RNBQK2R",
@@ -13604,3 +13604,9 @@ export const openings: { name: string; fen: string }[] = [
     fen: "r1bq1rk1/pppnn1bp/3p2p1/3Ppp2/2P1P3/2N2P2/PP2B1PP/R1BQNRK1",
   },
 ];
+
+export const openings = openingsArray;
+
+export const openingsByFen = new Map<string, string>(
+  openingsArray.map((o) => [o.fen, o.name])
+);

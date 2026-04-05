@@ -2,7 +2,7 @@ import { CurrentPosition } from "@/types/eval";
 import { MoveClassification } from "@/types/enums";
 import { PrimitiveAtom, atom, useAtomValue } from "jotai";
 import Image from "next/image";
-import { CSSProperties, forwardRef, useMemo } from "react";
+import { CSSProperties, forwardRef, memo, useMemo } from "react";
 import {
   CustomSquareProps,
   Square,
@@ -24,7 +24,7 @@ export function getSquareRenderer({
   captureSquaresAtom = atom<Square[]>([]),
   showPlayerMoveIconAtom = atom(false),
 }: Props) {
-  const squareRenderer = forwardRef<HTMLDivElement, CustomSquareProps>(
+  const squareRenderer = memo(forwardRef<HTMLDivElement, CustomSquareProps>(
     (props, ref) => {
       const { children, square, style } = props;
       const showPlayerMoveIcon = useAtomValue(showPlayerMoveIconAtom);
@@ -90,7 +90,7 @@ export function getSquareRenderer({
         </div>
       );
     }
-  );
+  ));
 
   squareRenderer.displayName = "SquareRenderer";
 

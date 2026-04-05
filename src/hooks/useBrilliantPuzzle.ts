@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
-import { getRandomBrilliantPuzzle, findBrilliantPuzzleById } from "@/data/brilliantPuzzles";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
@@ -117,13 +116,14 @@ export const useBrilliantPuzzle = () => {
     }
   }, []);
 
-  const loadPuzzle = useCallback(() => {
+  const loadPuzzle = useCallback(async () => {
+    const { findBrilliantPuzzleById, getRandomBrilliantPuzzle } = await import("@/data/brilliantPuzzles");
     const savedPuzzleId = loadCurrentPuzzleId();
     if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
       const savedPuzzle = findBrilliantPuzzleById(savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle);
-        return savedPuzzle;
+        return;
       }
     }
 
@@ -131,7 +131,6 @@ export const useBrilliantPuzzle = () => {
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-    return newPuzzle;
   }, [stats.solvedIds, setupPuzzleOnBoard]);
 
   const makeMove = useCallback(

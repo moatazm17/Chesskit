@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
-import { getRandomPuzzle, getDailyPuzzle, PUZZLES } from "@/data/puzzles";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
@@ -55,7 +54,8 @@ const clearCurrentPuzzleId = () => {
   localStorage.removeItem(CURRENT_PUZZLE_KEY);
 };
 
-const findPuzzleById = (id: string): Puzzle | null => {
+const findPuzzleById = async (id: string): Promise<Puzzle | null> => {
+  const { PUZZLES } = await import("@/data/puzzles");
   return PUZZLES.find((p) => p.id === id) || null;
 };
 
@@ -147,31 +147,27 @@ export const usePuzzle = () => {
     }
   }, []);
 
-  // Load a random puzzle - restore saved one or get new
-  const loadRandomPuzzle = useCallback(() => {
-    // Try to restore saved puzzle
+  const loadRandomPuzzle = useCallback(async () => {
     const savedPuzzleId = loadCurrentPuzzleId();
     if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
-      const savedPuzzle = findPuzzleById(savedPuzzleId);
+      const savedPuzzle = await findPuzzleById(savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle, false);
-        return savedPuzzle;
+        return;
       }
     }
 
-    // No saved puzzle or already solved - get new one
+    const { getRandomPuzzle } = await import("@/data/puzzles");
     const newPuzzle = getRandomPuzzle(stats.solvedIds);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle, false);
     }
-    return newPuzzle;
   }, [stats.solvedIds, setupPuzzleOnBoard]);
 
-  // Load daily puzzle
-  const loadDailyPuzzle = useCallback(() => {
+  const loadDailyPuzzle = useCallback(async () => {
+    const { getDailyPuzzle } = await import("@/data/puzzles");
     const dailyPuzzle = getDailyPuzzle();
     setupPuzzleOnBoard(dailyPuzzle, true);
-    return dailyPuzzle;
   }, [setupPuzzleOnBoard]);
 
   // Make a move

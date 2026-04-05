@@ -57,7 +57,7 @@ export const getRecommendedWorkersNb = (): number => {
       ? Math.max(1, Math.round(navigator.deviceMemory))
       : 4;
 
-  const maxWorkersNbFromDevice = isIosDevice() ? 2 : isMobileDevice() ? 4 : 8;
+  const maxWorkersNbFromDevice = isIosDevice() ? 2 : isMobileDevice() ? 2 : 8;
 
   return Math.min(
     maxWorkersNbFromThreads,

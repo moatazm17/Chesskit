@@ -12,7 +12,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { getEvaluateGameParams } from "@/lib/chess";
 import { getMovesClassification } from "@/lib/engine/helpers/moveClassification";
-import { openings } from "@/data/openings";
+import { openingsByFen } from "@/data/openings";
 import { UciEngine } from "@/lib/engine/uciEngine";
 
 export const useCurrentPosition = (engine: UciEngine | null) => {
@@ -62,9 +62,9 @@ export const useCurrentPosition = (engine: UciEngine | null) => {
     if (!position.eval?.opening) {
       for (const move of boardHistory.slice().reverse()) {
         const moveFen = move.after.split(" ")[0];
-        const opening = openings.find((opening) => opening.fen === moveFen);
-        if (opening) {
-          position.opening = opening.name;
+        const openingName = openingsByFen.get(moveFen);
+        if (openingName) {
+          position.opening = openingName;
           break;
         }
       }

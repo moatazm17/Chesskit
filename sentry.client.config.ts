@@ -14,9 +14,9 @@ if (
         blockAllMedia: false,
       }),
     ],
-    tracesSampleRate: 1,
+    tracesSampleRate: 0.1,
     replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 1.0,
+    replaysOnErrorSampleRate: 0.2,
     debug: false,
     initialScope: {
       extra: {

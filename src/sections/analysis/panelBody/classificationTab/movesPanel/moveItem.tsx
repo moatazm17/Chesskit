@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useAtomValue } from "jotai";
 import { boardAtom, currentPositionAtom, gameAtom } from "../../../states";
 import { useChessActions } from "@/hooks/useChessActions";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { isInViewport } from "@/lib/helpers";
 import { CLASSIFICATION_COLORS } from "@/constants";
 import PrettyMoveSan from "@/components/prettyMoveSan";
@@ -16,7 +16,7 @@ interface Props {
   moveColor: "w" | "b";
 }
 
-export default function MoveItem({
+function MoveItem({
   san,
   moveClassification,
   moveIdx,
@@ -91,6 +91,8 @@ export default function MoveItem({
     </Grid>
   );
 }
+
+export default memo(MoveItem);
 
 const getMoveColor = (moveClassification?: MoveClassification) => {
   if (

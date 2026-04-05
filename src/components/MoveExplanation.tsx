@@ -5,7 +5,7 @@ import {
   currentPositionAtom,
   gameEvalAtom,
 } from "@/sections/analysis/states";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   getMoveExplanation,
   MoveExplanation as MoveExplanationType,
@@ -42,7 +42,7 @@ const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
   [MoveClassification.Splendid]: "mdi:star",
 };
 
-export default function MoveExplanationComponent() {
+function MoveExplanationComponent() {
   const position = useAtomValue(currentPositionAtom);
   const board = useAtomValue(boardAtom);
   const gameEval = useAtomValue(gameEvalAtom);
@@ -222,3 +222,5 @@ export default function MoveExplanationComponent() {
     </Box>
   );
 }
+
+export default memo(MoveExplanationComponent);

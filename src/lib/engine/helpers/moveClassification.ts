@@ -4,7 +4,7 @@ import {
   getPositionWinPercentage,
 } from "./winPercentage";
 import { MoveClassification } from "@/types/enums";
-import { openings } from "@/data/openings";
+import { openingsByFen } from "@/data/openings";
 import {
   getIsPieceSacrifice,
   getPieceCount,
@@ -24,12 +24,12 @@ export const getMovesClassification = (
     if (index === 0) return rawPosition;
 
     const currentFen = fens[index].split(" ")[0];
-    const opening = openings.find((opening) => opening.fen === currentFen);
-    if (opening) {
-      currentOpening = opening.name;
+    const openingName = openingsByFen.get(currentFen);
+    if (openingName) {
+      currentOpening = openingName;
       return {
         ...rawPosition,
-        opening: opening.name,
+        opening: openingName,
         moveClassification: MoveClassification.Opening,
       };
     }

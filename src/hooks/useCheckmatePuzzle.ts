@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
-import { getRandomMateIn2, getRandomMateIn3, MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } from "@/data/checkmatePuzzles";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
@@ -86,7 +85,8 @@ const clearCurrentPuzzleId = (mateType: MateType) => {
   } catch { /* ignore */ }
 };
 
-const findPuzzleById = (mateType: MateType, id: string): Puzzle | null => {
+const findPuzzleById = async (mateType: MateType, id: string): Promise<Puzzle | null> => {
+  const { MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } = await import("@/data/checkmatePuzzles");
   const puzzles = mateType === "mateIn2" ? MATE_IN_2_PUZZLES : MATE_IN_3_PUZZLES;
   return puzzles.find((p) => p.id === id) || null;
 };
@@ -110,17 +110,6 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
     const loadedStats = loadStats();
     setAllStats(loadedStats);
   }, []);
-
-  // Get random puzzle based on mate type
-  const getRandomPuzzle = useCallback(
-    (solvedIds: string[]) => {
-      if (mateType === "mateIn2") {
-        return getRandomMateIn2(solvedIds);
-      }
-      return getRandomMateIn3(solvedIds);
-    },
-    [mateType]
-  );
 
   // Setup and animate a puzzle on the board
   const setupPuzzleOnBoard = useCallback((puzzleToLoad: Puzzle) => {
@@ -175,28 +164,24 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
     }
   }, [mateType]);
 
-  // Load a puzzle - restore saved one or get a new one
-  const loadPuzzle = useCallback(() => {
-    // Try to restore the saved puzzle for this tab
+  const loadPuzzle = useCallback(async () => {
     const savedPuzzleId = loadCurrentPuzzleId(mateType);
-    if (savedPuzzleId) {
-      // Check if it's not already solved
-      if (!stats.solvedIds.includes(savedPuzzleId)) {
-        const savedPuzzle = findPuzzleById(mateType, savedPuzzleId);
-        if (savedPuzzle) {
-          setupPuzzleOnBoard(savedPuzzle);
-          return savedPuzzle;
-        }
+    if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
+      const savedPuzzle = await findPuzzleById(mateType, savedPuzzleId);
+      if (savedPuzzle) {
+        setupPuzzleOnBoard(savedPuzzle);
+        return;
       }
     }
 
-    // No saved puzzle or it's already solved - get a new one
-    const newPuzzle = getRandomPuzzle(stats.solvedIds);
+    const { getRandomMateIn2, getRandomMateIn3 } = await import("@/data/checkmatePuzzles");
+    const newPuzzle = mateType === "mateIn2"
+      ? getRandomMateIn2(stats.solvedIds)
+      : getRandomMateIn3(stats.solvedIds);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-    return newPuzzle;
-  }, [mateType, getRandomPuzzle, stats.solvedIds, setupPuzzleOnBoard]);
+  }, [mateType, stats.solvedIds, setupPuzzleOnBoard]);
 
   // Make a move
   const makeMove = useCallback(
