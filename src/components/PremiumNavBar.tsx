@@ -112,6 +112,7 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
+            minWidth: 0,
             "&:hover": {
               opacity: 0.8,
             },
@@ -127,14 +128,11 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              fontSize: isMobile ? "1rem" : "1.5rem",
+              fontSize: isMobile ? "1.1rem" : "1.5rem",
               whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: isMobile ? "140px" : "none",
             }}
           >
-            {t("chessAnalysisTitle")}
+            {isMobile ? "♟️" : t("chessAnalysisTitle")}
           </Typography>
         </Box>
 
