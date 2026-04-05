@@ -260,6 +260,7 @@ export default function FairPlayPage() {
 
     if (shouldGateFeature() && !canAnalyzeFairPlay()) {
       setLimitReached(true);
+      logAnalyticsEvent("fairplay_limit_reached");
       return;
     }
 
@@ -356,6 +357,8 @@ export default function FairPlayPage() {
     if (shouldGateFeature() && !isPremium()) {
       triggerInterstitialAd();
     }
+
+    logAnalyticsEvent("fairplay_deep_started", { opponent: opponentInfo.username });
 
     abortRef.current = false;
     setPhase("analyzingDeep");
