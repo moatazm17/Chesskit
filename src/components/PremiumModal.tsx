@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "@/lib/i18n";
 import {
   Dialog,
@@ -74,16 +74,39 @@ export default function PremiumModal({ open, onClose, trigger }: PremiumModalPro
     return () => { delete w._onPurchaseFeedback; };
   }, [open, handleFeedback]);
 
+  const purchaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startPurchaseTimeout = useCallback(() => {
+    if (purchaseTimeoutRef.current) clearTimeout(purchaseTimeoutRef.current);
+    purchaseTimeoutRef.current = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          setSnack({ open: true, message: t("purchaseTimeout") || "Something went wrong. Please try again.", severity: "error" });
+        }
+        return false;
+      });
+    }, 45000);
+  }, [t]);
+
+  useEffect(() => {
+    if (!loading && purchaseTimeoutRef.current) {
+      clearTimeout(purchaseTimeoutRef.current);
+      purchaseTimeoutRef.current = null;
+    }
+  }, [loading]);
+
   const handlePurchase = () => {
     const productId = selectedPlan === "monthly" ? "premium_monthly" as const : "premium_yearly" as const;
     logAnalyticsEvent("premium_purchase_tap", { plan: selectedPlan, trigger: trigger || "unknown" });
     setLoading(true);
+    startPurchaseTimeout();
     requestPurchase(productId);
   };
 
   const handleRestore = () => {
     logAnalyticsEvent("premium_restore_tap", { trigger: trigger || "unknown" });
     setLoading(true);
+    startPurchaseTimeout();
     requestRestore();
   };
 
