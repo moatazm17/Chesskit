@@ -9,6 +9,7 @@ import {
   getUnlockedLevels,
   getRandomPuzzle as selectPuzzle,
   findPuzzleById as findById,
+  getLevels,
   UserLevel,
   LevelDef,
 } from "@/lib/puzzleLoader";
@@ -76,6 +77,7 @@ export const useBrilliantPuzzle = () => {
   const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
   const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
+  const [typeLevels, setTypeLevels] = useState<LevelDef[]>([]);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -130,14 +132,16 @@ export const useBrilliantPuzzle = () => {
 
   const loadPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("brilliant");
+    const levels = getLevels("brilliant");
+    setTypeLevels(levels);
 
     // Read directly from localStorage to avoid race condition with React state
     const freshStats = loadStats();
     setStats(freshStats);
 
-    const level = computeUserLevel(freshStats.solvedIds, puzzles);
+    const level = computeUserLevel(freshStats.solvedIds, puzzles, levels);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles, levels));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
@@ -347,6 +351,7 @@ export const useBrilliantPuzzle = () => {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadPuzzle,
     makeMove,
     getHint,

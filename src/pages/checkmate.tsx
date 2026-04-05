@@ -56,6 +56,7 @@ export default function CheckmatePuzzles() {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadPuzzle,
     makeMove,
     getHint,
@@ -474,6 +475,7 @@ export default function CheckmatePuzzles() {
                 unlockedLevels={unlockedLevels}
                 selectedLevel={selectedLevel}
                 onSelectLevel={setSelectedLevel}
+                levels={typeLevels}
               />
             </Box>
           </Grid>

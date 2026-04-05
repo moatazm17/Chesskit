@@ -49,6 +49,7 @@ export default function Puzzles() {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadRandomPuzzle,
     loadDailyPuzzle,
     makeMove,
@@ -472,6 +473,7 @@ export default function Puzzles() {
                   unlockedLevels={unlockedLevels}
                   selectedLevel={selectedLevel}
                   onSelectLevel={setSelectedLevel}
+                  levels={typeLevels}
                 />
               </Box>
             )}

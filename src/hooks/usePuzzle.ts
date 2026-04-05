@@ -10,6 +10,7 @@ import {
   getRandomPuzzle as selectPuzzle,
   getDailyPuzzle as selectDaily,
   findPuzzleById as findById,
+  getLevels,
   UserLevel,
   LevelDef,
 } from "@/lib/puzzleLoader";
@@ -78,6 +79,7 @@ export const usePuzzle = () => {
   const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
   const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
+  const [typeLevels, setTypeLevels] = useState<LevelDef[]>([]);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load stats on mount
@@ -157,6 +159,8 @@ export const usePuzzle = () => {
 
   const loadRandomPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("regular");
+    const levels = getLevels("regular");
+    setTypeLevels(levels);
 
     // Read directly from localStorage to avoid race condition with React state
     const freshStats = loadStats();
@@ -169,9 +173,9 @@ export const usePuzzle = () => {
     }
     setStats(freshStats);
 
-    const level = computeUserLevel(freshStats.solvedIds, puzzles);
+    const level = computeUserLevel(freshStats.solvedIds, puzzles, levels);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(freshStats.solvedIds, puzzles, levels));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
@@ -192,6 +196,7 @@ export const usePuzzle = () => {
 
   const loadDailyPuzzle = useCallback(async () => {
     const puzzles = await fetchPuzzles("regular");
+    const levels = getLevels("regular");
     const dailyPuzzle = selectDaily(puzzles);
     setupPuzzleOnBoard(dailyPuzzle, true);
 
@@ -199,7 +204,7 @@ export const usePuzzle = () => {
     const freshStats = loadStats();
     setStats(freshStats);
 
-    const level = computeUserLevel(freshStats.solvedIds, puzzles);
+    const level = computeUserLevel(freshStats.solvedIds, puzzles, levels);
     setUserLevel(level);
   }, [setupPuzzleOnBoard]);
 
@@ -412,6 +417,7 @@ export const usePuzzle = () => {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadRandomPuzzle,
     loadDailyPuzzle,
     makeMove,

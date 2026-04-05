@@ -9,6 +9,7 @@ import {
   getUnlockedLevels,
   getRandomPuzzle as selectPuzzle,
   findPuzzleById as findById,
+  getLevels,
   UserLevel,
   LevelDef,
   PuzzleType,
@@ -113,6 +114,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
   const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
   const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
+  const [typeLevels, setTypeLevels] = useState<LevelDef[]>([]);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const stats = allStats[mateType];
@@ -177,16 +179,19 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
   }, [mateType]);
 
   const loadPuzzle = useCallback(async () => {
-    const puzzles = await fetchPuzzles(MATE_TYPE_TO_PUZZLE[mateType]);
+    const puzzleType = MATE_TYPE_TO_PUZZLE[mateType];
+    const puzzles = await fetchPuzzles(puzzleType);
+    const levels = getLevels(puzzleType);
+    setTypeLevels(levels);
 
     // Read directly from localStorage to avoid race condition with React state
     const freshStats = loadStats();
     setAllStats(freshStats);
     const mateStats = freshStats[mateType];
 
-    const level = computeUserLevel(mateStats.solvedIds, puzzles);
+    const level = computeUserLevel(mateStats.solvedIds, puzzles, levels);
     setUserLevel(level);
-    setUnlockedLevels(getUnlockedLevels(mateStats.solvedIds, puzzles));
+    setUnlockedLevels(getUnlockedLevels(mateStats.solvedIds, puzzles, levels));
 
     const activeLevelDef = selectedLevel || level.levelDef;
 
@@ -396,6 +401,7 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadPuzzle,
     makeMove,
     getHint,

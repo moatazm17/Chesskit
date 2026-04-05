@@ -32,15 +32,69 @@ export interface LevelDef {
   required: number;
 }
 
-export const LEVELS: LevelDef[] = [
-  { level: 1, name: "Beginner",     nameAr: "مبتدئ",       minRating: 0,    maxRating: 700,  required: 15 },
-  { level: 2, name: "Elementary",   nameAr: "أساسي",       minRating: 700,  maxRating: 1000, required: 20 },
-  { level: 3, name: "Intermediate", nameAr: "متوسط",       minRating: 1000, maxRating: 1300, required: 30 },
-  { level: 4, name: "Advanced",     nameAr: "متقدم",       minRating: 1300, maxRating: 1600, required: 40 },
-  { level: 5, name: "Expert",       nameAr: "خبير",        minRating: 1600, maxRating: 1900, required: 50 },
-  { level: 6, name: "Master",       nameAr: "ماستر",       minRating: 1900, maxRating: 2200, required: 60 },
-  { level: 7, name: "Grandmaster",  nameAr: "جراند ماستر", minRating: 2200, maxRating: 9999, required: 10 },
+const LEVEL_META = [
+  { name: "Beginner",     nameAr: "مبتدئ" },
+  { name: "Elementary",   nameAr: "أساسي" },
+  { name: "Intermediate", nameAr: "متوسط" },
+  { name: "Advanced",     nameAr: "متقدم" },
+  { name: "Expert",       nameAr: "خبير" },
+  { name: "Master",       nameAr: "ماستر" },
+  { name: "Grandmaster",  nameAr: "جراند ماستر" },
 ];
+
+const LEVELS_REGULAR: LevelDef[] = [
+  { level: 1, ...LEVEL_META[0], minRating: 0,    maxRating: 700,  required: 15 },
+  { level: 2, ...LEVEL_META[1], minRating: 700,  maxRating: 1000, required: 20 },
+  { level: 3, ...LEVEL_META[2], minRating: 1000, maxRating: 1300, required: 25 },
+  { level: 4, ...LEVEL_META[3], minRating: 1300, maxRating: 1600, required: 30 },
+  { level: 5, ...LEVEL_META[4], minRating: 1600, maxRating: 1900, required: 35 },
+  { level: 6, ...LEVEL_META[5], minRating: 1900, maxRating: 2200, required: 20 },
+  { level: 7, ...LEVEL_META[6], minRating: 2200, maxRating: 9999, required: 10 },
+];
+
+const LEVELS_BRILLIANT: LevelDef[] = [
+  { level: 1, ...LEVEL_META[0], minRating: 800,  maxRating: 1050, required: 15 },
+  { level: 2, ...LEVEL_META[1], minRating: 1050, maxRating: 1300, required: 20 },
+  { level: 3, ...LEVEL_META[2], minRating: 1300, maxRating: 1550, required: 25 },
+  { level: 4, ...LEVEL_META[3], minRating: 1550, maxRating: 1800, required: 30 },
+  { level: 5, ...LEVEL_META[4], minRating: 1800, maxRating: 2050, required: 35 },
+  { level: 6, ...LEVEL_META[5], minRating: 2050, maxRating: 2300, required: 20 },
+  { level: 7, ...LEVEL_META[6], minRating: 2300, maxRating: 9999, required: 10 },
+];
+
+const LEVELS_CHECKMATE2: LevelDef[] = [
+  { level: 1, ...LEVEL_META[0], minRating: 400,  maxRating: 650,  required: 15 },
+  { level: 2, ...LEVEL_META[1], minRating: 650,  maxRating: 900,  required: 20 },
+  { level: 3, ...LEVEL_META[2], minRating: 900,  maxRating: 1150, required: 25 },
+  { level: 4, ...LEVEL_META[3], minRating: 1150, maxRating: 1400, required: 30 },
+  { level: 5, ...LEVEL_META[4], minRating: 1400, maxRating: 1650, required: 35 },
+  { level: 6, ...LEVEL_META[5], minRating: 1650, maxRating: 1900, required: 20 },
+  { level: 7, ...LEVEL_META[6], minRating: 1900, maxRating: 9999, required: 6 },
+];
+
+const LEVELS_CHECKMATE3: LevelDef[] = [
+  { level: 1, ...LEVEL_META[0], minRating: 400,  maxRating: 650,  required: 15 },
+  { level: 2, ...LEVEL_META[1], minRating: 650,  maxRating: 900,  required: 20 },
+  { level: 3, ...LEVEL_META[2], minRating: 900,  maxRating: 1150, required: 25 },
+  { level: 4, ...LEVEL_META[3], minRating: 1150, maxRating: 1400, required: 30 },
+  { level: 5, ...LEVEL_META[4], minRating: 1400, maxRating: 1650, required: 35 },
+  { level: 6, ...LEVEL_META[5], minRating: 1650, maxRating: 1900, required: 20 },
+  { level: 7, ...LEVEL_META[6], minRating: 1900, maxRating: 9999, required: 10 },
+];
+
+const LEVELS_MAP: Record<PuzzleType, LevelDef[]> = {
+  regular: LEVELS_REGULAR,
+  brilliant: LEVELS_BRILLIANT,
+  checkmate2: LEVELS_CHECKMATE2,
+  checkmate3: LEVELS_CHECKMATE3,
+};
+
+export function getLevels(type: PuzzleType): LevelDef[] {
+  return LEVELS_MAP[type];
+}
+
+// Keep backward-compatible export for components that don't know the type
+export const LEVELS = LEVELS_REGULAR;
 
 export interface UserLevel {
   currentLevel: number;
@@ -52,11 +106,11 @@ export interface UserLevel {
 
 export function computeUserLevel(
   solvedIds: string[],
-  allPuzzles: Puzzle[]
+  allPuzzles: Puzzle[],
+  levels: LevelDef[]
 ): UserLevel {
   const solvedSet = new Set(solvedIds);
 
-  // Find the highest rating the user has ever solved
   let maxSolvedRating = 0;
   for (const p of allPuzzles) {
     if (solvedSet.has(p.id) && p.rating > maxSolvedRating) {
@@ -64,15 +118,13 @@ export function computeUserLevel(
     }
   }
 
-  for (const lvl of LEVELS) {
+  for (const lvl of levels) {
     const puzzlesInRange = allPuzzles.filter(
       (p) => p.rating >= lvl.minRating && p.rating < lvl.maxRating
     );
 
-    // Skip levels that have no puzzles (e.g. brilliant starts at 800)
     if (puzzlesInRange.length === 0) continue;
 
-    // Auto-complete levels below the user's proven ability
     if (maxSolvedRating >= lvl.maxRating) continue;
 
     const solvedInRange = puzzlesInRange.filter((p) => solvedSet.has(p.id)).length;
@@ -89,7 +141,7 @@ export function computeUserLevel(
     }
   }
 
-  const last = LEVELS[LEVELS.length - 1];
+  const last = levels[levels.length - 1];
   const solvedInLast = allPuzzles.filter(
     (p) =>
       solvedSet.has(p.id) &&
@@ -108,7 +160,8 @@ export function computeUserLevel(
 
 export function getUnlockedLevels(
   solvedIds: string[],
-  allPuzzles: Puzzle[]
+  allPuzzles: Puzzle[],
+  levels: LevelDef[]
 ): LevelDef[] {
   const solvedSet = new Set(solvedIds);
   const unlocked: LevelDef[] = [];
@@ -120,7 +173,7 @@ export function getUnlockedLevels(
     }
   }
 
-  for (const lvl of LEVELS) {
+  for (const lvl of levels) {
     const puzzlesInRange = allPuzzles.filter(
       (p) => p.rating >= lvl.minRating && p.rating < lvl.maxRating
     );
@@ -134,7 +187,6 @@ export function getUnlockedLevels(
 
     unlocked.push(lvl);
 
-    // Auto-complete levels below the user's proven ability
     if (maxSolvedRating >= lvl.maxRating) continue;
 
     const solvedInRange = puzzlesInRange.filter((p) => solvedSet.has(p.id)).length;

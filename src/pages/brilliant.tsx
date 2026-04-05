@@ -49,6 +49,7 @@ export default function BrilliantPuzzles() {
     unlockedLevels,
     selectedLevel,
     setSelectedLevel,
+    typeLevels,
     loadPuzzle,
     makeMove,
     getHint,
@@ -414,6 +415,7 @@ export default function BrilliantPuzzles() {
                 unlockedLevels={unlockedLevels}
                 selectedLevel={selectedLevel}
                 onSelectLevel={setSelectedLevel}
+                levels={typeLevels}
               />
             </Box>
           </Grid>

@@ -17,6 +17,7 @@ interface LevelProgressProps {
   unlockedLevels: LevelDef[];
   selectedLevel: LevelDef | null;
   onSelectLevel: (level: LevelDef | null) => void;
+  levels?: LevelDef[];
 }
 
 const LevelProgress = React.memo(function LevelProgress({
@@ -24,7 +25,9 @@ const LevelProgress = React.memo(function LevelProgress({
   unlockedLevels,
   selectedLevel,
   onSelectLevel,
+  levels: levelsFromProps,
 }: LevelProgressProps) {
+  const allLevels = levelsFromProps || LEVELS;
   const { t } = useTranslation();
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [showSelector, setShowSelector] = useState(false);
@@ -164,7 +167,7 @@ const LevelProgress = React.memo(function LevelProgress({
             {t("levelLabel", { level: "" }).replace(/\s+$/, "")}
           </Typography>
           <Stack spacing={1}>
-            {LEVELS.map((lvl) => {
+            {allLevels.map((lvl) => {
               const isUnlocked = unlockedSet.has(lvl.level);
               const isCurrent = lvl.level === userLevel.levelDef.level;
               const isSelected =
