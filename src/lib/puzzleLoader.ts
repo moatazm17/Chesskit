@@ -124,7 +124,13 @@ export function getUnlockedLevels(
     const puzzlesInRange = allPuzzles.filter(
       (p) => p.rating >= lvl.minRating && p.rating < lvl.maxRating
     );
-    if (puzzlesInRange.length === 0) continue;
+
+    if (puzzlesInRange.length === 0) {
+      if (maxSolvedRating >= lvl.maxRating) {
+        unlocked.push(lvl);
+      }
+      continue;
+    }
 
     unlocked.push(lvl);
 
