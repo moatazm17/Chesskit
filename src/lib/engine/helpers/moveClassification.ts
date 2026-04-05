@@ -70,7 +70,7 @@ export const getMovesClassification = (
         bestLinePvToPlay,
         fens[index - 1],
         lastPositionAlternativeLineWinPercentage,
-        prevPosition.shallowBestMove
+        playerRating
       )
     ) {
       return {
@@ -199,13 +199,9 @@ const getMoveBasicClassification = (
 };
 
 /**
- * Brilliant move detection with depth-based counterintuitive check.
- * A move is brilliant only if:
- * 1. It's a significant piece sacrifice (>= minor piece)
- * 2. The engine didn't find it at shallow depth (counterintuitive)
- * 3. The position is not already very winning
- * 4. The alternative is significantly worse
- * 5. The position has enough complexity (not a simplified endgame)
+ * Brilliant move detection aligned with Chess.com's current algorithm.
+ * Chess.com uses sacrifice-based detection (not depth-based) and is
+ * more generous for lower-rated players.
  */
 const isSplendidMove = (
   lastPositionWinPercentage: number,
@@ -215,7 +211,7 @@ const isSplendidMove = (
   bestLinePvToPlay: string[],
   fen: string,
   lastPositionAlternativeLineWinPercentage: number | undefined,
-  shallowBestMove: string | undefined
+  playerRating?: number
 ): boolean => {
   if (!lastPositionAlternativeLineWinPercentage) return false;
 
@@ -223,41 +219,45 @@ const isSplendidMove = (
     (positionWinPercentage - lastPositionWinPercentage) *
     (isWhiteMove ? 1 : -1);
 
-  // Move must not lose more than 1% win probability
-  if (winPercentageDiff < -1) return false;
+  if (winPercentageDiff < -3) return false;
 
-  // Must be a significant piece sacrifice (at least minor piece value = 3 material points)
+  // Rating-based generosity: lower-rated players need smaller sacrifices.
+  // <1200: pawn sacrifice (1) is enough
+  // 1200-1800: at least exchange-level intent (2)
+  // 1800+: at least minor piece (3)
+  const minSacrifice = !playerRating || playerRating < 1200 ? 1
+    : playerRating < 1800 ? 2
+    : 3;
+
   const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
-  if (sacrificeValue < 3) return false;
+  if (sacrificeValue < minSacrifice) return false;
 
-  // DEPTH-BASED COUNTERINTUITIVE CHECK:
-  // If the engine found this move at shallow depth (depth 8), it's "obvious" - not brilliant.
-  // A truly brilliant move is one the engine struggles to find at lower depths.
-  // If shallowBestMove is undefined (e.g., cloud eval), we skip this check.
-  if (shallowBestMove && playedMove === shallowBestMove) return false;
-
-  // Player win% from the moving side's perspective
   const playerWinPercent = isWhiteMove
     ? positionWinPercentage
     : 100 - positionWinPercentage;
 
-  // Don't award brilliant in already very winning positions
-  if (playerWinPercent > 75) return false;
+  // Don't award in completely winning positions (not competitive)
+  if (playerWinPercent > 90) return false;
 
-  // Don't award brilliant in simplified endgame positions
   const pieceCount = getPieceCount(fen);
-  if (pieceCount < 10) return false;
+  const isEndgame = pieceCount < 10;
 
-  // The alternative line must be significantly worse
+  // In endgame: sacrifice must be the only good move (alternative much worse)
+  // In opening/middlegame: sacrifice just needs to be strong
+  const minAlternativeDiff = isEndgame ? 8 : 4;
+
   const alternativeDiff =
     (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
     (isWhiteMove ? 1 : -1);
-  if (alternativeDiff < 8) return false;
+  if (alternativeDiff < minAlternativeDiff) return false;
+
+  // Don't award in trivial endgames (king + 1 piece)
+  if (pieceCount < 5) return false;
 
   // Don't award if the alternative is already completely winning
   const isAlternateCompletelyWinning = isWhiteMove
-    ? lastPositionAlternativeLineWinPercentage > 93
-    : lastPositionAlternativeLineWinPercentage < 7;
+    ? lastPositionAlternativeLineWinPercentage > 95
+    : lastPositionAlternativeLineWinPercentage < 5;
   if (isAlternateCompletelyWinning) return false;
 
   return true;
