@@ -1,6 +1,6 @@
 import { useTranslation } from "@/lib/i18n";
-import { triggerInterstitialAd } from "@/lib/ads";
-import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT } from "@/lib/premium";
+import { triggerInterstitialAd, showRewardedAd } from "@/lib/ads";
+import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT, canWatchRewardedAd, grantRewardedPuzzles, grantRewardedHint, PUZZLE_LIMIT_KEY_PUBLIC } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
 import { PageTitle } from "@/components/pageTitle";
 import {
@@ -62,6 +62,7 @@ export default function Puzzles() {
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [hintLimitReached, setHintLimitReached] = useState(false);
+  const [rewardedAdLoading, setRewardedAdLoading] = useState(false);
   const [checkAnimSquare, setCheckAnimSquare] = useState<Square | null>(null);
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevPuzzleFenRef = useRef(game.fen());
@@ -806,6 +807,37 @@ export default function Puzzles() {
           >
             {t("upgradeToPremium")}
           </Button>
+          {canWatchRewardedAd() && (
+            <Button
+              onClick={async () => {
+                setRewardedAdLoading(true);
+                const earned = await showRewardedAd();
+                setRewardedAdLoading(false);
+                if (earned) {
+                  grantRewardedHint();
+                  setHintLimitReached(false);
+                  logAnalyticsEvent("rewarded_ad_hint", { page: "puzzles" });
+                }
+              }}
+              disabled={rewardedAdLoading}
+              variant="outlined"
+              fullWidth
+              startIcon={<Icon icon="mdi:play-circle" />}
+              sx={{
+                borderColor: "rgba(78,205,196,0.5)",
+                color: "#4ecdc4",
+                fontWeight: 700,
+                py: 1.2,
+                borderRadius: "12px",
+                textTransform: "none",
+                fontSize: "0.95rem",
+                mb: 1,
+                "&:hover": { borderColor: "#4ecdc4", background: "rgba(78,205,196,0.1)" },
+              }}
+            >
+              {rewardedAdLoading ? t("adLoading") : t("watchAdForHint")}
+            </Button>
+          )}
           <Button
             onClick={() => setHintLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}
@@ -856,6 +888,37 @@ export default function Puzzles() {
           >
             {t("upgradeToPremium")}
           </Button>
+          {canWatchRewardedAd() && (
+            <Button
+              onClick={async () => {
+                setRewardedAdLoading(true);
+                const earned = await showRewardedAd();
+                setRewardedAdLoading(false);
+                if (earned) {
+                  grantRewardedPuzzles(PUZZLE_LIMIT_KEY_PUBLIC);
+                  setLimitReached(false);
+                  logAnalyticsEvent("rewarded_ad_puzzles", { page: "puzzles" });
+                }
+              }}
+              disabled={rewardedAdLoading}
+              variant="outlined"
+              fullWidth
+              startIcon={<Icon icon="mdi:play-circle" />}
+              sx={{
+                borderColor: "rgba(78,205,196,0.5)",
+                color: "#4ecdc4",
+                fontWeight: 700,
+                py: 1.2,
+                borderRadius: "12px",
+                textTransform: "none",
+                fontSize: "0.95rem",
+                mb: 1,
+                "&:hover": { borderColor: "#4ecdc4", background: "rgba(78,205,196,0.1)" },
+              }}
+            >
+              {rewardedAdLoading ? t("adLoading") : t("watchAdForPuzzles")}
+            </Button>
+          )}
           <Button
             onClick={() => setLimitReached(false)}
             sx={{ color: "rgba(255,255,255,0.4)", textTransform: "none" }}

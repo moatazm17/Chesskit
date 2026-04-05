@@ -81,3 +81,55 @@ export function triggerInterstitialAd(): void {
     // ignore
   }
 }
+
+/**
+ * Show a rewarded ad. Returns a promise that resolves to true if the user
+ * earned the reward, or false if the ad failed/was unavailable.
+ */
+export function showRewardedAd(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (isPremium()) {
+      resolve(true);
+      return;
+    }
+
+    const w = window as any;
+    const hasNativeBridge =
+      w.App && typeof w.App.postMessage === "function";
+
+    if (!hasNativeBridge) {
+      resolve(false);
+      return;
+    }
+
+    let resolved = false;
+    const cleanup = () => {
+      delete w._onRewardEarned;
+      delete w._onRewardFailed;
+    };
+
+    w._onRewardEarned = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve(true);
+    };
+
+    w._onRewardFailed = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve(false);
+    };
+
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        resolve(false);
+      }
+    }, 30000);
+
+    w.App.postMessage("showRewarded");
+  });
+}

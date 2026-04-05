@@ -162,3 +162,53 @@ export function canUseHint(): boolean {
   if (!supportsIAP() || isPremium()) return true;
   return getDailyLimit(HINT_LIMIT_KEY).count < FREE_HINT_LIMIT;
 }
+
+// ── Rewarded Ad Bonuses ────────────────────────────────────────
+
+const REWARDED_AD_KEY = "chesskit_rewarded_ads";
+const MAX_REWARDED_ADS_PER_DAY = 3;
+const REWARDED_PUZZLE_BONUS = 3;
+
+function getRewardedAdsUsed(): number {
+  return getDailyLimit(REWARDED_AD_KEY).count;
+}
+
+function supportsRewardedAds(): boolean {
+  if (typeof window === "undefined") return false;
+  return (window as any)._supportsRewardedAds === true;
+}
+
+export function canWatchRewardedAd(): boolean {
+  if (!supportsRewardedAds()) return false;
+  return getRewardedAdsUsed() < MAX_REWARDED_ADS_PER_DAY;
+}
+
+export function getRemainingRewardedAds(): number {
+  return Math.max(0, MAX_REWARDED_ADS_PER_DAY - getRewardedAdsUsed());
+}
+
+function recordRewardedAdWatched(): void {
+  incrementDailyLimit(REWARDED_AD_KEY);
+}
+
+export function grantRewardedPuzzles(limitKey: string): void {
+  recordRewardedAdWatched();
+  const current = getDailyLimit(limitKey);
+  const updated = { date: getTodayKey(), count: Math.max(0, current.count - REWARDED_PUZZLE_BONUS) };
+  try {
+    localStorage.setItem(limitKey, JSON.stringify(updated));
+  } catch {}
+}
+
+export function grantRewardedHint(): void {
+  recordRewardedAdWatched();
+  const current = getDailyLimit(HINT_LIMIT_KEY);
+  const updated = { date: getTodayKey(), count: Math.max(0, current.count - 1) };
+  try {
+    localStorage.setItem(HINT_LIMIT_KEY, JSON.stringify(updated));
+  } catch {}
+}
+
+export const PUZZLE_LIMIT_KEY_PUBLIC = PUZZLE_LIMIT_KEY;
+export const CHECKMATE_LIMIT_KEY_PUBLIC = CHECKMATE_LIMIT_KEY;
+export const BRILLIANT_LIMIT_KEY_PUBLIC = BRILLIANT_LIMIT_KEY;
