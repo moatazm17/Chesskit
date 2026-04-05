@@ -11,7 +11,7 @@
   "new": "جديد",
   "comingSoon": "قريباً",
   "brilliantPuzzles": "ألغاز Brilliant",
-  "findWinningSacrifice": "لاقي التضحية الفائزة !!",
+  "findWinningSacrifice": "أوجد التضحية الفائزة !!",
   "puzzles": "ألغاز",
   "solveDailyPuzzles": "حل ألغاز يومية وحسّن مستواك",
   "checkmate": "Checkmate",
@@ -122,14 +122,14 @@
   "brilliantLimitDesc": "حليت {limit} ألغاز Brilliant النهارده. اشترك في Premium عشان ألغاز بلا حدود!",
   "checkmateLimitDesc": "حليت {limit} ألغاز Checkmate النهارده. اشترك في Premium عشان ألغاز بلا حدود!",
 
-  "findSacrifice": "لاقي التضحية اللي تكسب بيها",
+  "findSacrifice": "أوجد التضحية اللي تكسب بيها",
   "brilliantSolved": "Brilliant!!",
 
   "mateIn2": "مات في ٢",
   "mateIn3": "مات في ٣",
   "checkmatePuzzles": "ألغاز Checkmate",
   "checkmateSuccess": "Checkmate!",
-  "findMate": "لاقي {mate}!",
+  "findMate": "أوجد {mate}!",
 
   "challengeGreatest": "تحدّى أعظم لاعبي الشطرنج في التاريخ",
   "aiOpponents": "خصوم AI بأساليب لعب أسطورية",
@@ -185,7 +185,7 @@
   "lineCompleteRepeat": "الخط خلص — هيتكرر بعدين",
   "lineComplete": "الخط خلص!",
   "keyMove": "نقلة مهمة — إيه الأحسن؟",
-  "weakMoveHint": "عادة بتلعب {san} (نسبة فوز {winRate}%) — لاقي نقلة أحسن!",
+  "weakMoveHint": "عادة بتلعب {san} (نسبة فوز {winRate}%) — أوجد نقلة أحسن!",
   "exitSession": "خروج",
   "playCorrectMove": "العب النقلة الصح",
   "finishSession": "خلّص الجلسة",
@@ -396,5 +396,20 @@
   "pieceBishop": "فيل",
   "pieceRook": "طابية",
   "pieceQueen": "وزير",
-  "pieceKing": "ملك"
+  "pieceKing": "ملك",
+
+  "levelLabel": "مستوى {level}",
+  "levelBeginner": "مبتدئ",
+  "levelElementary": "أساسي",
+  "levelIntermediate": "متوسط",
+  "levelAdvanced": "متقدم",
+  "levelExpert": "خبير",
+  "levelMaster": "ماستر",
+  "levelGrandmaster": "جراند ماستر",
+  "levelProgress": "{solved}/{required} للمستوى التالي",
+  "levelUp": "!ترقية",
+  "levelUpDesc": "أهلاً بيك في مستوى {level}: {name}",
+  "levelComplete": "اكتمل المستوى",
+  "levelMax": "!وصلت لأعلى مستوى",
+  "continue": "استمر"
 }

@@ -26,6 +26,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { BOARD_COLORS } from "@/constants";
 import { pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
+import LevelProgress from "@/components/LevelProgress";
 
 export default function BrilliantPuzzles() {
   const { t } = useTranslation();
@@ -44,6 +45,10 @@ export default function BrilliantPuzzles() {
     lastMove,
     isSettingUp,
     brilliantSquare,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadPuzzle,
     makeMove,
     getHint,
@@ -403,16 +408,14 @@ export default function BrilliantPuzzles() {
               </Typography>
               <Typography sx={{ fontSize: "1.4rem" }}>!!</Typography>
             </Stack>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "rgba(255,255,255,0.5)",
-                textAlign: "center",
-                mb: 1,
-              }}
-            >
-              {t("findSacrifice")}
-            </Typography>
+            <Box sx={{ maxWidth: boardSize, width: "100%", mx: "auto" }}>
+              <LevelProgress
+                userLevel={userLevel}
+                unlockedLevels={unlockedLevels}
+                selectedLevel={selectedLevel}
+                onSelectLevel={setSelectedLevel}
+              />
+            </Box>
           </Grid>
 
           {/* Puzzle Board Section */}

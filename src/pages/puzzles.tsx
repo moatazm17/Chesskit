@@ -26,6 +26,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { BOARD_COLORS } from "@/constants";
 import { pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
+import LevelProgress from "@/components/LevelProgress";
 
 export default function Puzzles() {
   const { t } = useTranslation();
@@ -44,6 +45,10 @@ export default function Puzzles() {
     currentTurn,
     lastMove,
     isSettingUp,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadRandomPuzzle,
     loadDailyPuzzle,
     makeMove,
@@ -460,6 +465,16 @@ export default function Puzzles() {
                 {t("practice")}
               </Button>
             </Stack>
+            {mode === "practice" && (
+              <Box sx={{ maxWidth: boardSize, width: "100%", mx: "auto" }}>
+                <LevelProgress
+                  userLevel={userLevel}
+                  unlockedLevels={unlockedLevels}
+                  selectedLevel={selectedLevel}
+                  onSelectLevel={setSelectedLevel}
+                />
+              </Box>
+            )}
           </Grid>
 
           {/* Puzzle Board Section */}

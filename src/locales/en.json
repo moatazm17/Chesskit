@@ -396,5 +396,20 @@
   "pieceBishop": "bishop",
   "pieceRook": "rook",
   "pieceQueen": "queen",
-  "pieceKing": "king"
+  "pieceKing": "king",
+
+  "levelLabel": "Level {level}",
+  "levelBeginner": "Beginner",
+  "levelElementary": "Elementary",
+  "levelIntermediate": "Intermediate",
+  "levelAdvanced": "Advanced",
+  "levelExpert": "Expert",
+  "levelMaster": "Master",
+  "levelGrandmaster": "Grandmaster",
+  "levelProgress": "{solved}/{required} to next level",
+  "levelUp": "Level Up!",
+  "levelUpDesc": "Welcome to Level {level}: {name}",
+  "levelComplete": "Level Complete",
+  "levelMax": "Max Level Reached!",
+  "continue": "Continue"
 }

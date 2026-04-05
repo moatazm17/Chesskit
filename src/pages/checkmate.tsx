@@ -32,6 +32,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { BOARD_COLORS } from "@/constants";
 import { pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
+import LevelProgress from "@/components/LevelProgress";
 
 export default function CheckmatePuzzles() {
   const { t } = useTranslation();
@@ -51,6 +52,10 @@ export default function CheckmatePuzzles() {
     currentTurn,
     lastMove,
     isSettingUp,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadPuzzle,
     makeMove,
     getHint,
@@ -463,6 +468,14 @@ export default function CheckmatePuzzles() {
                 {t("mateIn3")}
               </Button>
             </Stack>
+            <Box sx={{ maxWidth: boardSize, width: "100%", mx: "auto" }}>
+              <LevelProgress
+                userLevel={userLevel}
+                unlockedLevels={unlockedLevels}
+                selectedLevel={selectedLevel}
+                onSelectLevel={setSelectedLevel}
+              />
+            </Box>
           </Grid>
 
           {/* Puzzle Board Section */}

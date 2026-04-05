@@ -3,6 +3,15 @@ import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import {
+  fetchPuzzles,
+  computeUserLevel,
+  getUnlockedLevels,
+  getRandomPuzzle as selectPuzzle,
+  findPuzzleById as findById,
+  UserLevel,
+  LevelDef,
+} from "@/lib/puzzleLoader";
 
 interface LastMove {
   from: string;
@@ -64,6 +73,9 @@ export const useBrilliantPuzzle = () => {
   const [isSettingUp, setIsSettingUp] = useState(false);
   const [fixedPlayerColor, setFixedPlayerColor] = useState<"white" | "black" | null>(null);
   const [brilliantSquare, setBrilliantSquare] = useState<string | null>(null);
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
+  const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -117,21 +129,27 @@ export const useBrilliantPuzzle = () => {
   }, []);
 
   const loadPuzzle = useCallback(async () => {
-    const { findBrilliantPuzzleById, getRandomBrilliantPuzzle } = await import("@/data/brilliantPuzzles");
+    const puzzles = await fetchPuzzles("brilliant");
+    const level = computeUserLevel(stats.solvedIds, puzzles);
+    setUserLevel(level);
+    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+
+    const activeLevelDef = selectedLevel || level.levelDef;
+
     const savedPuzzleId = loadCurrentPuzzleId();
     if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
-      const savedPuzzle = findBrilliantPuzzleById(savedPuzzleId);
+      const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle);
         return;
       }
     }
 
-    const newPuzzle = getRandomBrilliantPuzzle(stats.solvedIds);
+    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-  }, [stats.solvedIds, setupPuzzleOnBoard]);
+  }, [stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
 
   const makeMove = useCallback(
     (from: string, to: string, promotion?: string) => {
@@ -320,6 +338,10 @@ export const useBrilliantPuzzle = () => {
     lastMove,
     isSettingUp,
     brilliantSquare,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadPuzzle,
     makeMove,
     getHint,

@@ -47,10 +47,15 @@ export default function Layout({ children }: PropsWithChildren) {
           .MuiAlert-root, .MuiSnackbarContent-root,
           .MuiCardContent-root, .MuiListItemText-root {
             direction: rtl;
-            text-align: right;
           }
           .MuiDialogContent-root {
             direction: rtl;
+          }
+          .MuiListItemText-root,
+          .MuiMenuItem-root,
+          .MuiInputBase-root,
+          .MuiAlert-root {
+            text-align: right;
           }
         `}</style>
       )}

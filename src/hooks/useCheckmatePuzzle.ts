@@ -3,6 +3,16 @@ import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import {
+  fetchPuzzles,
+  computeUserLevel,
+  getUnlockedLevels,
+  getRandomPuzzle as selectPuzzle,
+  findPuzzleById as findById,
+  UserLevel,
+  LevelDef,
+  PuzzleType,
+} from "@/lib/puzzleLoader";
 
 interface LastMove {
   from: string;
@@ -85,10 +95,9 @@ const clearCurrentPuzzleId = (mateType: MateType) => {
   } catch { /* ignore */ }
 };
 
-const findPuzzleById = async (mateType: MateType, id: string): Promise<Puzzle | null> => {
-  const { MATE_IN_2_PUZZLES, MATE_IN_3_PUZZLES } = await import("@/data/checkmatePuzzles");
-  const puzzles = mateType === "mateIn2" ? MATE_IN_2_PUZZLES : MATE_IN_3_PUZZLES;
-  return puzzles.find((p) => p.id === id) || null;
+const MATE_TYPE_TO_PUZZLE: Record<MateType, PuzzleType> = {
+  mateIn2: "checkmate2",
+  mateIn3: "checkmate3",
 };
 
 export const useCheckmatePuzzle = (mateType: MateType) => {
@@ -101,6 +110,9 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const [isSettingUp, setIsSettingUp] = useState(false);
   const [fixedPlayerColor, setFixedPlayerColor] = useState<"white" | "black" | null>(null);
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
+  const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const stats = allStats[mateType];
@@ -165,23 +177,27 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
   }, [mateType]);
 
   const loadPuzzle = useCallback(async () => {
+    const puzzles = await fetchPuzzles(MATE_TYPE_TO_PUZZLE[mateType]);
+    const level = computeUserLevel(stats.solvedIds, puzzles);
+    setUserLevel(level);
+    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+
+    const activeLevelDef = selectedLevel || level.levelDef;
+
     const savedPuzzleId = loadCurrentPuzzleId(mateType);
     if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
-      const savedPuzzle = await findPuzzleById(mateType, savedPuzzleId);
+      const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle);
         return;
       }
     }
 
-    const { getRandomMateIn2, getRandomMateIn3 } = await import("@/data/checkmatePuzzles");
-    const newPuzzle = mateType === "mateIn2"
-      ? getRandomMateIn2(stats.solvedIds)
-      : getRandomMateIn3(stats.solvedIds);
+    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle);
     }
-  }, [mateType, stats.solvedIds, setupPuzzleOnBoard]);
+  }, [mateType, stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
 
   // Make a move
   const makeMove = useCallback(
@@ -370,6 +386,10 @@ export const useCheckmatePuzzle = (mateType: MateType) => {
     currentTurn,
     lastMove,
     isSettingUp,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadPuzzle,
     makeMove,
     getHint,

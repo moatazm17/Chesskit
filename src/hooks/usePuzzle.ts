@@ -3,6 +3,16 @@ import { Puzzle, PuzzleState, PuzzleStats } from "@/types/puzzle";
 import { Chess } from "chess.js";
 import { playSoundFromMove, playIllegalMoveSound } from "@/lib/sounds";
 import { logAnalyticsEvent } from "@/lib/firebase";
+import {
+  fetchPuzzles,
+  computeUserLevel,
+  getUnlockedLevels,
+  getRandomPuzzle as selectPuzzle,
+  getDailyPuzzle as selectDaily,
+  findPuzzleById as findById,
+  UserLevel,
+  LevelDef,
+} from "@/lib/puzzleLoader";
 
 interface LastMove {
   from: string;
@@ -54,11 +64,6 @@ const clearCurrentPuzzleId = () => {
   localStorage.removeItem(CURRENT_PUZZLE_KEY);
 };
 
-const findPuzzleById = async (id: string): Promise<Puzzle | null> => {
-  const { PUZZLES } = await import("@/data/puzzles");
-  return PUZZLES.find((p) => p.id === id) || null;
-};
-
 export const usePuzzle = () => {
   const [stats, setStats] = useState<PuzzleStats>(DEFAULT_STATS);
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
@@ -70,6 +75,9 @@ export const usePuzzle = () => {
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const [isSettingUp, setIsSettingUp] = useState(false);
   const [fixedPlayerColor, setFixedPlayerColor] = useState<"white" | "black" | null>(null);
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null);
+  const [unlockedLevels, setUnlockedLevels] = useState<LevelDef[]>([]);
+  const [selectedLevel, setSelectedLevel] = useState<LevelDef | null>(null);
   const setupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load stats on mount
@@ -148,27 +156,37 @@ export const usePuzzle = () => {
   }, []);
 
   const loadRandomPuzzle = useCallback(async () => {
+    const puzzles = await fetchPuzzles("regular");
+
+    const level = computeUserLevel(stats.solvedIds, puzzles);
+    setUserLevel(level);
+    setUnlockedLevels(getUnlockedLevels(stats.solvedIds, puzzles));
+
+    const activeLevelDef = selectedLevel || level.levelDef;
+
     const savedPuzzleId = loadCurrentPuzzleId();
     if (savedPuzzleId && !stats.solvedIds.includes(savedPuzzleId)) {
-      const savedPuzzle = await findPuzzleById(savedPuzzleId);
+      const savedPuzzle = findById(puzzles, savedPuzzleId);
       if (savedPuzzle) {
         setupPuzzleOnBoard(savedPuzzle, false);
         return;
       }
     }
 
-    const { getRandomPuzzle } = await import("@/data/puzzles");
-    const newPuzzle = getRandomPuzzle(stats.solvedIds);
+    const newPuzzle = selectPuzzle(puzzles, stats.solvedIds, activeLevelDef);
     if (newPuzzle) {
       setupPuzzleOnBoard(newPuzzle, false);
     }
-  }, [stats.solvedIds, setupPuzzleOnBoard]);
+  }, [stats.solvedIds, setupPuzzleOnBoard, selectedLevel]);
 
   const loadDailyPuzzle = useCallback(async () => {
-    const { getDailyPuzzle } = await import("@/data/puzzles");
-    const dailyPuzzle = getDailyPuzzle();
+    const puzzles = await fetchPuzzles("regular");
+    const dailyPuzzle = selectDaily(puzzles);
     setupPuzzleOnBoard(dailyPuzzle, true);
-  }, [setupPuzzleOnBoard]);
+
+    const level = computeUserLevel(stats.solvedIds, puzzles);
+    setUserLevel(level);
+  }, [stats.solvedIds, setupPuzzleOnBoard]);
 
   // Make a move
   const makeMove = useCallback(
@@ -371,10 +389,14 @@ export const usePuzzle = () => {
     stats,
     showHint,
     isDaily,
-    playerColor: fixedPlayerColor, // Fixed orientation - doesn't change during puzzle
-    currentTurn, // Whose turn it is right now
+    playerColor: fixedPlayerColor,
+    currentTurn,
     lastMove,
     isSettingUp,
+    userLevel,
+    unlockedLevels,
+    selectedLevel,
+    setSelectedLevel,
     loadRandomPuzzle,
     loadDailyPuzzle,
     makeMove,
