@@ -12,6 +12,8 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { triggerInterstitialAd } from "@/lib/ads";
+import { isPremium } from "@/lib/premium";
 
 interface PromoCardData {
   title: string;
@@ -332,6 +334,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#26C6DA"
               onClick={() => (window.location.href = "/stats")}
               badge="HOT"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <HomeCard
+              title={t("fairPlay")}
+              description={t("fairPlayDesc")}
+              icon="mdi:shield-search"
+              color="#FF9800"
+              onClick={() => {
+                if (!isPremium()) triggerInterstitialAd();
+                window.location.href = "/fair-play";
+              }}
+              badge={t("new")}
             />
           </Grid>
 

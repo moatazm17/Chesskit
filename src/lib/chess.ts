@@ -18,6 +18,22 @@ export const getEvaluateGameParams = (game: Chess): EvaluateGameParams => {
   return { fens, uciMoves };
 };
 
+/**
+ * Extract per-half-move remaining clock times (in seconds) from PGN %clk annotations.
+ * Chess.com PGNs include {[%clk H:MM:SS]} after each move.
+ * Returns null if no clock data is found.
+ */
+export function extractClockTimes(pgn: string): number[] | null {
+  const matches = pgn.match(/\[%clk\s+(\d+):(\d+):(\d+(?:\.\d+)?)\]/g);
+  if (!matches || matches.length < 4) return null;
+
+  return matches.map((m) => {
+    const parts = m.match(/(\d+):(\d+):(\d+(?:\.\d+)?)/);
+    if (!parts) return 0;
+    return parseInt(parts[1]) * 3600 + parseInt(parts[2]) * 60 + parseFloat(parts[3]);
+  });
+}
+
 const MAX_PGN_LENGTH = 50_000; // ~500 moves is extremely long
 
 export const getGameFromPgn = (pgn: string): Chess => {

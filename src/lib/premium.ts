@@ -209,6 +209,32 @@ export function grantRewardedHint(): void {
   } catch {}
 }
 
+const FAIRPLAY_LIMIT_KEY = "chesskit_fairplay_limit";
+export const FREE_FAIRPLAY_LIMIT = 3;
+
+export function getFairPlayCount(): number {
+  return getDailyLimit(FAIRPLAY_LIMIT_KEY).count;
+}
+
+export function incrementFairPlayCount(): number {
+  return incrementDailyLimit(FAIRPLAY_LIMIT_KEY).count;
+}
+
+export function canAnalyzeFairPlay(): boolean {
+  if (!supportsIAP() || isPremium()) return true;
+  return getDailyLimit(FAIRPLAY_LIMIT_KEY).count < FREE_FAIRPLAY_LIMIT;
+}
+
+export function grantRewardedFairPlay(): void {
+  recordRewardedAdWatched();
+  const current = getDailyLimit(FAIRPLAY_LIMIT_KEY);
+  const updated = { date: getTodayKey(), count: Math.max(0, current.count - 1) };
+  try {
+    localStorage.setItem(FAIRPLAY_LIMIT_KEY, JSON.stringify(updated));
+  } catch {}
+}
+
 export const PUZZLE_LIMIT_KEY_PUBLIC = PUZZLE_LIMIT_KEY;
 export const CHECKMATE_LIMIT_KEY_PUBLIC = CHECKMATE_LIMIT_KEY;
 export const BRILLIANT_LIMIT_KEY_PUBLIC = BRILLIANT_LIMIT_KEY;
+export const FAIRPLAY_LIMIT_KEY_PUBLIC = FAIRPLAY_LIMIT_KEY;

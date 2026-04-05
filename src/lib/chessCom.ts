@@ -130,7 +130,7 @@ export const getChessComPlayerAllGames = async (
     .sort((a, b) => b.end_time - a.end_time);
 };
 
-const formatChessComGame = (data: ChessComGame): LoadedGame => {
+export const formatChessComGame = (data: ChessComGame): LoadedGame => {
   const result = data.pgn.match(/\[Result "(.*?)"]/)?.[1];
   const movesNb = data.pgn.match(/\d+?\. /g)?.length;
 
