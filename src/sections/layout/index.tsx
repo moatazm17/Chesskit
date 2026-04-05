@@ -43,11 +43,14 @@ export default function Layout({ children }: PropsWithChildren) {
         <style>{`
           .MuiTypography-root, .MuiTab-root,
           .MuiMenuItem-root, .MuiInputBase-root, .MuiFormLabel-root,
-          .MuiDialogTitle-root, .MuiDialogContent-root,
+          .MuiDialogTitle-root,
           .MuiAlert-root, .MuiSnackbarContent-root,
           .MuiCardContent-root, .MuiListItemText-root {
             direction: rtl;
             text-align: right;
+          }
+          .MuiDialogContent-root {
+            direction: rtl;
           }
         `}</style>
       )}
