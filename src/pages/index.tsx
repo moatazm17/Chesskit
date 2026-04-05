@@ -70,7 +70,7 @@ export default function GameAnalysis() {
   const handlePlayGame = async () => {
     logAnalyticsEvent("card_click", { card: "play_game" });
     await showInterstitialAd();
-    window.location.href = '/play';
+    router.push('/play');
   };
 
   const handleLoadGame = () => {
@@ -81,7 +81,7 @@ export default function GameAnalysis() {
 
   const handleSavedGames = () => {
     logAnalyticsEvent("card_click", { card: "saved_games" });
-    window.location.href = '/database';
+    router.push('/database');
   };
 
   const handlePuzzles = async () => {

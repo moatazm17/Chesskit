@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { PageTitle } from "@/components/pageTitle";
 import Board from "@/sections/play/board";
 import GameInProgress from "@/sections/play/gameInProgress";
@@ -9,13 +10,14 @@ import { useAtomValue } from "jotai";
 import PremiumNavBar from "@/components/PremiumNavBar";
 
 export default function Play() {
+  const router = useRouter();
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => window.location.href = '/'} />
+      <PremiumNavBar onHomeClick={() => router.push('/')} />
       <Box
         sx={{
           minHeight: 'calc(100vh - 64px)',

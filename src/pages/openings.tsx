@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Button,
@@ -232,6 +233,7 @@ function MoveNotation({
 // ── Main Page ───────────────────────────────────────────────────────────────
 
 export default function OpeningTrainer() {
+  const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -239,7 +241,7 @@ export default function OpeningTrainer() {
 
   useEffect(() => {
     const isLocal = typeof window !== "undefined" && window.location.hostname === "localhost";
-    if (!isLocal) window.location.href = "/";
+    if (!isLocal) router.push("/");
   }, []);
 
   const [pageState, setPageState] = useState<PageState>("input");
@@ -819,7 +821,7 @@ export default function OpeningTrainer() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <PageTitle title={t("openingTrainer")} />
       <Box
         sx={{

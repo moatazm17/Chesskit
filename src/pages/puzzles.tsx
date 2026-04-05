@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useTranslation } from "@/lib/i18n";
 import { triggerInterstitialAd, showRewardedAd } from "@/lib/ads";
 import { canPlayPuzzle, incrementPuzzleCount, FREE_PUZZLE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT, canWatchRewardedAd, grantRewardedPuzzles, grantRewardedHint, PUZZLE_LIMIT_KEY_PUBLIC } from "@/lib/premium";
@@ -30,6 +31,7 @@ import { useAtomValue } from "jotai";
 import LevelProgress from "@/components/LevelProgress";
 
 export default function Puzzles() {
+  const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
@@ -389,7 +391,7 @@ export default function Puzzles() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <Box
         sx={{
           minHeight: "calc(100vh - 64px)",

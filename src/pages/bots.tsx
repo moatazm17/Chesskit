@@ -102,7 +102,7 @@ export default function BotsPage() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <PageTitle title={t("playVsLegends")} />
       <Box
         sx={{

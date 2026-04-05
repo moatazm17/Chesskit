@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Typography,
@@ -32,6 +33,7 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function StatsPage() {
+  const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -173,7 +175,7 @@ export default function StatsPage() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <Box
         sx={{
           minHeight: "calc(100vh - 64px)",

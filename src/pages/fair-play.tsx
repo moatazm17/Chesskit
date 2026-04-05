@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   Typography,
@@ -149,6 +150,7 @@ function SuspicionBar({ label, desc, value, expectedLabel, actualLabel }: {
 type Phase = "idle" | "pickGame" | "analyzingSingle" | "singleDone" | "analyzingDeep" | "deepDone";
 
 export default function FairPlayPage() {
+  const router = useRouter();
   const { t, dir } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -490,7 +492,7 @@ export default function FairPlayPage() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <Box
         dir={dir}
         sx={{

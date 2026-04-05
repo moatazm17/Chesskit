@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useTranslation } from "@/lib/i18n";
 import {
   Box,
@@ -174,6 +175,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenings,
   onLanguageSwitched,
 }) => {
+  const router = useRouter();
   const { t, locale, setLocale } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -332,7 +334,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description={t("analyzeStats")}
               icon="mdi:chart-areaspline"
               color="#26C6DA"
-              onClick={() => (window.location.href = "/stats")}
+              onClick={() => router.push("/stats")}
               badge="HOT"
             />
           </Grid>
@@ -345,7 +347,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               color="#FF9800"
               onClick={() => {
                 if (!isPremium()) triggerInterstitialAd();
-                window.location.href = "/fair-play";
+                router.push("/fair-play");
               }}
               badge={t("new")}
             />
@@ -358,7 +360,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 description={t("findFixWeaknesses")}
                 icon="mdi:chess-knight"
                 color="#3B9AC6"
-                onClick={onOpenings || (() => (window.location.href = "/openings"))}
+                onClick={onOpenings || (() => router.push("/openings"))}
                 badge={t("new")}
               />
             </Grid>
@@ -370,7 +372,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description={t("findWinningSacrifice")}
               icon="mdi:star-four-points"
               color="#26C6DA"
-              onClick={onBrilliant || (() => (window.location.href = "/brilliant"))}
+              onClick={onBrilliant || (() => router.push("/brilliant"))}
               badge={t("new")}
               customIcon={
                 <Box
@@ -414,7 +416,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description={t("solveDailyPuzzles")}
               icon="mdi:puzzle"
               color="#FFA726"
-              onClick={onPuzzles || (() => (window.location.href = "/puzzles"))}
+              onClick={onPuzzles || (() => router.push("/puzzles"))}
               badge={t("new")}
             />
           </Grid>
@@ -425,7 +427,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description={t("mateIn2And3")}
               icon="mdi:crown"
               color="#EC407A"
-              onClick={onCheckmate || (() => (window.location.href = "/checkmate"))}
+              onClick={onCheckmate || (() => router.push("/checkmate"))}
               badge={t("new")}
             />
           </Grid>
@@ -436,7 +438,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               description={t("challengeFamous")}
               icon="mdi:account-star"
               color="#9333EA"
-              onClick={onBots || (() => (window.location.href = "/bots"))}
+              onClick={onBots || (() => router.push("/bots"))}
               badge={t("new")}
               customIcon={
                 <Box

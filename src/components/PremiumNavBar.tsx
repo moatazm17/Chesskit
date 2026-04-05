@@ -38,24 +38,41 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   const [showPremiumButton, setShowPremiumButton] = useState(false);
 
   useEffect(() => {
-    const premium = isPremium();
-    setUserIsPremium(premium);
-    setShowPremiumButton(shouldGateFeature() || premium);
+    let paywallTriggered = false;
 
-    if (!premium && shouldGateFeature()) {
-      const key = "chesskit_paywall_sessions";
-      const countStr = localStorage.getItem(key);
-      const count = countStr ? parseInt(countStr, 10) : 0;
-      localStorage.setItem(key, String(count + 1));
+    const checkPremiumState = () => {
+      const premium = isPremium();
+      const gated = shouldGateFeature();
+      setUserIsPremium(premium);
+      setShowPremiumButton(gated || premium);
 
-      const justOnboarded = !localStorage.getItem("chesskit_paywall_shown");
-      const isRecurring = count > 0 && count % 3 === 0;
+      if (!paywallTriggered && !premium && gated) {
+        paywallTriggered = true;
+        const key = "chesskit_paywall_sessions";
+        const countStr = localStorage.getItem(key);
+        const count = countStr ? parseInt(countStr, 10) : 0;
+        localStorage.setItem(key, String(count + 1));
 
-      if (justOnboarded || isRecurring) {
-        localStorage.setItem("chesskit_paywall_shown", "1");
-        setTimeout(() => setPremiumModalOpen(true), justOnboarded ? 1500 : 3000);
+        const justOnboarded = !localStorage.getItem("chesskit_paywall_shown");
+        const isRecurring = count > 0 && count % 3 === 0;
+
+        if (justOnboarded || isRecurring) {
+          localStorage.setItem("chesskit_paywall_shown", "1");
+          setTimeout(() => setPremiumModalOpen(true), justOnboarded ? 1500 : 3000);
+        }
       }
-    }
+    };
+
+    checkPremiumState();
+
+    // Retry: native bridge may set _supportsIAP after initial mount
+    const interval = setInterval(checkPremiumState, 1000);
+    const timeout = setTimeout(() => clearInterval(interval), 5000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, []);
 
   const MenuOptions = [
@@ -128,11 +145,11 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
               backgroundClip: "text",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              fontSize: isMobile ? "1.1rem" : "1.5rem",
+              fontSize: isMobile ? "1.15rem" : "1.5rem",
               whiteSpace: "nowrap",
             }}
           >
-            {isMobile ? "♟️" : t("chessAnalysisTitle")}
+            {t("chessAnalysisTitle")}
           </Typography>
         </Box>
 

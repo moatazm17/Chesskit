@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { triggerInterstitialAd, showRewardedAd } from "@/lib/ads";
 import { canPlayCheckmate, incrementCheckmateCount, FREE_CHECKMATE_LIMIT, shouldGateFeature, canUseHint, incrementHintCount, FREE_HINT_LIMIT, canWatchRewardedAd, grantRewardedPuzzles, grantRewardedHint, CHECKMATE_LIMIT_KEY_PUBLIC } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
@@ -36,6 +37,7 @@ import { useAtomValue } from "jotai";
 import LevelProgress from "@/components/LevelProgress";
 
 export default function CheckmatePuzzles() {
+  const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
@@ -392,7 +394,7 @@ export default function CheckmatePuzzles() {
 
   return (
     <>
-      <PremiumNavBar onHomeClick={() => (window.location.href = "/")} />
+      <PremiumNavBar onHomeClick={() => router.push("/")} />
       <Box
         sx={{
           minHeight: "calc(100vh - 64px)",
