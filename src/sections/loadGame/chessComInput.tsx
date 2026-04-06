@@ -11,6 +11,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
+import { InputAdornment } from "@mui/material";
 import { useMemo, useState } from "react";
 import { GameItem } from "./gameItem";
 import { useTranslation } from "@/lib/i18n";
@@ -27,6 +28,7 @@ export default function ChessComInput({ onSelect }: Props) {
   );
   const [chessComUsername, setChessComUsername] = useState("");
   const [hasEdited, setHasEdited] = useState(false);
+  const [gameFilter, setGameFilter] = useState("");
 
   const storedValues = useMemo(() => {
     if (typeof rawStoredValue === "string") {
@@ -173,30 +175,66 @@ export default function ChessComInput({ onSelect }: Props) {
               {t("noGamesFoundCheck")}
             </span>
           ) : (
-            <List sx={{ width: "100%" }}>
-              {games.map((game) => {
-                const perspectiveUserColor =
-                  game.white.name.toLowerCase() ===
-                  debouncedUsername.toLowerCase()
-                    ? "white"
-                    : "black";
+            <>
+              <TextField
+                placeholder={t("searchOpponent") || "Search opponent..."}
+                value={gameFilter}
+                onChange={(e) => setGameFilter(e.target.value)}
+                size="small"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Icon icon="mdi:magnify" style={{ color: "rgba(255,255,255,0.4)", fontSize: 18 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  mb: 1,
+                  "& .MuiOutlinedInput-root": {
+                    color: "white",
+                    fontSize: "0.85rem",
+                    borderRadius: "10px",
+                    "& fieldset": { borderColor: "rgba(255,255,255,0.15)" },
+                    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.3)" },
+                    "&.Mui-focused fieldset": { borderColor: "#4ecdc4" },
+                  },
+                }}
+              />
+              <List sx={{ width: "100%", maxHeight: 400, overflowY: "auto", scrollbarWidth: "thin" }}>
+                {games
+                  .filter((game) => {
+                    if (!gameFilter.trim()) return true;
+                    const myLower = debouncedUsername.toLowerCase();
+                    const isWhite = game.white.name.toLowerCase() === myLower;
+                    const opponentName = isWhite ? game.black.name : game.white.name;
+                    return opponentName.toLowerCase().includes(gameFilter.trim().toLowerCase());
+                  })
+                  .map((game) => {
+                    const perspectiveUserColor =
+                      game.white.name.toLowerCase() ===
+                      debouncedUsername.toLowerCase()
+                        ? "white"
+                        : "black";
 
-                return (
-                  <GameItem
-                    key={game.id}
-                    game={game}
-                    perspectiveUserColor={perspectiveUserColor}
-                    onClick={() => {
-                      const boardOrientation =
-                        debouncedUsername.toLowerCase() !==
-                        game.black?.name?.toLowerCase();
-                      onSelect(game.pgn, boardOrientation);
-                      updateHistory(debouncedUsername);
-                    }}
-                  />
-                );
-              })}
-            </List>
+                    return (
+                      <GameItem
+                        key={game.id}
+                        game={game}
+                        perspectiveUserColor={perspectiveUserColor}
+                        searchUsername={debouncedUsername}
+                        onClick={() => {
+                          const boardOrientation =
+                            debouncedUsername.toLowerCase() !==
+                            game.black?.name?.toLowerCase();
+                          onSelect(game.pgn, boardOrientation);
+                          updateHistory(debouncedUsername);
+                        }}
+                      />
+                    );
+                  })}
+              </List>
+            </>
           )}
         </Grid>
       )}

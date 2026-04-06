@@ -4,7 +4,6 @@ import {
   ListItemText,
   Typography,
   Box,
-  useTheme,
 } from "@mui/material";
 import { LoadedGame } from "@/types/game";
 import TimeControlChip from "./timeControlChip";
@@ -16,31 +15,34 @@ interface Props {
   game: LoadedGame;
   onClick: () => void;
   perspectiveUserColor: "white" | "black";
+  searchUsername?: string;
 }
 
 export const GameItem: React.FC<Props> = ({
   game,
   onClick,
   perspectiveUserColor,
+  searchUsername,
 }) => {
-  const theme = useTheme();
   const { white, black, result, timeControl, date, movesNb } = game;
 
-  const whiteWon = result === "1-0";
-  const blackWon = result === "0-1";
+  const isUserWhite = perspectiveUserColor === "white";
+  const user = isUserWhite ? white : black;
+  const opponent = isUserWhite ? black : white;
 
   return (
     <ListItem
       alignItems="flex-start"
       sx={{
-        borderRadius: 2,
-        mb: 1.5,
-        transition: "all 0.2s ease-in-out",
+        borderRadius: "10px",
+        mb: 1,
+        py: 1.2,
+        px: 1.5,
+        transition: "all 0.15s ease",
         "&:hover": {
-          backgroundColor: theme.palette.action.hover,
-          boxShadow: theme.shadows[3],
+          backgroundColor: "rgba(255,255,255,0.06)",
         },
-        border: `1px solid ${theme.palette.divider}`,
+        border: "1px solid rgba(255,255,255,0.08)",
         cursor: "pointer",
       }}
       onClick={onClick}
@@ -52,62 +54,98 @@ export const GameItem: React.FC<Props> = ({
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: { xs: 1, sm: 1.5 },
-              mb: 1,
+              gap: 0.75,
+              mb: 0.5,
+              flexWrap: "nowrap",
+              overflow: "hidden",
             }}
           >
             <Typography
-              variant="subtitle1"
               component="span"
               noWrap
               sx={{
-                fontWeight: "700",
-                color: whiteWon
-                  ? theme.palette.success.main
-                  : theme.palette.text.primary,
-                opacity: whiteWon ? 1 : blackWon ? 0.7 : 0.8,
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                color: "#4ecdc4",
+                maxWidth: { xs: "110px", sm: "160px" },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                flexShrink: 1,
               }}
             >
-              {formatPlayerName(white)} ({white.rating})
+              {formatPlayerName(user)}
             </Typography>
 
+            {user.rating && (
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: "0.75rem",
+                  color: "rgba(255,255,255,0.45)",
+                  fontWeight: 500,
+                  flexShrink: 0,
+                }}
+              >
+                ({user.rating})
+              </Typography>
+            )}
+
             <Typography
-              variant="body2"
               component="span"
               sx={{
-                color: theme.palette.text.secondary,
-                fontWeight: "500",
+                fontSize: "0.75rem",
+                color: "rgba(255,255,255,0.3)",
+                fontWeight: 500,
+                mx: 0.25,
+                flexShrink: 0,
               }}
             >
               vs
             </Typography>
 
             <Typography
-              variant="subtitle1"
               component="span"
               noWrap
               sx={{
-                fontWeight: "700",
-                color: blackWon
-                  ? theme.palette.success.main
-                  : theme.palette.text.primary,
-                opacity: blackWon ? 1 : whiteWon ? 0.7 : 0.8,
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                color: "rgba(255,255,255,0.85)",
+                maxWidth: { xs: "110px", sm: "160px" },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                flexShrink: 1,
               }}
             >
-              {formatPlayerName(black)} ({black.rating})
+              {formatPlayerName(opponent)}
             </Typography>
 
-            <GameResultChip
-              result={result}
-              perspectiveUserColor={perspectiveUserColor}
-            />
+            {opponent.rating && (
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: "0.75rem",
+                  color: "rgba(255,255,255,0.45)",
+                  fontWeight: 500,
+                  flexShrink: 0,
+                }}
+              >
+                ({opponent.rating})
+              </Typography>
+            )}
+
+            <Box sx={{ marginInlineStart: "auto", flexShrink: 0 }}>
+              <GameResultChip
+                result={result}
+                perspectiveUserColor={perspectiveUserColor}
+              />
+            </Box>
           </Box>
         }
         secondary={
           <Box
             sx={{
               display: "flex",
-              gap: 1,
+              gap: 0.75,
               alignItems: "center",
             }}
           >

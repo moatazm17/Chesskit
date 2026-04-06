@@ -279,6 +279,7 @@
   "uploadPgnFile": "Upload PGN File",
   "userNotFoundCheck": "User not found. Please check your username.",
   "noGamesFoundCheck": "No games found. Please check your username.",
+  "searchOpponent": "Search opponent...",
   "gameCompleted": "Game Completed",
   "ratingTitle": "Rating",
   "next": "Next",

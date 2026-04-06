@@ -14,6 +14,11 @@ export default function DateChip({ date }: Props) {
         icon={<Icon icon="material-symbols:calendar-today" />}
         label={date}
         size="small"
+        sx={{
+          fontSize: "0.72rem",
+          height: "24px",
+          "& .MuiChip-icon": { fontSize: "14px", marginInlineEnd: "-3px" },
+        }}
       />
     </Tooltip>
   );

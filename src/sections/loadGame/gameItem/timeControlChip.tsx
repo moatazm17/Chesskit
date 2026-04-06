@@ -14,6 +14,11 @@ export default function TimeControlChip({ timeControl }: Props) {
         icon={<Icon icon="material-symbols:timer-outline" />}
         label={timeControl}
         size="small"
+        sx={{
+          fontSize: "0.72rem",
+          height: "24px",
+          "& .MuiChip-icon": { fontSize: "14px", marginInlineEnd: "-3px" },
+        }}
       />
     </Tooltip>
   );

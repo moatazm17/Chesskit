@@ -14,6 +14,11 @@ export default function MovesNbChip({ movesNb }: Props) {
         icon={<Icon icon="heroicons:hashtag-20-solid" />}
         label={`${Math.ceil(movesNb / 2)} moves`}
         size="small"
+        sx={{
+          fontSize: "0.72rem",
+          height: "24px",
+          "& .MuiChip-icon": { fontSize: "14px", marginInlineEnd: "-3px" },
+        }}
       />
     </Tooltip>
   );
