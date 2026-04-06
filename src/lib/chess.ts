@@ -207,8 +207,14 @@ export const isSimplePieceRecapture = (
 
   if (moves[0].to !== moves[1].to) return false;
 
-  const piece = game.get(moves[0].to);
-  if (piece) return true;
+  if (game.get(moves[0].to)) return true;
+
+  try {
+    game.move(moves[0]);
+    if (game.get(moves[0].to)) return true;
+  } catch {
+    return false;
+  }
 
   return false;
 };

@@ -235,19 +235,17 @@ const isSplendidMove = (
 
   if (winPercentageDiff < -3) return false;
 
-  const minSacrifice = !playerRating || playerRating < 1200 ? 1
-    : playerRating < 1800 ? 2
-    : 3;
+  const minSacrifice = !playerRating || playerRating < 1800 ? 2 : 3;
 
   const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
   if (sacrificeValue < minSacrifice) return false;
 
-  const playerWinPercent = isWhiteMove
-    ? positionWinPercentage
-    : 100 - positionWinPercentage;
+  const playerWinBeforeMove = isWhiteMove
+    ? lastPositionWinPercentage
+    : 100 - lastPositionWinPercentage;
 
-  // Don't award in completely winning positions (not competitive)
-  if (playerWinPercent > 90) return false;
+  // Don't award in already winning positions (not competitive)
+  if (playerWinBeforeMove > 90) return false;
 
   const pieceCount = getPieceCount(fen);
   const isEndgame = pieceCount < 10;
