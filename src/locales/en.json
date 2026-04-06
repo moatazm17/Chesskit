@@ -331,7 +331,7 @@
   "explWasStronger": "{move} was stronger",
   "explWouldMaintain": "{move} would have maintained the advantage",
   "explConsider": "Consider {move} instead",
-  "explDeepSacrifice": "A deep move that sacrifices material for a winning attack",
+  "explDeepSacrifice": "A deep sacrifice that gives a decisive advantage",
   "explRequiredCalc": "Finding this move required deep calculation",
   "explAllOthersWorse": "All other moves were significantly worse",
   "explSlightlyBetter": "{move} was slightly better",
