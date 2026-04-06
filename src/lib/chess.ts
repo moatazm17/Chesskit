@@ -227,31 +227,60 @@ export const getIsPieceSacrifice = (
 
   const game = new Chess(fen);
   const whiteToPlay = game.turn() === "w";
+  const playerColor = whiteToPlay ? "w" : "b";
   const startingMaterialDifference = getMaterialDifference(fen);
 
-  let moves = [playedMove, ...bestLinePvToPlay];
-  if (moves.length % 2 === 1) {
-    moves = moves.slice(0, -1);
+  let playedMoveResult;
+  try {
+    playedMoveResult = game.move(uciMoveParams(playedMove));
+  } catch {
+    return 0;
   }
-  let nonCapturingMovesTemp = 1;
+
+  const movedToSquare = playedMoveResult.to;
+  const movedPieceValue = getPieceValue(playedMoveResult.piece);
+  const capturedByMove = playedMoveResult.captured
+    ? getPieceValue(playedMoveResult.captured)
+    : 0;
+
+  let movedPieceCaptured = false;
+  let pieceStillOnSquare = true;
+  let consecutiveQuietMoves = 0;
 
   const capturedPieces: { w: PieceSymbol[]; b: PieceSymbol[] } = {
     w: [],
     b: [],
   };
-  for (const move of moves) {
+
+  if (playedMoveResult.captured) {
+    capturedPieces[playerColor].push(playedMoveResult.captured);
+  }
+
+  for (const move of bestLinePvToPlay) {
     try {
       const fullMove = game.move(uciMoveParams(move));
+
+      if (fullMove.from === movedToSquare && fullMove.color === playerColor) {
+        pieceStillOnSquare = false;
+      }
+
       if (fullMove.captured) {
         capturedPieces[fullMove.color].push(fullMove.captured);
-        nonCapturingMovesTemp = 1;
+        consecutiveQuietMoves = 0;
+
+        if (
+          fullMove.to === movedToSquare &&
+          fullMove.color !== playerColor &&
+          pieceStillOnSquare
+        ) {
+          movedPieceCaptured = true;
+        }
       } else {
-        nonCapturingMovesTemp--;
-        if (nonCapturingMovesTemp < 0) break;
+        consecutiveQuietMoves++;
+        if (consecutiveQuietMoves >= 2) break;
       }
-    } catch (e) {
-      console.error(e);
-      return 0;
+    } catch {
+      break;
     }
   }
 
@@ -270,11 +299,16 @@ export const getIsPieceSacrifice = (
   }
 
   const endingMaterialDifference = getMaterialDifference(game.fen());
-
   const materialDiff = endingMaterialDifference - startingMaterialDifference;
   const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
+  const netSacrifice = materialDiffPlayerRelative < 0 ? -materialDiffPlayerRelative : 0;
 
-  return materialDiffPlayerRelative < 0 ? -materialDiffPlayerRelative : 0;
+  const tempSacrifice =
+    movedPieceCaptured && capturedByMove < movedPieceValue
+      ? movedPieceValue - capturedByMove
+      : 0;
+
+  return Math.max(netSacrifice, tempSacrifice);
 };
 
 /**
