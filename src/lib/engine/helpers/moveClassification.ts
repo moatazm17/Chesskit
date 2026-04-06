@@ -9,6 +9,7 @@ import {
   getIsPieceSacrifice,
   getPieceCount,
   isSimplePieceRecapture,
+  isCheck,
 } from "@/lib/chess";
 
 export const getMovesClassification = (
@@ -61,6 +62,10 @@ export const getMovesClassification = (
       ? playersRatings?.white
       : playersRatings?.black;
 
+    const fenTwoMovesAgo = index > 1 ? fens[index - 2] : null;
+    const uciNextTwoMoves: [string, string] | null =
+      index > 1 ? [uciMoves[index - 2], uciMoves[index - 1]] : null;
+
     if (
       isSplendidMove(
         lastPositionWinPercentage,
@@ -70,7 +75,9 @@ export const getMovesClassification = (
         bestLinePvToPlay,
         fens[index - 1],
         lastPositionAlternativeLineWinPercentage,
-        playerRating
+        playerRating,
+        fenTwoMovesAgo,
+        uciNextTwoMoves
       )
     ) {
       return {
@@ -79,10 +86,6 @@ export const getMovesClassification = (
         moveClassification: MoveClassification.Splendid,
       };
     }
-
-    const fenTwoMovesAgo = index > 1 ? fens[index - 2] : null;
-    const uciNextTwoMoves: [string, string] | null =
-      index > 1 ? [uciMoves[index - 2], uciMoves[index - 1]] : null;
 
     if (
       isPerfectMove(
@@ -211,9 +214,20 @@ const isSplendidMove = (
   bestLinePvToPlay: string[],
   fen: string,
   lastPositionAlternativeLineWinPercentage: number | undefined,
-  playerRating?: number
+  playerRating?: number,
+  fenTwoMovesAgo?: string | null,
+  uciLastTwoMoves?: [string, string] | null
 ): boolean => {
   if (!lastPositionAlternativeLineWinPercentage) return false;
+
+  if (isCheck(fen)) return false;
+
+  if (
+    fenTwoMovesAgo &&
+    uciLastTwoMoves &&
+    isSimplePieceRecapture(fenTwoMovesAgo, uciLastTwoMoves)
+  )
+    return false;
 
   const winPercentageDiff =
     (positionWinPercentage - lastPositionWinPercentage) *
@@ -221,10 +235,6 @@ const isSplendidMove = (
 
   if (winPercentageDiff < -3) return false;
 
-  // Rating-based generosity: lower-rated players need smaller sacrifices.
-  // <1200: pawn sacrifice (1) is enough
-  // 1200-1800: at least exchange-level intent (2)
-  // 1800+: at least minor piece (3)
   const minSacrifice = !playerRating || playerRating < 1200 ? 1
     : playerRating < 1800 ? 2
     : 3;
