@@ -50,7 +50,7 @@ interface MoveStats {
 
 const getMoveClassificationIcon = (classification: MoveClassification) => {
   switch (classification) {
-    case MoveClassification.Splendid:
+    case MoveClassification.Brilliant:
       return { icon: "mdi:star-four-points", color: "#26C6DA", label: "brilliant" };
     case MoveClassification.Perfect:
       return { icon: "mdi:exclamation-thick", color: "#42A5F5", label: "great" };
@@ -339,7 +339,7 @@ export default function GameAnalysisModal({
 
   const getDisplayStats = () => {
     const priorityOrder = [
-      MoveClassification.Splendid,
+      MoveClassification.Brilliant,
       MoveClassification.Perfect,
       MoveClassification.Best,
       MoveClassification.Inaccuracy,
@@ -738,7 +738,7 @@ export default function GameAnalysisModal({
                         flexShrink: 0,
                       }}
                     >
-                      {stat.type === MoveClassification.Splendid ? (
+                      {stat.type === MoveClassification.Brilliant ? (
                         <Typography
                           sx={{
                             color: "white",

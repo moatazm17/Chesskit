@@ -25,7 +25,7 @@ export enum MoveClassification {
   Forced = "forced",
   Opening = "opening",
   Perfect = "perfect",
-  Splendid = "splendid",
+  Brilliant = "brilliant",
 }
 
 export enum Color {

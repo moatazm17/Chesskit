@@ -59,15 +59,9 @@ export default function MovesPanel() {
       sx={{
         scrollbarWidth: "thin",
         overflowY: "auto",
-        ...(isMobile
-          ? {
-              borderTop: "1px solid rgba(255,255,255,0.06)",
-              pt: 1.5,
-            }
-          : {}),
       }}
       maxHeight="100%"
-      size={isMobile ? 12 : 6}
+      size={12}
       id="moves-panel"
     >
       {gameMoves?.map((moves, idx) => (

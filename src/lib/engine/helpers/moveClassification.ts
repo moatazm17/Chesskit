@@ -67,7 +67,7 @@ export const getMovesClassification = (
       index > 1 ? [uciMoves[index - 2], uciMoves[index - 1]] : null;
 
     if (
-      isSplendidMove(
+      isBrilliantMove(
         lastPositionWinPercentage,
         positionWinPercentage,
         isWhiteMove,
@@ -83,7 +83,7 @@ export const getMovesClassification = (
       return {
         ...rawPosition,
         opening: currentOpening,
-        moveClassification: MoveClassification.Splendid,
+        moveClassification: MoveClassification.Brilliant,
       };
     }
 
@@ -206,7 +206,7 @@ const getMoveBasicClassification = (
  * Chess.com uses sacrifice-based detection (not depth-based) and is
  * more generous for lower-rated players.
  */
-const isSplendidMove = (
+const isBrilliantMove = (
   lastPositionWinPercentage: number,
   positionWinPercentage: number,
   isWhiteMove: boolean,

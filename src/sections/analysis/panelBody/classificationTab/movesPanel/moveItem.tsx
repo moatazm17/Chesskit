@@ -53,7 +53,7 @@ function MoveItem({
       justifyContent="center"
       alignItems="center"
       gap={1}
-      width="5rem"
+      width={{ xs: "4rem", md: "5rem" }}
       wrap="nowrap"
       onClick={handleClick}
       paddingY={0.5}

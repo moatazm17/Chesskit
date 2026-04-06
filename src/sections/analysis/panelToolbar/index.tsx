@@ -21,7 +21,7 @@ export default function PanelToolBar() {
     if (!gameEval?.positions) return [];
     
     const importantClassifications = [
-      MoveClassification.Splendid,
+      MoveClassification.Brilliant,
       MoveClassification.Perfect, 
       MoveClassification.Best,
       MoveClassification.Miss,

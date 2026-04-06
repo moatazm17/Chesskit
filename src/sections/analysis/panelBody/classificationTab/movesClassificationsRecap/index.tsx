@@ -86,7 +86,7 @@ export default function MovesClassificationsRecap() {
 }
 
 export const sortedMoveClassfications = [
-  MoveClassification.Splendid,
+  MoveClassification.Brilliant,
   MoveClassification.Perfect,
   MoveClassification.Best,
   MoveClassification.Excellent,

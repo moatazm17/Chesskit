@@ -1,4 +1,4 @@
-import { Grid2 as Grid, Grid2Props as GridProps, useMediaQuery, useTheme } from "@mui/material";
+import { Divider, Grid2 as Grid, Grid2Props as GridProps, useMediaQuery, useTheme } from "@mui/material";
 import MovesPanel from "./movesPanel";
 import MovesClassificationsRecap from "./movesClassificationsRecap";
 
@@ -27,7 +27,20 @@ export default function ClassificationTab(props: GridProps) {
     >
       <MovesClassificationsRecap />
 
-      <MovesPanel />
+      {isMobile && (
+        <Divider sx={{ width: "90%", my: 1, borderColor: "rgba(255,255,255,0.08)" }} />
+      )}
+
+      <Grid
+        size={isMobile ? 12 : 6}
+        sx={{
+          maxHeight: isMobile ? "280px" : "100%",
+          overflowY: "auto",
+          scrollbarWidth: "thin",
+        }}
+      >
+        <MovesPanel />
+      </Grid>
     </Grid>
   );
 }

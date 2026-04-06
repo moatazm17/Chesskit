@@ -9,6 +9,7 @@ import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { useRouter } from "next/router";
 import { getGameToSave } from "@/lib/chess";
 import { useTranslation } from "@/lib/i18n";
+import MoveWheel from "../moveWheel";
 
 export default function BoardNavigation() {
   const { t } = useTranslation();
@@ -28,7 +29,7 @@ export default function BoardNavigation() {
     if (!gameEval?.positions) return [];
     
     const importantClassifications = [
-      MoveClassification.Splendid,
+      MoveClassification.Brilliant,
       MoveClassification.Perfect, 
       MoveClassification.Best,
       MoveClassification.Miss,
@@ -125,7 +126,7 @@ export default function BoardNavigation() {
         }}
       >
         {/* Left side - Previous and Reload */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
           <Tooltip title={t("previousMove")}>
             <IconButton
               onClick={() => undoBoardMove()}
@@ -134,8 +135,8 @@ export default function BoardNavigation() {
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 color: 'white',
-                width: '48px',
-                height: '48px',
+                width: { xs: '40px', sm: '48px' },
+                height: { xs: '40px', sm: '48px' },
                 '&:hover': { 
                   backgroundColor: 'rgba(255,255,255,0.2)',
                   transform: 'scale(1.05)'
@@ -156,8 +157,8 @@ export default function BoardNavigation() {
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 color: 'white',
-                width: '48px',
-                height: '48px',
+                width: { xs: '40px', sm: '48px' },
+                height: { xs: '40px', sm: '48px' },
                 '&:hover': { 
                   backgroundColor: 'rgba(255,255,255,0.2)',
                   transform: 'scale(1.05)'
@@ -179,12 +180,12 @@ export default function BoardNavigation() {
           sx={{
             backgroundColor: '#4CAF50',
             borderRadius: '20px',
-            padding: '12px 24px',
-            fontSize: '16px',
+            padding: { xs: '8px 16px', sm: '12px 24px' },
+            fontSize: { xs: '14px', sm: '16px' },
             fontWeight: 600,
             textTransform: 'none',
-            minWidth: '100px',
-            height: '48px',
+            minWidth: { xs: '80px', sm: '100px' },
+            height: { xs: '40px', sm: '48px' },
             '&:hover': {
               backgroundColor: '#45a049',
               transform: 'scale(1.05)'
@@ -200,7 +201,7 @@ export default function BoardNavigation() {
         </Button>
 
         {/* Right side - Next and Save */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
           <Tooltip title={t("nextMove")}>
             <IconButton
               onClick={() => addNextGameMoveToBoard()}
@@ -209,8 +210,8 @@ export default function BoardNavigation() {
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 color: 'white',
-                width: '48px',
-                height: '48px',
+                width: { xs: '40px', sm: '48px' },
+                height: { xs: '40px', sm: '48px' },
                 '&:hover': { 
                   backgroundColor: 'rgba(255,255,255,0.2)',
                   transform: 'scale(1.05)'
@@ -232,8 +233,8 @@ export default function BoardNavigation() {
                   backgroundColor: 'rgba(255,255,255,0.1)',
                   borderRadius: '12px',
                   color: 'white',
-                  width: '48px',
-                  height: '48px',
+                  width: { xs: '40px', sm: '48px' },
+                  height: { xs: '40px', sm: '48px' },
                   opacity: 0.5
                 }}
               >
@@ -249,8 +250,8 @@ export default function BoardNavigation() {
                   backgroundColor: 'rgba(255,255,255,0.1)',
                   borderRadius: '12px',
                   color: 'white',
-                  width: '48px',
-                  height: '48px',
+                  width: { xs: '40px', sm: '48px' },
+                  height: { xs: '40px', sm: '48px' },
                   '&:hover': { 
                     backgroundColor: 'rgba(255,255,255,0.2)',
                     transform: 'scale(1.05)'
@@ -287,6 +288,8 @@ export default function BoardNavigation() {
           />
         </Box>
       </Box>
+
+      {gameEval && <MoveWheel />}
     </Box>
   );
 }

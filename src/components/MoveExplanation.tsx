@@ -26,7 +26,7 @@ const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Forced]: "#90a4ae",
   [MoveClassification.Opening]: "#78909c",
   [MoveClassification.Perfect]: "#2196f3",
-  [MoveClassification.Splendid]: "#00bcd4",
+  [MoveClassification.Brilliant]: "#00bcd4",
 };
 
 const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
@@ -40,7 +40,7 @@ const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
   [MoveClassification.Forced]: "mdi:lock",
   [MoveClassification.Opening]: "mdi:book-open-variant",
   [MoveClassification.Perfect]: "mdi:exclamation-thick",
-  [MoveClassification.Splendid]: "mdi:star",
+  [MoveClassification.Brilliant]: "mdi:star",
 };
 
 function MoveExplanationComponent() {

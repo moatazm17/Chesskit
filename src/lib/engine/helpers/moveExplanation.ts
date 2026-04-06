@@ -242,7 +242,7 @@ export const getMoveExplanation = (
         evalChange,
       };
 
-    case MoveClassification.Splendid:
+    case MoveClassification.Brilliant:
       return {
         title: t("explBrilliantTitle"),
         description: t("explBrilliantDesc", { move: playedMoveSan }),

@@ -34,11 +34,11 @@ export default function AnalysisTab(props: GridProps) {
       justifyContent={{ xs: "center", lg: gameEval ? "start" : "center" }}
       alignItems="start"
       flexWrap={{ lg: gameEval ? "nowrap" : undefined }}
-      gap={3}
+      gap={2}
       marginY={{ lg: gameEval ? 1 : undefined }}
-      paddingX={{ xs: 2, lg: "calc(4% - 2rem)" }}
+      paddingX={{ xs: 1, lg: "calc(4% - 2rem)" }}
       {...props}
-      sx={props.hidden ? { display: "none" } : { ...props.sx, padding: '16px' }}
+      sx={props.hidden ? { display: "none" } : { ...props.sx, padding: { xs: '8px', sm: '16px' } }}
     >
       <Stack
         justifyContent="center"
@@ -48,7 +48,7 @@ export default function AnalysisTab(props: GridProps) {
         sx={{
           background: 'rgba(255,255,255,0.04)',
           borderRadius: '14px',
-          padding: '16px',
+          padding: { xs: '12px', sm: '16px' },
           border: '1px solid rgba(255,255,255,0.06)',
           width: '100%',
         }}
