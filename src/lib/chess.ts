@@ -249,6 +249,23 @@ export const getIsPieceSacrifice = (
     ? getPieceValue(playedMoveResult.captured)
     : 0;
 
+  // Check if the moved piece is en prise (attacked by a lower-value piece)
+  let enPriseSacrifice = 0;
+  if (capturedByMove < movedPieceValue) {
+    const opponentMoves = game.moves({ verbose: true });
+    const captures = opponentMoves.filter(
+      (m) => m.to === movedToSquare && m.captured
+    );
+    if (captures.length > 0) {
+      const lowestAttacker = Math.min(
+        ...captures.map((m) => getPieceValue(m.piece))
+      );
+      if (lowestAttacker < movedPieceValue) {
+        enPriseSacrifice = movedPieceValue - capturedByMove;
+      }
+    }
+  }
+
   let movedPieceCaptured = false;
   let pieceStillOnSquare = true;
   let consecutiveQuietMoves = 0;
@@ -314,7 +331,7 @@ export const getIsPieceSacrifice = (
       ? movedPieceValue - capturedByMove
       : 0;
 
-  return Math.max(netSacrifice, tempSacrifice);
+  return Math.max(netSacrifice, tempSacrifice, enPriseSacrifice);
 };
 
 /**
