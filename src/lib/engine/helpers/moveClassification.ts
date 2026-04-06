@@ -218,7 +218,7 @@ const isSplendidMove = (
   fenTwoMovesAgo?: string | null,
   uciLastTwoMoves?: [string, string] | null
 ): boolean => {
-  if (!lastPositionAlternativeLineWinPercentage) return false;
+  if (lastPositionAlternativeLineWinPercentage === undefined) return false;
 
   if (isCheck(fen)) return false;
 
@@ -244,15 +244,19 @@ const isSplendidMove = (
     ? lastPositionWinPercentage
     : 100 - lastPositionWinPercentage;
 
-  // Don't award in already winning positions (not competitive)
-  if (playerWinBeforeMove > 90) return false;
+  const maxWinBeforeMove = !playerRating || playerRating < 1200 ? 96
+    : playerRating < 1600 ? 94
+    : playerRating < 2000 ? 92
+    : 90;
+
+  if (playerWinBeforeMove > maxWinBeforeMove) return false;
 
   const pieceCount = getPieceCount(fen);
   const isEndgame = pieceCount < 10;
 
   // In endgame: sacrifice must be the only good move (alternative much worse)
   // In opening/middlegame: sacrifice just needs to be strong
-  const minAlternativeDiff = isEndgame ? 8 : 4;
+  const minAlternativeDiff = isEndgame ? 8 : 2;
 
   const alternativeDiff =
     (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
@@ -264,8 +268,8 @@ const isSplendidMove = (
 
   // Don't award if the alternative is already completely winning
   const isAlternateCompletelyWinning = isWhiteMove
-    ? lastPositionAlternativeLineWinPercentage > 95
-    : lastPositionAlternativeLineWinPercentage < 5;
+    ? lastPositionAlternativeLineWinPercentage > 98
+    : lastPositionAlternativeLineWinPercentage < 2;
   if (isAlternateCompletelyWinning) return false;
 
   return true;
