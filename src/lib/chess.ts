@@ -269,6 +269,7 @@ export const getIsPieceSacrifice = (
   let movedPieceCaptured = false;
   let pieceStillOnSquare = true;
   let consecutiveQuietMoves = 0;
+  let promotionMaterialShift = 0;
 
   const capturedPieces: { w: PieceSymbol[]; b: PieceSymbol[] } = {
     w: [],
@@ -279,12 +280,22 @@ export const getIsPieceSacrifice = (
     capturedPieces[playerColor].push(playedMoveResult.captured);
   }
 
+  if (playedMoveResult.promotion) {
+    const promoGain = getPieceValue(playedMoveResult.promotion as PieceSymbol) - 1;
+    promotionMaterialShift += whiteToPlay ? promoGain : -promoGain;
+  }
+
   for (const move of bestLinePvToPlay) {
     try {
       const fullMove = game.move(uciMoveParams(move));
 
       if (fullMove.from === movedToSquare && fullMove.color === playerColor) {
         pieceStillOnSquare = false;
+      }
+
+      if (fullMove.promotion) {
+        const promoGain = getPieceValue(fullMove.promotion as PieceSymbol) - 1;
+        promotionMaterialShift += fullMove.color === "w" ? promoGain : -promoGain;
       }
 
       if (fullMove.captured) {
@@ -322,7 +333,7 @@ export const getIsPieceSacrifice = (
   }
 
   const endingMaterialDifference = getMaterialDifference(game.fen());
-  const materialDiff = endingMaterialDifference - startingMaterialDifference;
+  const materialDiff = endingMaterialDifference - startingMaterialDifference - promotionMaterialShift;
   const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
   const netSacrifice = materialDiffPlayerRelative < 0 ? -materialDiffPlayerRelative : 0;
 
