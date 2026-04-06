@@ -55,10 +55,8 @@ const getPlayerAccuracy = (
   // Harmonic mean is always <= arithmetic mean and penalizes outliers (blunders) heavily
   let accuracy = (weightedMean + 2 * harmonicMean) / 3;
 
-  // Rating-based adjustment: higher-rated players are expected to play more accurately,
-  // so the same centipawn loss results in a slightly lower accuracy score
-  if (playerRating && playerRating > 1500) {
-    const ratingPenalty = Math.min(0.04, (playerRating - 1500) / 25000);
+  if (playerRating && playerRating > 1200) {
+    const ratingPenalty = Math.min(0.08, (playerRating - 1200) / 10000);
     accuracy = accuracy * (1 - ratingPenalty);
   }
 
@@ -108,11 +106,8 @@ const getMovesAccuracy = (movesWinPercentage: number[]): number[] =>
       ? Math.max(0, lastWinPercent - winPercent)
       : Math.max(0, winPercent - lastWinPercent);
 
-    // Chess.com CAPS2-like accuracy curve
-    // Steeper decay than Lichess to produce more realistic accuracy scores (typically 50-95%)
-    // Original Lichess multiplier: -0.04354, adjusted to -0.055 for stricter scoring
     const rawAccuracy =
-      103.1668100711649 * Math.exp(-0.055 * winDiff) - 3.166924740191411;
+      103.1668100711649 * Math.exp(-0.05 * winDiff) - 3.166924740191411;
 
-    return Math.min(100, Math.max(0, rawAccuracy + 1));
+    return Math.min(100, Math.max(0, rawAccuracy));
   });
