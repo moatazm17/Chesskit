@@ -283,7 +283,7 @@ const isPerfectMove = (
   fenTwoMovesAgo: string | null,
   uciMoves: [string, string] | null
 ): boolean => {
-  if (!lastPositionAlternativeLineWinPercentage) return false;
+  if (lastPositionAlternativeLineWinPercentage === undefined) return false;
 
   const winPercentageDiff =
     (positionWinPercentage - lastPositionWinPercentage) *
@@ -299,15 +299,14 @@ const isPerfectMove = (
   )
     return false;
 
-  // Don't award in losing positions or when the alternative is completely winning
-  const isLosing = isWhiteMove
-    ? positionWinPercentage < 50
-    : positionWinPercentage > 50;
+  const isStillClearlyLosing = isWhiteMove
+    ? positionWinPercentage < 45
+    : positionWinPercentage > 55;
   const isAlternateCompletelyWinning = isWhiteMove
-    ? lastPositionAlternativeLineWinPercentage > 93
-    : lastPositionAlternativeLineWinPercentage < 7;
+    ? lastPositionAlternativeLineWinPercentage > 96
+    : lastPositionAlternativeLineWinPercentage < 4;
 
-  if (isLosing || isAlternateCompletelyWinning) {
+  if (isStillClearlyLosing || isAlternateCompletelyWinning) {
     return false;
   }
 
@@ -334,11 +333,18 @@ const getHasChangedGameOutcome = (
   const winPercentageDiff =
     (positionWinPercentage - lastPositionWinPercentage) *
     (isWhiteMove ? 1 : -1);
-  // Require larger swing (15%) to count as game-changing
+
+  const playerWinBefore = isWhiteMove
+    ? lastPositionWinPercentage
+    : 100 - lastPositionWinPercentage;
+  const playerWinAfter = isWhiteMove
+    ? positionWinPercentage
+    : 100 - positionWinPercentage;
+
   return (
-    winPercentageDiff > 15 &&
-    ((lastPositionWinPercentage < 50 && positionWinPercentage > 50) ||
-      (lastPositionWinPercentage > 50 && positionWinPercentage < 50))
+    winPercentageDiff > 10 &&
+    ((playerWinBefore < 55 && playerWinAfter > 60) ||
+      (playerWinBefore < 40 && playerWinAfter > 45))
   );
 };
 
@@ -350,6 +356,5 @@ const getIsTheOnlyGoodMove = (
   const winPercentageDiff =
     (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
     (isWhiteMove ? 1 : -1);
-  // The alternative must be at least 12% worse
-  return winPercentageDiff > 12;
+  return winPercentageDiff > 8;
 };
