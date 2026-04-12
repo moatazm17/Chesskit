@@ -68,9 +68,19 @@ export default function MoveWheel() {
     [game, board, goToMove]
   );
 
-  const scrollBy = useCallback((direction: number) => {
-    scrollRef.current?.scrollBy({ left: direction * 160, behavior: "smooth" });
-  }, []);
+  const goToPrev = useCallback(() => {
+    if (currentMoveIdx > 0) {
+      const gameToUse = game.moveNumber() > 1 ? game : board;
+      goToMove(currentMoveIdx - 1, gameToUse);
+    }
+  }, [currentMoveIdx, game, board, goToMove]);
+
+  const goToNext = useCallback(() => {
+    if (currentMoveIdx < moves.length) {
+      const gameToUse = game.moveNumber() > 1 ? game : board;
+      goToMove(currentMoveIdx + 1, gameToUse);
+    }
+  }, [currentMoveIdx, moves.length, game, board, goToMove]);
 
   if (!moves.length) return null;
 
@@ -93,7 +103,8 @@ export default function MoveWheel() {
         }}
       >
         <IconButton
-          onClick={() => scrollBy(-1)}
+          onClick={goToPrev}
+          disabled={currentMoveIdx <= 0}
           size="small"
           sx={{
             color: "rgba(255,255,255,0.5)",
@@ -102,6 +113,7 @@ export default function MoveWheel() {
             height: "36px",
             flexShrink: 0,
             "&:hover": { color: "white", backgroundColor: "rgba(255,255,255,0.08)" },
+            "&:disabled": { opacity: 0.25 },
           }}
         >
           <Icon icon="mdi:chevron-left" style={{ fontSize: "18px" }} />
@@ -196,7 +208,8 @@ export default function MoveWheel() {
         </Box>
 
         <IconButton
-          onClick={() => scrollBy(1)}
+          onClick={goToNext}
+          disabled={currentMoveIdx >= moves.length}
           size="small"
           sx={{
             color: "rgba(255,255,255,0.5)",
@@ -205,6 +218,7 @@ export default function MoveWheel() {
             height: "36px",
             flexShrink: 0,
             "&:hover": { color: "white", backgroundColor: "rgba(255,255,255,0.08)" },
+            "&:disabled": { opacity: 0.25 },
           }}
         >
           <Icon icon="mdi:chevron-right" style={{ fontSize: "18px" }} />

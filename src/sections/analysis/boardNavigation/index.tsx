@@ -17,6 +17,7 @@ export default function BoardNavigation() {
     undoMove: undoBoardMove,
     playMove: playBoardMove,
     goToMove,
+    resetToStartingPosition: resetBoard,
   } = useChessActions(boardAtom);
 
   const boardHistory = board.history();
@@ -96,7 +97,7 @@ export default function BoardNavigation() {
       {/* Move strip */}
       {gameEval && <MoveWheel />}
 
-      {/* Navigation row: prev/next arrows + centered Next button */}
+      {/* Navigation row */}
       <Box
         sx={{
           display: "flex",
@@ -108,21 +109,39 @@ export default function BoardNavigation() {
         }}
       >
         <IconButton
-          onClick={() => undoBoardMove()}
+          onClick={() => resetBoard()}
           disabled={boardHistory.length === 0}
           sx={{
             backgroundColor: "rgba(255,255,255,0.08)",
             borderRadius: "12px",
             color: "white",
-            width: 44,
-            height: 44,
+            width: 40,
+            height: 40,
             "&:hover": {
               backgroundColor: "rgba(255,255,255,0.15)",
             },
             "&:disabled": { opacity: 0.25 },
           }}
         >
-          <Icon icon="mdi:chevron-left" style={{ fontSize: "26px" }} />
+          <Icon icon="mdi:refresh" style={{ fontSize: "20px" }} />
+        </IconButton>
+
+        <IconButton
+          onClick={() => undoBoardMove()}
+          disabled={boardHistory.length === 0}
+          sx={{
+            backgroundColor: "rgba(255,255,255,0.08)",
+            borderRadius: "12px",
+            color: "white",
+            width: 40,
+            height: 40,
+            "&:hover": {
+              backgroundColor: "rgba(255,255,255,0.15)",
+            },
+            "&:disabled": { opacity: 0.25 },
+          }}
+        >
+          <Icon icon="mdi:chevron-left" style={{ fontSize: "24px" }} />
         </IconButton>
 
         <Button
@@ -132,15 +151,15 @@ export default function BoardNavigation() {
           sx={{
             backgroundColor: "#4CAF50",
             borderRadius: "16px",
-            px: 4,
-            py: 1.2,
-            fontSize: "1rem",
+            px: 3,
+            py: 1,
+            fontSize: "0.95rem",
             fontWeight: 700,
             textTransform: "none",
-            minWidth: 120,
-            height: 44,
+            minWidth: 100,
+            height: 40,
             flex: 1,
-            maxWidth: 200,
+            maxWidth: 180,
             "&:hover": {
               backgroundColor: "#45a049",
             },
@@ -166,15 +185,15 @@ export default function BoardNavigation() {
             backgroundColor: "rgba(255,255,255,0.08)",
             borderRadius: "12px",
             color: "white",
-            width: 44,
-            height: 44,
+            width: 40,
+            height: 40,
             "&:hover": {
               backgroundColor: "rgba(255,255,255,0.15)",
             },
             "&:disabled": { opacity: 0.25 },
           }}
         >
-          <Icon icon="mdi:chevron-right" style={{ fontSize: "26px" }} />
+          <Icon icon="mdi:chevron-right" style={{ fontSize: "24px" }} />
         </IconButton>
       </Box>
     </Box>

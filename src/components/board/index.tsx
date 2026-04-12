@@ -308,27 +308,40 @@ export default function Board({
   );
 
   const customArrows: Arrow[] = useMemo(() => {
-    const bestMove = position?.lastEval?.bestMove;
+    if (!showBestMoveArrow) return [];
+
+    const arrows: Arrow[] = [];
     const moveClassification = position?.eval?.moveClassification;
+    const isOnGameLine = position?.currentMoveIdx !== undefined;
 
-    if (
-      bestMove &&
-      showBestMoveArrow &&
-      moveClassification !== MoveClassification.Best &&
-      moveClassification !== MoveClassification.Opening &&
-      moveClassification !== MoveClassification.Forced &&
-      moveClassification !== MoveClassification.Perfect
-    ) {
-      const bestMoveArrow = [
-        bestMove.slice(0, 2),
-        bestMove.slice(2, 4),
-        CLASSIFICATION_COLORS[MoveClassification.Best],
-      ] as Arrow;
-
-      return [bestMoveArrow];
+    if (isOnGameLine) {
+      const bestMove = position?.lastEval?.bestMove;
+      if (
+        bestMove &&
+        moveClassification !== MoveClassification.Best &&
+        moveClassification !== MoveClassification.Opening &&
+        moveClassification !== MoveClassification.Forced &&
+        moveClassification !== MoveClassification.Perfect
+      ) {
+        arrows.push([
+          bestMove.slice(0, 2),
+          bestMove.slice(2, 4),
+          "rgba(30, 210, 230, 0.9)",
+        ] as Arrow);
+      }
+    } else if (moveClassification) {
+      // Off game line + evaluation complete: show opponent's best response
+      const responsePv = position?.eval?.lines?.[0]?.pv?.[0];
+      if (responsePv && responsePv.length >= 4) {
+        arrows.push([
+          responsePv.slice(0, 2),
+          responsePv.slice(2, 4),
+          "rgba(255, 170, 0, 0.85)",
+        ] as Arrow);
+      }
     }
 
-    return [];
+    return arrows;
   }, [position, showBestMoveArrow]);
 
   const SquareRenderer: CustomSquareRenderer = useMemo(() => {

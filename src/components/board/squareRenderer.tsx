@@ -36,6 +36,11 @@ export function getSquareRenderer({
       const fromSquare = position.lastMove?.from;
       const toSquare = position.lastMove?.to;
       const moveClassification = position?.eval?.moveClassification;
+      const isEvaluating =
+        showPlayerMoveIcon &&
+        square === toSquare &&
+        position.lastMove &&
+        !moveClassification;
 
       const highlightSquareStyle: CSSProperties | undefined = useMemo(
         () =>
@@ -86,6 +91,11 @@ export function getSquareRenderer({
                 zIndex: 100,
               }}
             />
+          )}
+          {isEvaluating && (
+            <div style={spinnerContainerStyle}>
+              <div style={spinnerStyle} />
+            </div>
           )}
         </div>
       );
@@ -139,3 +149,36 @@ const previousMoveSquareStyle = (
     : "#fad541",
   opacity: 0.5,
 });
+
+const spinnerContainerStyle: CSSProperties = {
+  position: "absolute",
+  top: "max(-14px, -2.2vw)",
+  right: "max(-14px, -2.2vw)",
+  maxWidth: "4.5vw",
+  maxHeight: "4.5vw",
+  width: 40,
+  height: 40,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 100,
+  background: "rgba(40, 40, 50, 0.85)",
+  borderRadius: "50%",
+  border: "2px solid rgba(255,255,255,0.15)",
+};
+
+const spinnerStyle: CSSProperties = {
+  width: "60%",
+  height: "60%",
+  border: "3px solid rgba(255,255,255,0.2)",
+  borderTopColor: "#fff",
+  borderRadius: "50%",
+  animation: "sq-spin 0.7s linear infinite",
+};
+
+if (typeof document !== "undefined" && !document.getElementById("sq-spin-keyframes")) {
+  const styleEl = document.createElement("style");
+  styleEl.id = "sq-spin-keyframes";
+  styleEl.textContent = "@keyframes sq-spin { to { transform: rotate(360deg); } }";
+  document.head.appendChild(styleEl);
+}
