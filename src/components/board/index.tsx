@@ -15,12 +15,10 @@ import { Color, MoveClassification } from "@/types/enums";
 import { Chess } from "chess.js";
 import { getSquareRenderer } from "./squareRenderer";
 import { CurrentPosition } from "@/types/eval";
-import EvaluationBar from "./evaluationBar";
 import { BOARD_COLORS, CLASSIFICATION_COLORS } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
 import { pieceSetAtom } from "./states";
-import MoveExplanation from "@/components/MoveExplanation";
 
 export interface Props {
   id: string;
@@ -33,8 +31,6 @@ export interface Props {
   currentPositionAtom?: PrimitiveAtom<CurrentPosition>;
   showBestMoveArrow?: boolean;
   showPlayerMoveIconAtom?: PrimitiveAtom<boolean>;
-  showEvaluationBar?: boolean;
-  showMoveExplanation?: boolean;
 }
 
 export default function Board({
@@ -48,8 +44,6 @@ export default function Board({
   currentPositionAtom = atom({}),
   showBestMoveArrow = false,
   showPlayerMoveIconAtom,
-  showEvaluationBar = false,
-  showMoveExplanation = false,
 }: Props) {
   const boardRef = useRef<HTMLDivElement>(null);
   const game = useAtomValue(gameAtom);
@@ -386,17 +380,9 @@ export default function Board({
       width={boardSize}
       gap={1}
     >
-      {showEvaluationBar && (
-        <EvaluationBar
-          height={boardRef?.current?.offsetHeight || boardSize || 400}
-          boardOrientation={boardOrientation}
-          currentPositionAtom={currentPositionAtom}
-        />
-      )}
-
       <Grid
         container
-        rowGap={1.5}
+        rowGap={1}
         justifyContent="center"
         alignItems="center"
         size="grow"
@@ -406,8 +392,6 @@ export default function Board({
           gameAtom={gameAtom}
           player={boardOrientation === Color.White ? blackPlayer : whitePlayer}
         />
-
-        {showMoveExplanation && <MoveExplanation />}
 
         <Grid
           container

@@ -20,14 +20,12 @@ import { SavedEvals } from "@/types/eval";
 import { useEffect, useCallback } from "react";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { Typography } from "@mui/material";
-import { useCurrentPosition } from "../hooks/useCurrentPosition";
 import { useTranslation } from "@/lib/i18n";
 
 export default function AnalyzeButton() {
   const { t } = useTranslation();
   const engineName = useAtomValue(engineNameAtom);
   const engine = useEngine(engineName);
-  useCurrentPosition(engine);
   const engineWorkersNb = useAtomValue(engineWorkersNbAtom);
   const [evaluationProgress, setEvaluationProgress] = useAtom(
     evaluationProgressAtom

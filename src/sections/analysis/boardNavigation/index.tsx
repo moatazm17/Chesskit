@@ -1,13 +1,10 @@
-import { IconButton, Tooltip, Box, Button } from "@mui/material";
+import { IconButton, Box, Button } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useAtomValue } from "jotai";
-import { boardAtom, gameAtom, gameEvalAtom, evaluationProgressAtom } from "../states";
+import { boardAtom, gameAtom, gameEvalAtom } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useCallback, useEffect, useMemo } from "react";
 import { MoveClassification } from "@/types/enums";
-import { useGameDatabase } from "@/hooks/useGameDatabase";
-import { useRouter } from "next/router";
-import { getGameToSave } from "@/lib/chess";
 import { useTranslation } from "@/lib/i18n";
 import MoveWheel from "../moveWheel";
 
@@ -16,41 +13,42 @@ export default function BoardNavigation() {
   const board = useAtomValue(boardAtom);
   const game = useAtomValue(gameAtom);
   const gameEval = useAtomValue(gameEvalAtom);
-  const evaluationProgress = useAtomValue(evaluationProgressAtom);
-  const { undoMove: undoBoardMove, playMove: playBoardMove, resetToStartingPosition: resetBoard, goToMove } = useChessActions(boardAtom);
-  const { addGame, setGameEval, gameFromUrl } = useGameDatabase();
-  const router = useRouter();
+  const {
+    undoMove: undoBoardMove,
+    playMove: playBoardMove,
+    goToMove,
+  } = useChessActions(boardAtom);
 
   const boardHistory = board.history();
   const gameHistory = game.history();
 
-  // Get classified moves (the 6 main move types)
   const classifiedMoves = useMemo(() => {
     if (!gameEval?.positions) return [];
-    
+
     const importantClassifications = [
       MoveClassification.Brilliant,
-      MoveClassification.Perfect, 
+      MoveClassification.Perfect,
       MoveClassification.Best,
       MoveClassification.Miss,
       MoveClassification.Mistake,
       MoveClassification.Inaccuracy,
-      MoveClassification.Blunder
+      MoveClassification.Blunder,
     ];
-    
+
     return gameEval.positions
       .map((pos, index) => ({ ...pos, moveIndex: index }))
-      .filter(pos => 
-        pos.moveClassification && 
-        importantClassifications.includes(pos.moveClassification)
+      .filter(
+        (pos) =>
+          pos.moveClassification &&
+          importantClassifications.includes(pos.moveClassification)
       );
   }, [gameEval]);
 
-  // Regular next move
   const addNextGameMoveToBoard = useCallback(() => {
-    const isButtonEnabled = boardHistory.length < gameHistory.length &&
+    const isButtonEnabled =
+      boardHistory.length < gameHistory.length &&
       gameHistory.slice(0, boardHistory.length).join() === boardHistory.join();
-    
+
     if (!isButtonEnabled) return;
 
     const nextMoveIndex = boardHistory.length;
@@ -65,18 +63,17 @@ export default function BoardNavigation() {
     }
   }, [boardHistory, gameHistory, game, playBoardMove]);
 
-  // Jump to next classified move (using seamless movement like moves tab)
   const jumpToNextClassifiedMove = useCallback(() => {
     const currentMoveIndex = boardHistory.length;
-    const nextClassifiedMove = classifiedMoves.find(move => move.moveIndex > currentMoveIndex);
-    
+    const nextClassifiedMove = classifiedMoves.find(
+      (move) => move.moveIndex > currentMoveIndex
+    );
+
     if (nextClassifiedMove) {
-      // Use the same seamless goToMove function as the moves tab
       goToMove(nextClassifiedMove.moveIndex, game);
     }
   }, [boardHistory.length, classifiedMoves, game, goToMove]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && boardHistory.length > 0) {
@@ -90,206 +87,96 @@ export default function BoardNavigation() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [undoBoardMove, boardHistory.length, addNextGameMoveToBoard]);
 
-  const hasNextMove = boardHistory.length < gameHistory.length &&
-    gameHistory.slice(0, boardHistory.length).join() === boardHistory.join();
-  const hasNextClassifiedMove = classifiedMoves.some(move => move.moveIndex > boardHistory.length);
-
-  // Save game functionality
-  const enableSave = !gameFromUrl && (boardHistory.length || gameHistory.length);
-  const handleSave = async () => {
-    if (!enableSave) return;
-    const gameToSave = getGameToSave(game, board);
-    const gameId = await addGame(gameToSave);
-    if (gameEval) {
-      await setGameEval(gameId, gameEval);
-    }
-    router.replace({
-      query: { gameId: gameId },
-      pathname: router.pathname,
-    }, undefined, { shallow: true, scroll: false });
-  };
-
-  const currentMoveIndex = boardHistory.length;
-  const totalMoves = gameHistory.length;
+  const hasNextClassifiedMove = classifiedMoves.some(
+    (move) => move.moveIndex > boardHistory.length
+  );
 
   return (
-    <Box sx={{ width: '100%', maxWidth: '600px', marginX: 'auto' }}>
-      {/* Main Navigation */}
-      <Box 
+    <Box sx={{ width: "100%", maxWidth: "600px", marginX: "auto" }}>
+      {/* Move strip */}
+      {gameEval && <MoveWheel />}
+
+      {/* Navigation row: prev/next arrows + centered Next button */}
+      <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 24px',
-          margin: '8px 0',
-          width: '100%',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1.5,
+          px: 2,
+          pb: 1,
         }}
       >
-        {/* Left side - Previous and Reload */}
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-          <Tooltip title={t("previousMove")}>
-            <IconButton
-              onClick={() => undoBoardMove()}
-              disabled={boardHistory.length === 0}
-              sx={{
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: 'white',
-                width: { xs: '40px', sm: '48px' },
-                height: { xs: '40px', sm: '48px' },
-                '&:hover': { 
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  transform: 'scale(1.05)'
-                },
-                '&:disabled': { opacity: 0.3 },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <Icon icon="mdi:chevron-left" style={{ fontSize: '28px' }} />
-            </IconButton>
-          </Tooltip>
+        <IconButton
+          onClick={() => undoBoardMove()}
+          disabled={boardHistory.length === 0}
+          sx={{
+            backgroundColor: "rgba(255,255,255,0.08)",
+            borderRadius: "12px",
+            color: "white",
+            width: 44,
+            height: 44,
+            "&:hover": {
+              backgroundColor: "rgba(255,255,255,0.15)",
+            },
+            "&:disabled": { opacity: 0.25 },
+          }}
+        >
+          <Icon icon="mdi:chevron-left" style={{ fontSize: "26px" }} />
+        </IconButton>
 
-          <Tooltip title={t("retryPosition")}>
-            <IconButton
-              onClick={() => resetBoard()}
-              disabled={boardHistory.length === 0}
-              sx={{
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: 'white',
-                width: { xs: '40px', sm: '48px' },
-                height: { xs: '40px', sm: '48px' },
-                '&:hover': { 
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  transform: 'scale(1.05)'
-                },
-                '&:disabled': { opacity: 0.3 },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <Icon icon="mdi:refresh" style={{ fontSize: '24px' }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {/* Center Next button for classified moves */}
         <Button
           variant="contained"
           onClick={jumpToNextClassifiedMove}
           disabled={!hasNextClassifiedMove}
           sx={{
-            backgroundColor: '#4CAF50',
-            borderRadius: '20px',
-            padding: { xs: '8px 16px', sm: '12px 24px' },
-            fontSize: { xs: '14px', sm: '16px' },
-            fontWeight: 600,
-            textTransform: 'none',
-            minWidth: { xs: '80px', sm: '100px' },
-            height: { xs: '40px', sm: '48px' },
-            '&:hover': {
-              backgroundColor: '#45a049',
-              transform: 'scale(1.05)'
+            backgroundColor: "#4CAF50",
+            borderRadius: "16px",
+            px: 4,
+            py: 1.2,
+            fontSize: "1rem",
+            fontWeight: 700,
+            textTransform: "none",
+            minWidth: 120,
+            height: 44,
+            flex: 1,
+            maxWidth: 200,
+            "&:hover": {
+              backgroundColor: "#45a049",
             },
-            '&:disabled': {
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.3)'
+            "&:disabled": {
+              backgroundColor: "rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.25)",
             },
-            transition: 'all 0.2s ease'
           }}
         >
           {t("next")}
         </Button>
 
-        {/* Right side - Next and Save */}
-        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-          <Tooltip title={t("nextMove")}>
-            <IconButton
-              onClick={() => addNextGameMoveToBoard()}
-              disabled={!hasNextMove}
-              sx={{
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: 'white',
-                width: { xs: '40px', sm: '48px' },
-                height: { xs: '40px', sm: '48px' },
-                '&:hover': { 
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  transform: 'scale(1.05)'
-                },
-                '&:disabled': { opacity: 0.3 },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <Icon icon="mdi:chevron-right" style={{ fontSize: '28px' }} />
-            </IconButton>
-          </Tooltip>
-
-          {/* Save Button */}
-          {gameFromUrl ? (
-            <Tooltip title={t("gameSavedInDb")}>
-              <IconButton 
-                disabled={true} 
-                sx={{
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  color: 'white',
-                  width: { xs: '40px', sm: '48px' },
-                  height: { xs: '40px', sm: '48px' },
-                  opacity: 0.5
-                }}
-              >
-                <Icon icon="mdi:folder-check" style={{ fontSize: '24px' }} />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title={t("saveGame")}>
-              <IconButton
-                onClick={handleSave}
-                disabled={!enableSave}
-                sx={{
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  color: 'white',
-                  width: { xs: '40px', sm: '48px' },
-                  height: { xs: '40px', sm: '48px' },
-                  '&:hover': { 
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    transform: 'scale(1.05)'
-                  },
-                  '&:disabled': { opacity: 0.3 },
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Icon icon="mdi:content-save" style={{ fontSize: '24px' }} />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-      </Box>
-
-      {/* Progress Bar */}
-      <Box sx={{ width: '100%', padding: '0 24px', marginBottom: '8px' }}>
-        <Box
+        <IconButton
+          onClick={() => addNextGameMoveToBoard()}
+          disabled={
+            !(
+              boardHistory.length < gameHistory.length &&
+              gameHistory.slice(0, boardHistory.length).join() ===
+                boardHistory.join()
+            )
+          }
           sx={{
-            height: '4px',
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            borderRadius: '2px',
-            overflow: 'hidden'
+            backgroundColor: "rgba(255,255,255,0.08)",
+            borderRadius: "12px",
+            color: "white",
+            width: 44,
+            height: 44,
+            "&:hover": {
+              backgroundColor: "rgba(255,255,255,0.15)",
+            },
+            "&:disabled": { opacity: 0.25 },
           }}
         >
-          <Box
-            sx={{
-              height: '100%',
-              backgroundColor: '#4CAF50',
-              width: `${totalMoves > 0 ? (currentMoveIndex / totalMoves) * 100 : 0}%`,
-              transition: 'width 0.3s ease',
-              borderRadius: '2px'
-            }}
-          />
-        </Box>
+          <Icon icon="mdi:chevron-right" style={{ fontSize: "26px" }} />
+        </IconButton>
       </Box>
-
-      {gameEval && <MoveWheel />}
     </Box>
   );
 }

@@ -23,9 +23,9 @@ export default function BoardContainer() {
     const width = screenSize.width;
     const height = screenSize.height;
 
-    // 1200 is the lg layout breakpoint
     if (window?.innerWidth < 1200) {
-      return Math.min(width - 8, height - 130);
+      // Banner(56) + playerHeaders(2*36) + nav(100) + moveStrip(44) + padding(48) ≈ 320px
+      return Math.min(width - 16, height - 220);
     }
 
     return Math.min(width - 700, height * 0.92);
@@ -43,8 +43,6 @@ export default function BoardContainer() {
       currentPositionAtom={currentPositionAtom}
       showBestMoveArrow={showBestMoveArrow}
       showPlayerMoveIconAtom={showPlayerMoveIconAtom}
-      showEvaluationBar={true}
-      showMoveExplanation={true}
     />
   );
 }
