@@ -33,6 +33,8 @@ import { logAnalyticsEvent } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
 import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { Stockfish18 } from "@/lib/engine/stockfish18";
+import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { DEFAULT_ENGINE, ENGINE_LABELS, STRONGEST_ENGINE } from "@/constants";
 import { getGameFromPgn } from "@/lib/chess";
 import { useTranslation } from "@/lib/i18n";
@@ -109,7 +111,11 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
 
   useEffect(() => {
     if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
+      if (Stockfish18.isSupported()) {
+        setEngineName(EngineName.Stockfish18Lite);
+      } else if (Stockfish17.isSupported()) {
+        setEngineName(EngineName.Stockfish17Lite);
+      } else if (Stockfish16_1.isSupported()) {
         setEngineName(EngineName.Stockfish16_1Lite);
       } else {
         setEngineName(EngineName.Stockfish11);
@@ -219,8 +225,8 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
                   }
                 }}
               >
-                {/* Only show lite/light engines to save server resources */}
                 {[
+                  EngineName.Stockfish18Lite,
                   EngineName.Stockfish17Lite,
                   EngineName.Stockfish16_1Lite,
                   EngineName.Stockfish11,

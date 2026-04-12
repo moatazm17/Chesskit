@@ -247,7 +247,7 @@ export default function FairPlayPage() {
 
   const engineName = useMemo(() => {
     if (!isWasmSupported()) return EngineName.Stockfish11;
-    return EngineName.Stockfish17Lite;
+    return EngineName.Stockfish18Lite;
   }, []);
   const engine = useEngine(engineName);
 

@@ -326,6 +326,7 @@ export const getIsPieceSacrifice = (
   }
 
   if (
+    enPriseSacrifice === 0 &&
     Math.abs(capturedPieces["w"].length - capturedPieces["b"].length) <= 1 &&
     capturedPieces["w"].concat(capturedPieces["b"]).every((p) => p === "p")
   ) {

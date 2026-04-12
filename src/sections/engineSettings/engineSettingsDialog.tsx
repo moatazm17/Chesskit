@@ -27,6 +27,8 @@ import { useAtomLocalStorage } from "@/hooks/useAtomLocalStorage";
 import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
 import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { Stockfish18 } from "@/lib/engine/stockfish18";
+import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { useAtom } from "jotai";
 import { pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
@@ -66,7 +68,11 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
 
   useEffect(() => {
     if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
+      if (Stockfish18.isSupported()) {
+        setEngineName(EngineName.Stockfish18Lite);
+      } else if (Stockfish17.isSupported()) {
+        setEngineName(EngineName.Stockfish17Lite);
+      } else if (Stockfish16_1.isSupported()) {
         setEngineName(EngineName.Stockfish16_1Lite);
       } else {
         setEngineName(EngineName.Stockfish11);

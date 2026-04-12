@@ -23,3 +23,6 @@ cdk.context.json
 
 # Engine files (served from R2)
 public/engines/
+
+# Local project context (not for GitHub)
+PROJECT_CONTEXT.md

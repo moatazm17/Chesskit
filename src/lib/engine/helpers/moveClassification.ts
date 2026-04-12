@@ -254,8 +254,6 @@ const isBrilliantMove = (
   const pieceCount = getPieceCount(fen);
   const isEndgame = pieceCount < 10;
 
-  // In endgame: sacrifice must be the only good move (alternative much worse)
-  // In opening/middlegame: sacrifice just needs to be strong
   const minAlternativeDiff = isEndgame ? 8 : 2;
 
   const alternativeDiff =
@@ -263,10 +261,8 @@ const isBrilliantMove = (
     (isWhiteMove ? 1 : -1);
   if (alternativeDiff < minAlternativeDiff) return false;
 
-  // Don't award in trivial endgames (king + 1 piece)
   if (pieceCount < 5) return false;
 
-  // Don't award if the alternative is already completely winning
   const isAlternateCompletelyWinning = isWhiteMove
     ? lastPositionAlternativeLineWinPercentage > 98
     : lastPositionAlternativeLineWinPercentage < 2;

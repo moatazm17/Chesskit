@@ -71,7 +71,7 @@ export default function BotsPage() {
     setActiveBot(selectedBot);
     setEngineElo(selectedBot.elo);
     setPlayerColor(color);
-    setEngineName(EngineName.Stockfish17Lite);
+    setEngineName(EngineName.Stockfish18Lite);
 
     // Reset game
     resetGame({
