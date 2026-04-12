@@ -54,7 +54,7 @@ const HomeCard: React.FC<HomeCardProps> = React.memo(({
     <Card
       onClick={onClick}
       sx={{
-        width: isMobile ? "100%" : 280,
+        width: "100%",
         height: isMobile ? 160 : 200,
         position: "relative",
         background: isPopular
@@ -512,7 +512,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                   }
                 }}
                 sx={{
-                  width: isMobile ? "100%" : 280,
+                  width: "100%",
                   height: isMobile ? 160 : 200,
                   position: "relative",
                   background: `linear-gradient(135deg, ${promoCard.color || "#FF6B35"}30, ${promoCard.color || "#FF6B35"}12)`,

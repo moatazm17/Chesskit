@@ -7,12 +7,10 @@ import { engineNameAtom, gameEvalAtom } from "@/sections/analysis/states";
 import {
   Box,
   Divider,
-  Grid2 as Grid,
   Tab,
   Tabs,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { useState, useEffect, useCallback } from "react";
@@ -36,8 +34,7 @@ interface AnalysisViewProps {
 
 export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
+  const isDesktop = useMediaQuery("(min-width: 810px)");
   const gameEval = useAtomValue(gameEvalAtom);
   const [tab, setTab] = useState(0);
   const engineName = useAtomValue(engineNameAtom);
@@ -52,9 +49,9 @@ export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
   }, [showMovesTab, gameEval, tab]);
 
   // On mobile with completed analysis, show the clean review layout
-  const isReviewMode = !isLgOrGreater && !!gameEval;
+  const isReviewMode = !isDesktop && !!gameEval;
 
-  if (!isLgOrGreater) {
+  if (!isDesktop) {
     return (
       <Box
         sx={{
@@ -229,7 +226,7 @@ export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
     );
   }
 
-  // Desktop layout (unchanged)
+  // Desktop / iPad layout
   return (
     <Box
       sx={{
@@ -240,62 +237,64 @@ export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Grid
-        container
-        gap={4}
-        justifyContent="space-evenly"
-        alignItems="start"
+      <PageTitle title={t("gameAnalysis")} />
+
+      <Box
         sx={{
-          maxWidth: "100vw",
-          overflow: "hidden",
+          display: "flex",
+          gap: 3,
+          maxWidth: "1600px",
+          mx: "auto",
+          px: 2,
+          pt: 1,
+          alignItems: "flex-start",
+          height: "calc(100vh - 80px)",
         }}
       >
-        <PageTitle title={t("gameAnalysis")} />
-
-        <Board />
-
-        <BoardNavigation />
-
-        <Grid
-          container
-          justifyContent="start"
-          alignItems="center"
-          borderRadius={3}
-          border={1}
-          borderColor={"secondary.main"}
+        {/* Left column: Board only */}
+        <Box
           sx={{
-            backgroundColor: "rgba(255,255,255,0.05)",
-            borderColor: "rgba(255,255,255,0.1)",
-            borderWidth: 1,
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-            backdropFilter: "blur(10px)",
-          }}
-          padding={2}
-          style={{
-            maxWidth: "1200px",
-          }}
-          rowGap={2}
-          height="calc(95vh - 60px)"
-          display="flex"
-          flexDirection="column"
-          flexWrap="nowrap"
-          size={{
-            xs: 12,
-            lg: "grow",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            flexShrink: 0,
           }}
         >
-          <Box width="100%">
-            <PanelHeader key="analysis-panel-header" />
-            <Divider sx={{ marginX: "5%", marginTop: 2.5 }} />
-          </Box>
+          <Board />
+        </Box>
+
+        {/* Right column: Panel */}
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+            borderRadius: 3,
+            border: "1px solid rgba(255,255,255,0.1)",
+            backgroundColor: "rgba(255,255,255,0.05)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+            p: 2,
+            overflow: "hidden",
+          }}
+        >
+          {/* Classification Banner */}
+          {gameEval && <ClassificationBanner />}
+
+          {/* Navigation: move wheel + arrows */}
+          {gameEval && <BoardNavigation />}
+
+          <PanelHeader key="analysis-panel-header" />
+          <Divider sx={{ marginX: "5%" }} />
 
           <Box
-            width="100%"
             sx={{
               display: "flex",
               justifyContent: "center",
-              padding: "0 16px",
-              marginBottom: 2,
+              px: 2,
             }}
           >
             <Tabs
@@ -309,8 +308,8 @@ export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
                 maxWidth: "480px",
                 "& .MuiTabs-indicator": { display: "none" },
                 "& .MuiTab-root": {
-                  minHeight: 48,
-                  fontSize: "0.9rem",
+                  minHeight: 44,
+                  fontSize: "0.85rem",
                   fontWeight: 600,
                   textTransform: "none",
                   borderRadius: "12px",
@@ -349,25 +348,15 @@ export default function AnalysisView({ showMovesTab }: AnalysisViewProps) {
             </Tabs>
           </Box>
 
-          <GraphTab
-            role="tabpanel"
-            hidden={tab !== 2}
-            id="tabContent2"
-          />
-          <AnalysisTab
-            role="tabpanel"
-            hidden={tab !== 0}
-            id="tabContent0"
-          />
-          <ClassificationTab
-            role="tabpanel"
-            hidden={tab !== 1}
-            id="tabContent1"
-          />
-        </Grid>
+          <Box sx={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+            <GraphTab role="tabpanel" hidden={tab !== 2} id="tabContent2" />
+            <AnalysisTab role="tabpanel" hidden={tab !== 0} id="tabContent0" />
+            <ClassificationTab role="tabpanel" hidden={tab !== 1} id="tabContent1" />
+          </Box>
+        </Box>
+      </Box>
 
-        <EngineSettingsButton />
-      </Grid>
+      <EngineSettingsButton />
     </Box>
   );
 }

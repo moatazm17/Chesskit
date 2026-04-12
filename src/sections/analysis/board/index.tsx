@@ -23,12 +23,12 @@ export default function BoardContainer() {
     const width = screenSize.width;
     const height = screenSize.height;
 
-    if (window?.innerWidth < 1200) {
-      // Banner(56) + playerHeaders(2*36) + nav(100) + moveStrip(44) + padding(48) ≈ 320px
+    if (width < 810) {
       return Math.min(width - 16, height - 220);
     }
 
-    return Math.min(width - 700, height * 0.92);
+    // Desktop/iPad: board on left, panel on right
+    return Math.min(width * 0.45, height - 160);
   }, [screenSize]);
 
   return (
