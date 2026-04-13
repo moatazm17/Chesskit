@@ -254,7 +254,7 @@ const isBrilliantMove = (
   const pieceCount = getPieceCount(fen);
   const isEndgame = pieceCount < 10;
 
-  const minAlternativeDiff = isEndgame ? 8 : 2;
+  const minAlternativeDiff = isEndgame ? 6 : 1;
 
   const alternativeDiff =
     (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *

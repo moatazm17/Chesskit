@@ -207,11 +207,12 @@ export const isSimplePieceRecapture = (
 
   if (moves[0].to !== moves[1].to) return false;
 
+  // First move must be a capture for this to be a recapture sequence
   if (game.get(moves[0].to)) return true;
 
   try {
-    game.move(moves[0]);
-    if (game.get(moves[0].to)) return true;
+    const result = game.move(moves[0]);
+    if (result.captured && game.get(moves[0].to)) return true;
   } catch {
     return false;
   }
