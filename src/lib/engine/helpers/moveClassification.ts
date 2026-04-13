@@ -112,6 +112,21 @@ export const getMovesClassification = (
       };
     }
 
+    const winPercentageDiff =
+      (positionWinPercentage - lastPositionWinPercentage) *
+      (isWhiteMove ? 1 : -1);
+
+    // Near-best: move loses no meaningful win probability (matches Chess.com's
+    // definition where Best = 0% expected points lost, with tolerance for
+    // engine differences)
+    if (winPercentageDiff >= -0.5) {
+      return {
+        ...rawPosition,
+        opening: currentOpening,
+        moveClassification: MoveClassification.Best,
+      };
+    }
+
     // Check for "Miss" (missed winning opportunity) before basic classification
     const missClassification = getMissClassification(
       lastPositionWinPercentage,
@@ -187,18 +202,41 @@ const getMoveBasicClassification = (
     (positionWinPercentage - lastPositionWinPercentage) *
     (isWhiteMove ? 1 : -1);
 
-  // Rating-based threshold adjustment:
-  // Higher-rated players are expected to be more precise.
-  // Factor ranges from 1.0 (<=1500) to 0.7 (3000+)
   const ratingFactor = playerRating
     ? Math.max(0.7, 1 - Math.max(0, playerRating - 1500) / 5000)
     : 1;
 
-  if (winPercentageDiff < -20 * ratingFactor) return MoveClassification.Blunder;
-  if (winPercentageDiff < -10 * ratingFactor) return MoveClassification.Mistake;
-  if (winPercentageDiff < -5 * ratingFactor) return MoveClassification.Inaccuracy;
-  if (winPercentageDiff < -2 * ratingFactor) return MoveClassification.Okay;
-  return MoveClassification.Excellent;
+  let classification: MoveClassification;
+  if (winPercentageDiff < -20 * ratingFactor) classification = MoveClassification.Blunder;
+  else if (winPercentageDiff < -10 * ratingFactor) classification = MoveClassification.Mistake;
+  else if (winPercentageDiff < -5 * ratingFactor) classification = MoveClassification.Inaccuracy;
+  else if (winPercentageDiff < -2 * ratingFactor) classification = MoveClassification.Okay;
+  else return MoveClassification.Excellent;
+
+  const playerWinBefore = isWhiteMove
+    ? lastPositionWinPercentage
+    : 100 - lastPositionWinPercentage;
+  const playerWinAfter = isWhiteMove
+    ? positionWinPercentage
+    : 100 - positionWinPercentage;
+
+  console.log(
+    `[Classification] winDiff: ${winPercentageDiff.toFixed(2)}, ratingFactor: ${ratingFactor.toFixed(2)}, raw: ${classification}, playerWinBefore: ${playerWinBefore.toFixed(1)}%, playerWinAfter: ${playerWinAfter.toFixed(1)}%`
+  );
+
+  if (
+    (classification === MoveClassification.Blunder ||
+      classification === MoveClassification.Mistake) &&
+    ((playerWinBefore > 60 && playerWinAfter > 55) ||
+      (playerWinBefore < 40 && playerWinAfter < 40))
+  ) {
+    console.log(
+      `[Classification] ⚡ Still-winning filter: ${classification} → Inaccuracy`
+    );
+    return MoveClassification.Inaccuracy;
+  }
+
+  return classification;
 };
 
 /**
@@ -218,27 +256,60 @@ const isBrilliantMove = (
   fenTwoMovesAgo?: string | null,
   uciLastTwoMoves?: [string, string] | null
 ): boolean => {
-  if (lastPositionAlternativeLineWinPercentage === undefined) return false;
+  const log = (msg: string) =>
+    console.log(`[Brilliant] Move: ${playedMove} | ${msg}`);
 
-  if (isCheck(fen)) return false;
+  if (lastPositionAlternativeLineWinPercentage === undefined) {
+    log("SKIP: no alternative line");
+    return false;
+  }
+
+  if (isCheck(fen)) {
+    log("SKIP: position is check");
+    return false;
+  }
 
   if (
     fenTwoMovesAgo &&
     uciLastTwoMoves &&
     isSimplePieceRecapture(fenTwoMovesAgo, uciLastTwoMoves)
-  )
+  ) {
+    log("SKIP: simple recapture");
     return false;
+  }
+
+  const minSacrifice = !playerRating || playerRating < 1800 ? 2 : 3;
+
+  const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
+  log(
+    `sacrifice: ${sacrificeValue}, minSacrifice: ${minSacrifice}, bestPv: ${bestLinePvToPlay.slice(0, 5).join(",")}`
+  );
+  if (sacrificeValue < minSacrifice) {
+    log("FAIL: not enough sacrifice");
+    return false;
+  }
 
   const winPercentageDiff =
     (positionWinPercentage - lastPositionWinPercentage) *
     (isWhiteMove ? 1 : -1);
 
-  if (winPercentageDiff < -3) return false;
+  const playerWinAfter = isWhiteMove
+    ? positionWinPercentage
+    : 100 - positionWinPercentage;
 
-  const minSacrifice = !playerRating || playerRating < 1800 ? 2 : 3;
+  log(
+    `winDiff: ${winPercentageDiff.toFixed(2)}, playerWinAfter: ${playerWinAfter.toFixed(2)}%, lastWin%: ${lastPositionWinPercentage.toFixed(2)}, curWin%: ${positionWinPercentage.toFixed(2)}`
+  );
 
-  const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
-  if (sacrificeValue < minSacrifice) return false;
+  if (playerWinAfter < 25) {
+    log("FAIL: position lost after sacrifice (playerWinAfter < 25%)");
+    return false;
+  }
+
+  if (winPercentageDiff < -15) {
+    log("FAIL: eval collapsed (winDiff < -15%, safety net)");
+    return false;
+  }
 
   const playerWinBeforeMove = isWhiteMove
     ? lastPositionWinPercentage
@@ -249,7 +320,13 @@ const isBrilliantMove = (
     : playerRating < 2000 ? 92
     : 90;
 
-  if (playerWinBeforeMove > maxWinBeforeMove) return false;
+  log(
+    `playerWinBefore: ${playerWinBeforeMove.toFixed(2)}, maxWinBefore: ${maxWinBeforeMove}, rating: ${playerRating}`
+  );
+  if (playerWinBeforeMove > maxWinBeforeMove) {
+    log("FAIL: already winning too much");
+    return false;
+  }
 
   const pieceCount = getPieceCount(fen);
   const isEndgame = pieceCount < 10;
@@ -259,15 +336,28 @@ const isBrilliantMove = (
   const alternativeDiff =
     (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
     (isWhiteMove ? 1 : -1);
-  if (alternativeDiff < minAlternativeDiff) return false;
+  log(
+    `altDiff: ${alternativeDiff.toFixed(2)}, minAltDiff: ${minAlternativeDiff}, altWin%: ${lastPositionAlternativeLineWinPercentage.toFixed(2)}, pieces: ${pieceCount}, endgame: ${isEndgame}`
+  );
+  if (alternativeDiff < minAlternativeDiff) {
+    log("FAIL: alternative too close");
+    return false;
+  }
 
-  if (pieceCount < 5) return false;
+  if (pieceCount < 5) {
+    log("FAIL: too few pieces");
+    return false;
+  }
 
   const isAlternateCompletelyWinning = isWhiteMove
     ? lastPositionAlternativeLineWinPercentage > 98
     : lastPositionAlternativeLineWinPercentage < 2;
-  if (isAlternateCompletelyWinning) return false;
+  if (isAlternateCompletelyWinning) {
+    log("FAIL: alternate is completely winning anyway");
+    return false;
+  }
 
+  log("✅ BRILLIANT!");
   return true;
 };
 

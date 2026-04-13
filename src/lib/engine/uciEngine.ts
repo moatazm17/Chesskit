@@ -243,7 +243,7 @@ export class UciEngine {
   public async evaluateGame({
     fens,
     uciMoves,
-    depth = 18,
+    depth = 22,
     multiPv = this.multiPv,
     setEvaluationProgress,
     playersRatings,
@@ -335,7 +335,7 @@ export class UciEngine {
 
   private async evaluatePosition(
     fen: string,
-    depth = 18,
+    depth = 22,
     workersNb: number
   ): Promise<PositionEval> {
     if (workersNb < 2) {

@@ -482,7 +482,7 @@ export default function GameAnalysisModal({
                 variant="outlined"
                 onClick={() => {
                   if (!shouldGateFeature()) {
-                    setSelectedDepth(18);
+                    setSelectedDepth(22);
                   } else {
                     setPremiumModalOpen(true);
                   }

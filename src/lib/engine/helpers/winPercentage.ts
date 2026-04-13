@@ -22,12 +22,18 @@ const getWinPercentageFromMate = (mate: number): number => {
   return getWinPercentageFromCp(mateInf);
 };
 
-// Win percentage sigmoid curve.
-// Steeper than the original Lichess curve (-0.00368208) to better reflect
-// how advantages convert in practice, closer to Chess.com's model.
+// Win percentage sigmoid curve matching Chess.com's model.
+let _winPctLogOnce = false;
 const getWinPercentageFromCp = (cp: number): number => {
   const cpCeiled = ceilsNumber(cp, -1000, 1000);
-  const MULTIPLIER = -0.004;
+  const MULTIPLIER = -0.00368208;
   const winChances = 2 / (1 + Math.exp(MULTIPLIER * cpCeiled)) - 1;
-  return 50 + 50 * winChances;
+  const result = 50 + 50 * winChances;
+  if (!_winPctLogOnce) {
+    _winPctLogOnce = true;
+    console.log(
+      `[WinPct] Using multiplier: ${MULTIPLIER} | Example: cp=100 → ${(50 + 50 * (2 / (1 + Math.exp(MULTIPLIER * 100)) - 1)).toFixed(2)}%`
+    );
+  }
+  return result;
 };
