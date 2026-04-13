@@ -21,12 +21,12 @@ export enum MoveClassification {
   Mistake = "mistake",
   Miss = "miss",
   Inaccuracy = "inaccuracy",
-  Okay = "okay",
+  Good = "good",
   Excellent = "excellent",
   Best = "best",
   Forced = "forced",
-  Opening = "opening",
-  Perfect = "perfect",
+  Book = "book",
+  Great = "great",
   Brilliant = "brilliant",
 }
 

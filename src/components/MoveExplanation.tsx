@@ -20,12 +20,12 @@ const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Mistake]: "#f57c00",
   [MoveClassification.Miss]: "#e68a00",
   [MoveClassification.Inaccuracy]: "#ffb74d",
-  [MoveClassification.Okay]: "#9ccc65",
+  [MoveClassification.Good]: "#9ccc65",
   [MoveClassification.Excellent]: "#66bb6a",
   [MoveClassification.Best]: "#4caf50",
   [MoveClassification.Forced]: "#90a4ae",
-  [MoveClassification.Opening]: "#78909c",
-  [MoveClassification.Perfect]: "#2196f3",
+  [MoveClassification.Book]: "#78909c",
+  [MoveClassification.Great]: "#2196f3",
   [MoveClassification.Brilliant]: "#00bcd4",
 };
 
@@ -34,12 +34,12 @@ const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
   [MoveClassification.Mistake]: "mdi:close",
   [MoveClassification.Miss]: "mdi:target",
   [MoveClassification.Inaccuracy]: "mdi:help-circle",
-  [MoveClassification.Okay]: "mdi:circle-outline",
+  [MoveClassification.Good]: "mdi:circle-outline",
   [MoveClassification.Excellent]: "mdi:thumb-up",
   [MoveClassification.Best]: "mdi:check-circle",
   [MoveClassification.Forced]: "mdi:lock",
-  [MoveClassification.Opening]: "mdi:book-open-variant",
-  [MoveClassification.Perfect]: "mdi:exclamation-thick",
+  [MoveClassification.Book]: "mdi:book-open-variant",
+  [MoveClassification.Great]: "mdi:exclamation-thick",
   [MoveClassification.Brilliant]: "mdi:star",
 };
 

@@ -22,7 +22,7 @@ export default function PanelToolBar() {
     
     const importantClassifications = [
       MoveClassification.Brilliant,
-      MoveClassification.Perfect, 
+      MoveClassification.Great, 
       MoveClassification.Best,
       MoveClassification.Miss,
       MoveClassification.Mistake,

@@ -18,12 +18,12 @@ import { getEvaluationBarValue } from "@/lib/chess";
 
 const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Brilliant]: "#26C6DA",
-  [MoveClassification.Perfect]: "#42A5F5",
+  [MoveClassification.Great]: "#42A5F5",
   [MoveClassification.Best]: "#66BB6A",
   [MoveClassification.Excellent]: "#8BC34A",
-  [MoveClassification.Okay]: "#9ccc65",
+  [MoveClassification.Good]: "#9ccc65",
   [MoveClassification.Forced]: "#78909c",
-  [MoveClassification.Opening]: "#78909c",
+  [MoveClassification.Book]: "#78909c",
   [MoveClassification.Inaccuracy]: "#F9A825",
   [MoveClassification.Miss]: "#FF8F00",
   [MoveClassification.Mistake]: "#FF6D00",
@@ -32,12 +32,12 @@ const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
 
 const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
   [MoveClassification.Brilliant]: "mdi:star-four-points",
-  [MoveClassification.Perfect]: "mdi:exclamation-thick",
+  [MoveClassification.Great]: "mdi:exclamation-thick",
   [MoveClassification.Best]: "mdi:check-bold",
   [MoveClassification.Excellent]: "mdi:thumb-up",
-  [MoveClassification.Okay]: "mdi:circle-outline",
+  [MoveClassification.Good]: "mdi:circle-outline",
   [MoveClassification.Forced]: "mdi:lock",
-  [MoveClassification.Opening]: "mdi:book-open-variant",
+  [MoveClassification.Book]: "mdi:book-open-variant",
   [MoveClassification.Inaccuracy]: "mdi:help-circle",
   [MoveClassification.Miss]: "mdi:target",
   [MoveClassification.Mistake]: "mdi:close",
@@ -46,12 +46,12 @@ const CLASSIFICATION_ICONS: Record<MoveClassification, string> = {
 
 const CLASSIFICATION_LABELS: Record<MoveClassification, string> = {
   [MoveClassification.Brilliant]: "brilliant",
-  [MoveClassification.Perfect]: "great",
+  [MoveClassification.Great]: "great",
   [MoveClassification.Best]: "best",
   [MoveClassification.Excellent]: "excellent",
-  [MoveClassification.Okay]: "good",
+  [MoveClassification.Good]: "good",
   [MoveClassification.Forced]: "forced",
-  [MoveClassification.Opening]: "book",
+  [MoveClassification.Book]: "book",
   [MoveClassification.Inaccuracy]: "inaccuracy",
   [MoveClassification.Miss]: "miss",
   [MoveClassification.Mistake]: "mistake",

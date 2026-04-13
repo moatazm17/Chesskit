@@ -22,18 +22,10 @@ const getWinPercentageFromMate = (mate: number): number => {
   return getWinPercentageFromCp(mateInf);
 };
 
-// Win percentage sigmoid curve matching Chess.com's model.
-let _winPctLogOnce = false;
+const MULTIPLIER = -0.00368208;
+
 const getWinPercentageFromCp = (cp: number): number => {
   const cpCeiled = ceilsNumber(cp, -1000, 1000);
-  const MULTIPLIER = -0.00368208;
   const winChances = 2 / (1 + Math.exp(MULTIPLIER * cpCeiled)) - 1;
-  const result = 50 + 50 * winChances;
-  if (!_winPctLogOnce) {
-    _winPctLogOnce = true;
-    console.log(
-      `[WinPct] Using multiplier: ${MULTIPLIER} | Example: cp=100 → ${(50 + 50 * (2 / (1 + Math.exp(MULTIPLIER * 100)) - 1)).toFixed(2)}%`
-    );
-  }
-  return result;
+  return 50 + 50 * winChances;
 };

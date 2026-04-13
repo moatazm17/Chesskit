@@ -45,10 +45,10 @@ export default function MoveInfo() {
 
   const showBestMoveLabel =
     moveClassification !== MoveClassification.Best &&
-    moveClassification !== MoveClassification.Opening &&
+    moveClassification !== MoveClassification.Book &&
     moveClassification !== MoveClassification.Forced &&
     moveClassification !== MoveClassification.Brilliant &&
-    moveClassification !== MoveClassification.Perfect;
+    moveClassification !== MoveClassification.Great;
 
   return (
     <Stack
@@ -112,13 +112,14 @@ export default function MoveInfo() {
 }
 
 const moveClassificationLabels: Record<MoveClassification, string> = {
-  [MoveClassification.Opening]: "an opening move",
+  [MoveClassification.Book]: "an opening move",
   [MoveClassification.Forced]: "forced",
   [MoveClassification.Brilliant]: "brilliant !!",
-  [MoveClassification.Perfect]: "the only good move !",
+  [MoveClassification.Great]: "the only good move !",
   [MoveClassification.Best]: "the best move",
   [MoveClassification.Excellent]: "excellent",
-  [MoveClassification.Okay]: "an okay move",
+  [MoveClassification.Good]: "a good move",
+  [MoveClassification.Miss]: "a miss",
   [MoveClassification.Inaccuracy]: "an inaccuracy",
   [MoveClassification.Mistake]: "a mistake",
   [MoveClassification.Blunder]: "a blunder",

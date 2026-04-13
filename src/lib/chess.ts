@@ -337,14 +337,27 @@ export const getIsPieceSacrifice = (
   const endingMaterialDifference = getMaterialDifference(game.fen());
   const materialDiff = endingMaterialDifference - startingMaterialDifference - promotionMaterialShift;
   const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
-  const netSacrifice = materialDiffPlayerRelative < 0 ? -materialDiffPlayerRelative : 0;
+
+  // Only count net material loss as sacrifice if the moved piece was actually captured.
+  // Otherwise, material changes from later exchanges aren't "this move's sacrifice".
+  const netSacrifice =
+    movedPieceCaptured && materialDiffPlayerRelative < 0
+      ? -materialDiffPlayerRelative
+      : 0;
 
   const tempSacrifice =
     movedPieceCaptured && capturedByMove < movedPieceValue
       ? movedPieceValue - capturedByMove
       : 0;
 
-  return Math.max(netSacrifice, tempSacrifice, enPriseSacrifice);
+  // enPriseSacrifice only counts if the piece doesn't escape in the best line.
+  // If the piece moved away or survived, it's not a real sacrifice.
+  const effectiveEnPrise =
+    enPriseSacrifice > 0 && !pieceStillOnSquare && !movedPieceCaptured
+      ? 0
+      : enPriseSacrifice;
+
+  return Math.max(netSacrifice, tempSacrifice, effectiveEnPrise);
 };
 
 /**

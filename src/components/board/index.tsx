@@ -319,9 +319,9 @@ export default function Board({
       if (
         bestMove &&
         moveClassification !== MoveClassification.Best &&
-        moveClassification !== MoveClassification.Opening &&
+        moveClassification !== MoveClassification.Book &&
         moveClassification !== MoveClassification.Forced &&
-        moveClassification !== MoveClassification.Perfect
+        moveClassification !== MoveClassification.Great
       ) {
         arrows.push([
           bestMove.slice(0, 2),

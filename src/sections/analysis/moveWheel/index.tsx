@@ -17,7 +17,7 @@ interface WheelMove {
 }
 
 const classificationsToHide: MoveClassification[] = [
-  MoveClassification.Okay,
+  MoveClassification.Good,
   MoveClassification.Excellent,
   MoveClassification.Forced,
 ];

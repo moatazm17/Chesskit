@@ -20,6 +20,7 @@ export const getMovesClassification = (
 ): PositionEval[] => {
   const positionsWinPercentage = rawPositions.map(getPositionWinPercentage);
   let currentOpening: string | undefined = undefined;
+  let lastClassification: MoveClassification | undefined = undefined;
 
   const positions = rawPositions.map((rawPosition, index) => {
     if (index === 0) return rawPosition;
@@ -28,16 +29,18 @@ export const getMovesClassification = (
     const openingName = openingsByFen.get(currentFen);
     if (openingName) {
       currentOpening = openingName;
+      lastClassification = MoveClassification.Book;
       return {
         ...rawPosition,
         opening: openingName,
-        moveClassification: MoveClassification.Opening,
+        moveClassification: MoveClassification.Book,
       };
     }
 
     const prevPosition = rawPositions[index - 1];
 
     if (prevPosition.lines.length === 1) {
+      lastClassification = MoveClassification.Forced;
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -66,7 +69,15 @@ export const getMovesClassification = (
     const uciNextTwoMoves: [string, string] | null =
       index > 1 ? [uciMoves[index - 2], uciMoves[index - 1]] : null;
 
+    const isBestMove = playedMove === prevPosition.bestMove;
+    const epLoss = getExpectedPointsLoss(
+      lastPositionWinPercentage,
+      positionWinPercentage,
+      isWhiteMove
+    );
+
     if (
+      isBestMove &&
       isBrilliantMove(
         lastPositionWinPercentage,
         positionWinPercentage,
@@ -80,6 +91,7 @@ export const getMovesClassification = (
         uciNextTwoMoves
       )
     ) {
+      lastClassification = MoveClassification.Brilliant;
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -88,38 +100,28 @@ export const getMovesClassification = (
     }
 
     if (
-      isPerfectMove(
+      isBestMove &&
+      isGreatMove(
         lastPositionWinPercentage,
         positionWinPercentage,
         isWhiteMove,
         lastPositionAlternativeLineWinPercentage,
+        lastClassification,
         fenTwoMovesAgo,
         uciNextTwoMoves
       )
     ) {
+      lastClassification = MoveClassification.Great;
       return {
         ...rawPosition,
         opening: currentOpening,
-        moveClassification: MoveClassification.Perfect,
+        moveClassification: MoveClassification.Great,
       };
     }
 
-    if (playedMove === prevPosition.bestMove) {
-      return {
-        ...rawPosition,
-        opening: currentOpening,
-        moveClassification: MoveClassification.Best,
-      };
-    }
-
-    const winPercentageDiff =
-      (positionWinPercentage - lastPositionWinPercentage) *
-      (isWhiteMove ? 1 : -1);
-
-    // Near-best: move loses no meaningful win probability (matches Chess.com's
-    // definition where Best = 0% expected points lost, with tolerance for
-    // engine differences)
-    if (winPercentageDiff >= -0.5) {
+    // Best move or negligible expected points loss (< 0.5%)
+    if (isBestMove || epLoss < 0.5) {
+      lastClassification = MoveClassification.Best;
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -127,13 +129,13 @@ export const getMovesClassification = (
       };
     }
 
-    // Check for "Miss" (missed winning opportunity) before basic classification
     const missClassification = getMissClassification(
       lastPositionWinPercentage,
       positionWinPercentage,
       isWhiteMove
     );
     if (missClassification) {
+      lastClassification = missClassification;
       return {
         ...rawPosition,
         opening: currentOpening,
@@ -144,10 +146,10 @@ export const getMovesClassification = (
     const moveClassification = getMoveBasicClassification(
       lastPositionWinPercentage,
       positionWinPercentage,
-      isWhiteMove,
-      playerRating
+      isWhiteMove
     );
 
+    lastClassification = moveClassification;
     return {
       ...rawPosition,
       opening: currentOpening,
@@ -159,9 +161,25 @@ export const getMovesClassification = (
 };
 
 /**
+ * Calculate expected points loss from a move.
+ * Expected points = win probability on a 0-1 scale.
+ * Win percentage is on a 0-100 scale, so we divide by 100.
+ */
+const getExpectedPointsLoss = (
+  lastPositionWinPercentage: number,
+  positionWinPercentage: number,
+  isWhiteMove: boolean
+): number => {
+  const epBefore = lastPositionWinPercentage / 100;
+  const epAfter = positionWinPercentage / 100;
+  return isWhiteMove
+    ? Math.max(0, epBefore - epAfter) * 100
+    : Math.max(0, epAfter - epBefore) * 100;
+};
+
+/**
  * Detect "Miss" - a move where the player had a winning position
  * but failed to convert, and the advantage is now significantly reduced or gone.
- * Similar to Chess.com's "Miss" (formerly "Missed Win").
  */
 const getMissClassification = (
   lastPositionWinPercentage: number,
@@ -177,9 +195,6 @@ const getMissClassification = (
 
   const winLoss = playerWinBefore - playerWinAfter;
 
-  // Miss = had a strong winning position (>= 65%) but let it slip significantly
-  // The position after must no longer be clearly winning (< 55%)
-  // And the loss must be at least 10%
   if (playerWinBefore >= 65 && playerWinAfter < 55 && winLoss >= 10) {
     return MoveClassification.Miss;
   }
@@ -188,29 +203,34 @@ const getMissClassification = (
 };
 
 /**
- * Basic move classification based on win percentage difference.
- * Thresholds are adjusted based on player rating (higher-rated players
- * are held to stricter standards, matching Chess.com's expected points model).
+ * Chess.com Expected Points Model thresholds (on 0-100 win% scale):
+ *   Best:       0% loss
+ *   Excellent:  0–2% loss
+ *   Good:       2–5% loss
+ *   Inaccuracy: 5–10% loss
+ *   Mistake:    10–20% loss
+ *   Blunder:    >20% loss
+ *
+ * Additional context-aware adjustments:
+ * - Blunders are downgraded if the player is still clearly winning
+ * - Blunders are downgraded if the player was already completely lost
  */
 const getMoveBasicClassification = (
   lastPositionWinPercentage: number,
   positionWinPercentage: number,
-  isWhiteMove: boolean,
-  playerRating?: number
+  isWhiteMove: boolean
 ): MoveClassification => {
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-
-  const ratingFactor = playerRating
-    ? Math.max(0.7, 1 - Math.max(0, playerRating - 1500) / 5000)
-    : 1;
+  const epLoss = getExpectedPointsLoss(
+    lastPositionWinPercentage,
+    positionWinPercentage,
+    isWhiteMove
+  );
 
   let classification: MoveClassification;
-  if (winPercentageDiff < -20 * ratingFactor) classification = MoveClassification.Blunder;
-  else if (winPercentageDiff < -10 * ratingFactor) classification = MoveClassification.Mistake;
-  else if (winPercentageDiff < -5 * ratingFactor) classification = MoveClassification.Inaccuracy;
-  else if (winPercentageDiff < -2 * ratingFactor) classification = MoveClassification.Okay;
+  if (epLoss > 20) classification = MoveClassification.Blunder;
+  else if (epLoss > 10) classification = MoveClassification.Mistake;
+  else if (epLoss > 5) classification = MoveClassification.Inaccuracy;
+  else if (epLoss > 2) classification = MoveClassification.Good;
   else return MoveClassification.Excellent;
 
   const playerWinBefore = isWhiteMove
@@ -220,19 +240,24 @@ const getMoveBasicClassification = (
     ? positionWinPercentage
     : 100 - positionWinPercentage;
 
-  console.log(
-    `[Classification] winDiff: ${winPercentageDiff.toFixed(2)}, ratingFactor: ${ratingFactor.toFixed(2)}, raw: ${classification}, playerWinBefore: ${playerWinBefore.toFixed(1)}%, playerWinAfter: ${playerWinAfter.toFixed(1)}%`
-  );
+  // Don't call it a blunder if the player is still clearly winning (>= 60%)
+  if (classification === MoveClassification.Blunder && playerWinAfter >= 60) {
+    return MoveClassification.Good;
+  }
 
+  // Don't call it a blunder if the player was already completely lost (<= 40%)
   if (
-    (classification === MoveClassification.Blunder ||
-      classification === MoveClassification.Mistake) &&
-    ((playerWinBefore > 60 && playerWinAfter > 55) ||
-      (playerWinBefore < 40 && playerWinAfter < 40))
+    classification === MoveClassification.Blunder &&
+    playerWinBefore <= 40
   ) {
-    console.log(
-      `[Classification] ⚡ Still-winning filter: ${classification} → Inaccuracy`
-    );
+    return MoveClassification.Good;
+  }
+
+  // Soften mistakes when still clearly winning or already losing
+  if (
+    classification === MoveClassification.Mistake &&
+    (playerWinAfter >= 65 || playerWinBefore <= 35)
+  ) {
     return MoveClassification.Inaccuracy;
   }
 
@@ -240,9 +265,12 @@ const getMoveBasicClassification = (
 };
 
 /**
- * Brilliant move detection aligned with Chess.com's current algorithm.
- * Chess.com uses sacrifice-based detection (not depth-based) and is
- * more generous for lower-rated players.
+ * Brilliant move detection aligned with Chess.com's algorithm:
+ * - Must be a piece sacrifice (not a simple recapture)
+ * - Must be the best or near-best move
+ * - Player must not be in a bad position after the move
+ * - Player must not have been in a completely winning position before
+ * - More generous for lower-rated players
  */
 const isBrilliantMove = (
   lastPositionWinPercentage: number,
@@ -256,127 +284,100 @@ const isBrilliantMove = (
   fenTwoMovesAgo?: string | null,
   uciLastTwoMoves?: [string, string] | null
 ): boolean => {
-  const log = (msg: string) =>
-    console.log(`[Brilliant] Move: ${playedMove} | ${msg}`);
+  if (lastPositionAlternativeLineWinPercentage === undefined) return false;
 
-  if (lastPositionAlternativeLineWinPercentage === undefined) {
-    log("SKIP: no alternative line");
-    return false;
-  }
-
-  if (isCheck(fen)) {
-    log("SKIP: position is check");
-    return false;
-  }
+  if (isCheck(fen)) return false;
 
   if (
     fenTwoMovesAgo &&
     uciLastTwoMoves &&
     isSimplePieceRecapture(fenTwoMovesAgo, uciLastTwoMoves)
   ) {
-    log("SKIP: simple recapture");
     return false;
   }
+
+  // Promotions are excluded (matching WintrChess behavior)
+  if (playedMove.length > 4) return false;
 
   const minSacrifice = !playerRating || playerRating < 1800 ? 2 : 3;
 
   const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
-  log(
-    `sacrifice: ${sacrificeValue}, minSacrifice: ${minSacrifice}, bestPv: ${bestLinePvToPlay.slice(0, 5).join(",")}`
-  );
-  if (sacrificeValue < minSacrifice) {
-    log("FAIL: not enough sacrifice");
-    return false;
-  }
+  if (sacrificeValue < minSacrifice) return false;
 
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
+  const epLoss = getExpectedPointsLoss(
+    lastPositionWinPercentage,
+    positionWinPercentage,
+    isWhiteMove
+  );
+
+  // Must be best or near-best (within "Good" range: ≤5% EP loss)
+  if (epLoss > 5) return false;
 
   const playerWinAfter = isWhiteMove
     ? positionWinPercentage
     : 100 - positionWinPercentage;
 
-  log(
-    `winDiff: ${winPercentageDiff.toFixed(2)}, playerWinAfter: ${playerWinAfter.toFixed(2)}%, lastWin%: ${lastPositionWinPercentage.toFixed(2)}, curWin%: ${positionWinPercentage.toFixed(2)}`
-  );
-
-  if (playerWinAfter < 25) {
-    log("FAIL: position lost after sacrifice (playerWinAfter < 25%)");
-    return false;
-  }
-
-  if (winPercentageDiff < -15) {
-    log("FAIL: eval collapsed (winDiff < -15%, safety net)");
-    return false;
-  }
+  // Must not be in a bad position after the sacrifice
+  if (playerWinAfter < 25) return false;
 
   const playerWinBeforeMove = isWhiteMove
     ? lastPositionWinPercentage
     : 100 - lastPositionWinPercentage;
 
+  // Must not have been in a completely winning position already
+  // (more generous thresholds for lower-rated players)
   const maxWinBeforeMove = !playerRating || playerRating < 1200 ? 96
     : playerRating < 1600 ? 94
     : playerRating < 2000 ? 92
     : 90;
 
-  log(
-    `playerWinBefore: ${playerWinBeforeMove.toFixed(2)}, maxWinBefore: ${maxWinBeforeMove}, rating: ${playerRating}`
-  );
-  if (playerWinBeforeMove > maxWinBeforeMove) {
-    log("FAIL: already winning too much");
-    return false;
-  }
+  if (playerWinBeforeMove > maxWinBeforeMove) return false;
 
   const pieceCount = getPieceCount(fen);
-  const isEndgame = pieceCount < 10;
+  if (pieceCount < 5) return false;
 
-  const minAlternativeDiff = isEndgame ? 6 : 1;
-
-  const alternativeDiff =
-    (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-  log(
-    `altDiff: ${alternativeDiff.toFixed(2)}, minAltDiff: ${minAlternativeDiff}, altWin%: ${lastPositionAlternativeLineWinPercentage.toFixed(2)}, pieces: ${pieceCount}, endgame: ${isEndgame}`
-  );
-  if (alternativeDiff < minAlternativeDiff) {
-    log("FAIL: alternative too close");
-    return false;
+  // In endgames, require the sacrifice to be clearly better than alternatives
+  if (pieceCount < 10) {
+    const alternativeDiff =
+      (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
+      (isWhiteMove ? 1 : -1);
+    if (alternativeDiff < 6) return false;
   }
 
-  if (pieceCount < 5) {
-    log("FAIL: too few pieces");
-    return false;
-  }
-
+  // If the second-best line is already completely winning, not brilliant
   const isAlternateCompletelyWinning = isWhiteMove
     ? lastPositionAlternativeLineWinPercentage > 98
     : lastPositionAlternativeLineWinPercentage < 2;
-  if (isAlternateCompletelyWinning) {
-    log("FAIL: alternate is completely winning anyway");
-    return false;
-  }
+  if (isAlternateCompletelyWinning) return false;
 
-  log("✅ BRILLIANT!");
   return true;
 };
 
-const isPerfectMove = (
+/**
+ * Great move (!) detection - matches Chess.com's "GreatFind":
+ * - A move critical to the game's outcome
+ * - Turning a losing position into equal, or equal into winning
+ * - Or finding the only viable move in a critical position
+ * - Must be best or near-best
+ * - Opponent must have just made a mistake (blunder)
+ */
+const isGreatMove = (
   lastPositionWinPercentage: number,
   positionWinPercentage: number,
   isWhiteMove: boolean,
   lastPositionAlternativeLineWinPercentage: number | undefined,
+  lastClassification: MoveClassification | undefined,
   fenTwoMovesAgo: string | null,
   uciMoves: [string, string] | null
 ): boolean => {
   if (lastPositionAlternativeLineWinPercentage === undefined) return false;
 
-  const winPercentageDiff =
-    (positionWinPercentage - lastPositionWinPercentage) *
-    (isWhiteMove ? 1 : -1);
-
-  // Move must not lose more than 1% win probability
-  if (winPercentageDiff < -1) return false;
+  const epLoss = getExpectedPointsLoss(
+    lastPositionWinPercentage,
+    positionWinPercentage,
+    isWhiteMove
+  );
+  if (epLoss > 1) return false;
 
   if (
     fenTwoMovesAgo &&
@@ -392,9 +393,7 @@ const isPerfectMove = (
     ? lastPositionAlternativeLineWinPercentage > 96
     : lastPositionAlternativeLineWinPercentage < 4;
 
-  if (isStillClearlyLosing || isAlternateCompletelyWinning) {
-    return false;
-  }
+  if (isStillClearlyLosing || isAlternateCompletelyWinning) return false;
 
   const hasChangedGameOutcome = getHasChangedGameOutcome(
     lastPositionWinPercentage,
@@ -408,7 +407,11 @@ const isPerfectMove = (
     isWhiteMove
   );
 
-  return hasChangedGameOutcome || isTheOnlyGoodMove;
+  // Require opponent's last move to have been a blunder (matching WintrChess)
+  const afterOpponentBlunder = lastClassification === MoveClassification.Blunder;
+  if (hasChangedGameOutcome && afterOpponentBlunder) return true;
+
+  return isTheOnlyGoodMove;
 };
 
 const getHasChangedGameOutcome = (

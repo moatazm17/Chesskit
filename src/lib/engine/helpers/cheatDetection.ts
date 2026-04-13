@@ -191,7 +191,7 @@ function computeEngineMatchRate(
     if (!posEval) continue;
 
     const cls = posEval.moveClassification;
-    if (cls === MoveClassification.Opening || cls === MoveClassification.Forced) continue;
+    if (cls === MoveClassification.Book || cls === MoveClassification.Forced) continue;
 
     total++;
 
@@ -339,7 +339,7 @@ export function extractMetrics(
     const posEval = positions[i];
     if (!posEval) continue;
     const cls = posEval.moveClassification;
-    if (cls === MoveClassification.Opening || cls === MoveClassification.Forced) continue;
+    if (cls === MoveClassification.Book || cls === MoveClassification.Forced) continue;
     perMoveComplexity.push(computePositionComplexity(posEval));
   }
 
@@ -352,7 +352,7 @@ export function extractMetrics(
     const posEval = positions[i];
     if (!posEval) continue;
     const cls = posEval.moveClassification;
-    if (cls === MoveClassification.Opening || cls === MoveClassification.Forced) continue;
+    if (cls === MoveClassification.Book || cls === MoveClassification.Forced) continue;
     const complexity = computePositionComplexity(posEval);
     if (complexity < 40) continue;
     criticalTotal++;

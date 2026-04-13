@@ -28,7 +28,7 @@ export default function BoardNavigation() {
 
     const importantClassifications = [
       MoveClassification.Brilliant,
-      MoveClassification.Perfect,
+      MoveClassification.Great,
       MoveClassification.Best,
       MoveClassification.Miss,
       MoveClassification.Mistake,

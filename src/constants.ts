@@ -10,13 +10,13 @@ export const BOARD_COLORS = {
 };
 
 export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
-  [MoveClassification.Opening]: "#dbac86",
+  [MoveClassification.Book]: "#dbac86",
   [MoveClassification.Forced]: "#dbac86",
   [MoveClassification.Brilliant]: "#19d4af",
-  [MoveClassification.Perfect]: "#3894eb",
+  [MoveClassification.Great]: "#3894eb",
   [MoveClassification.Best]: "#22ac38",
   [MoveClassification.Excellent]: "#22ac38",
-  [MoveClassification.Okay]: "#74b038",
+  [MoveClassification.Good]: "#74b038",
   [MoveClassification.Inaccuracy]: "#f2be1f",
   [MoveClassification.Miss]: "#e68a00",
   [MoveClassification.Mistake]: "#e69f00",

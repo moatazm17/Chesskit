@@ -52,13 +52,13 @@ const getMoveClassificationIcon = (classification: MoveClassification) => {
   switch (classification) {
     case MoveClassification.Brilliant:
       return { icon: "mdi:star-four-points", color: "#26C6DA", label: "brilliant" };
-    case MoveClassification.Perfect:
+    case MoveClassification.Great:
       return { icon: "mdi:exclamation-thick", color: "#42A5F5", label: "great" };
     case MoveClassification.Best:
       return { icon: "mdi:check-bold", color: "#66BB6A", label: "best" };
     case MoveClassification.Excellent:
       return { icon: "mdi:thumb-up", color: "#9CCC65", label: "excellent" };
-    case MoveClassification.Okay:
+    case MoveClassification.Good:
       return { icon: "mdi:circle-medium", color: "#AED581", label: "good" };
     case MoveClassification.Inaccuracy:
       return { icon: "mdi:help", color: "#FFA726", label: "inaccuracy" };
@@ -68,7 +68,7 @@ const getMoveClassificationIcon = (classification: MoveClassification) => {
       return { icon: "mdi:close-thick", color: "#FF7043", label: "mistake" };
     case MoveClassification.Blunder:
       return { icon: "mdi:alert-circle", color: "#EF5350", label: "blunder" };
-    case MoveClassification.Opening:
+    case MoveClassification.Book:
       return { icon: "mdi:book-open-variant", color: "#78909c", label: "book" };
     case MoveClassification.Forced:
       return { icon: "mdi:lock", color: "#90a4ae", label: "forced" };
@@ -340,7 +340,7 @@ export default function GameAnalysisModal({
   const getDisplayStats = () => {
     const priorityOrder = [
       MoveClassification.Brilliant,
-      MoveClassification.Perfect,
+      MoveClassification.Great,
       MoveClassification.Best,
       MoveClassification.Inaccuracy,
       MoveClassification.Miss,

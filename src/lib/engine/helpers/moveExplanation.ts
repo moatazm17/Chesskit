@@ -253,7 +253,7 @@ export const getMoveExplanation = (
         bestLine: bestLineSan,
       };
 
-    case MoveClassification.Perfect:
+    case MoveClassification.Great:
       return {
         title: t("explGreatTitle"),
         description: t("explGreatDesc", { move: playedMoveSan }),
@@ -279,7 +279,7 @@ export const getMoveExplanation = (
         details: tactic ? [tactic] : undefined,
       };
 
-    case MoveClassification.Okay:
+    case MoveClassification.Good:
       return {
         title: t("explGoodTitle"),
         description: t("explGoodDesc", { move: playedMoveSan }),
@@ -295,7 +295,7 @@ export const getMoveExplanation = (
         description: t("explForcedDesc", { move: playedMoveSan }),
       };
 
-    case MoveClassification.Opening:
+    case MoveClassification.Book:
       return {
         title: t("explBookTitle"),
         description: t("explBookDesc", { move: playedMoveSan }),

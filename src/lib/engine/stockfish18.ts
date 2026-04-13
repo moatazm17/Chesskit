@@ -1,6 +1,6 @@
 import { EngineName } from "@/types/enums";
 import { UciEngine } from "./uciEngine";
-import { isMultiThreadSupported, isWasmSupported } from "./shared";
+import { isWasmSupported } from "./shared";
 
 export class Stockfish18 {
   public static async create(lite?: boolean): Promise<UciEngine> {
@@ -8,11 +8,9 @@ export class Stockfish18 {
       throw new Error("Stockfish 18 is not supported");
     }
 
-    const multiThreadIsSupported = isMultiThreadSupported();
-
     const enginePath = `engines/stockfish-18/stockfish-18${
       lite ? "-lite" : ""
-    }${multiThreadIsSupported ? "" : "-single"}.js`;
+    }-single.js`;
 
     const engineName = lite
       ? EngineName.Stockfish18Lite
