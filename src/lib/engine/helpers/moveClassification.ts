@@ -77,7 +77,7 @@ export const getMovesClassification = (
     );
 
     if (
-      isBestMove &&
+      (isBestMove || epLoss < 2) &&
       isBrilliantMove(
         lastPositionWinPercentage,
         positionWinPercentage,
@@ -296,11 +296,9 @@ const isBrilliantMove = (
     return false;
   }
 
-  // Promotions are excluded (matching WintrChess behavior)
   if (playedMove.length > 4) return false;
 
   const minSacrifice = !playerRating || playerRating < 1800 ? 2 : 3;
-
   const sacrificeValue = getIsPieceSacrifice(fen, playedMove, bestLinePvToPlay);
   if (sacrificeValue < minSacrifice) return false;
 
@@ -310,22 +308,18 @@ const isBrilliantMove = (
     isWhiteMove
   );
 
-  // Must be best or near-best (within "Good" range: ≤5% EP loss)
   if (epLoss > 5) return false;
 
   const playerWinAfter = isWhiteMove
     ? positionWinPercentage
     : 100 - positionWinPercentage;
 
-  // Must not be in a bad position after the sacrifice
   if (playerWinAfter < 25) return false;
 
   const playerWinBeforeMove = isWhiteMove
     ? lastPositionWinPercentage
     : 100 - lastPositionWinPercentage;
 
-  // Must not have been in a completely winning position already
-  // (more generous thresholds for lower-rated players)
   const maxWinBeforeMove = !playerRating || playerRating < 1200 ? 96
     : playerRating < 1600 ? 94
     : playerRating < 2000 ? 92
@@ -336,7 +330,6 @@ const isBrilliantMove = (
   const pieceCount = getPieceCount(fen);
   if (pieceCount < 5) return false;
 
-  // In endgames, require the sacrifice to be clearly better than alternatives
   if (pieceCount < 10) {
     const alternativeDiff =
       (positionWinPercentage - lastPositionAlternativeLineWinPercentage) *
@@ -344,7 +337,6 @@ const isBrilliantMove = (
     if (alternativeDiff < 6) return false;
   }
 
-  // If the second-best line is already completely winning, not brilliant
   const isAlternateCompletelyWinning = isWhiteMove
     ? lastPositionAlternativeLineWinPercentage > 98
     : lastPositionAlternativeLineWinPercentage < 2;

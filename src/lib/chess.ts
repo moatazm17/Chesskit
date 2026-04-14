@@ -268,9 +268,12 @@ export const getIsPieceSacrifice = (
   }
 
   let movedPieceCaptured = false;
+  let pieceIsProtected = false;
+  let pvHasPlayerMoveAfterCapture = false;
   let pieceStillOnSquare = true;
   let consecutiveQuietMoves = 0;
   let promotionMaterialShift = 0;
+  let opponentDeclinedEnPrise = false;
 
   const capturedPieces: { w: PieceSymbol[]; b: PieceSymbol[] } = {
     w: [],
@@ -286,9 +289,22 @@ export const getIsPieceSacrifice = (
     promotionMaterialShift += whiteToPlay ? promoGain : -promoGain;
   }
 
+  let firstOpponentMoveChecked = false;
   for (const move of bestLinePvToPlay) {
     try {
       const fullMove = game.move(uciMoveParams(move));
+
+      if (
+        !firstOpponentMoveChecked &&
+        fullMove.color !== playerColor &&
+        enPriseSacrifice > 0 &&
+        pieceStillOnSquare
+      ) {
+        firstOpponentMoveChecked = true;
+        if (fullMove.to !== movedToSquare || !fullMove.captured) {
+          opponentDeclinedEnPrise = true;
+        }
+      }
 
       if (fullMove.from === movedToSquare && fullMove.color === playerColor) {
         pieceStillOnSquare = false;
@@ -309,6 +325,21 @@ export const getIsPieceSacrifice = (
           pieceStillOnSquare
         ) {
           movedPieceCaptured = true;
+          const recaptures = game.moves({ verbose: true }).filter(
+            (m) => m.to === movedToSquare && m.captured
+          );
+          if (recaptures.length > 0) {
+            const bestRecaptureValue = Math.max(
+              ...recaptures.map((m) => getPieceValue(m.captured))
+            );
+            if (capturedByMove + bestRecaptureValue >= movedPieceValue) {
+              pieceIsProtected = true;
+            }
+          }
+        }
+
+        if (movedPieceCaptured && fullMove.color === playerColor) {
+          pvHasPlayerMoveAfterCapture = true;
         }
       } else {
         consecutiveQuietMoves++;
@@ -338,22 +369,25 @@ export const getIsPieceSacrifice = (
   const materialDiff = endingMaterialDifference - startingMaterialDifference - promotionMaterialShift;
   const materialDiffPlayerRelative = whiteToPlay ? materialDiff : -materialDiff;
 
-  // Only count net material loss as sacrifice if the moved piece was actually captured.
-  // Otherwise, material changes from later exchanges aren't "this move's sacrifice".
+  // Only apply protection when the PV is incomplete (no player move after the capture).
+  // If the PV continues with player moves but the player doesn't recapture, that's a real sacrifice.
+  const protectionApplies = pieceIsProtected && !pvHasPlayerMoveAfterCapture;
+
   const netSacrifice =
-    movedPieceCaptured && materialDiffPlayerRelative < 0
+    movedPieceCaptured && !protectionApplies && materialDiffPlayerRelative < 0
       ? -materialDiffPlayerRelative
       : 0;
 
   const tempSacrifice =
-    movedPieceCaptured && capturedByMove < movedPieceValue
+    movedPieceCaptured && !protectionApplies && capturedByMove < movedPieceValue
       ? movedPieceValue - capturedByMove
       : 0;
 
-  // enPriseSacrifice only counts if the piece doesn't escape in the best line.
-  // If the piece moved away or survived, it's not a real sacrifice.
+  // enPriseSacrifice only counts if the piece doesn't escape in the best line,
+  // UNLESS the opponent had the chance to capture and chose not to (declined the offer).
+  // A declined en prise is still a real sacrifice offer (e.g. Rg4+ where hxg4 was possible).
   const effectiveEnPrise =
-    enPriseSacrifice > 0 && !pieceStillOnSquare && !movedPieceCaptured
+    enPriseSacrifice > 0 && !pieceStillOnSquare && !movedPieceCaptured && !opponentDeclinedEnPrise
       ? 0
       : enPriseSacrifice;
 
