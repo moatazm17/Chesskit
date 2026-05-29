@@ -8,17 +8,26 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
   Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Switch,
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import NavLink from "@/components/NavLink";
 import { isPremium, shouldGateFeature } from "@/lib/premium";
 import PremiumModal from "@/components/PremiumModal";
+import { useAtom } from "jotai";
+import { checkReactionAtom } from "@/components/board/states";
 
 interface PremiumNavBarProps {
   onHomeClick?: () => void;
@@ -33,9 +42,28 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [checkReaction, setCheckReaction] = useAtom(checkReactionAtom);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [userIsPremium, setUserIsPremium] = useState(false);
   const [showPremiumButton, setShowPremiumButton] = useState(false);
+  const [featurePopup, setFeaturePopup] = useState(false);
+
+  useEffect(() => {
+    const key = "checkReaction_announced";
+    const val = localStorage.getItem(key);
+
+    if (!val) {
+      localStorage.setItem(key, "seen_once");
+    } else if (val === "seen_once") {
+      const timer = setTimeout(() => setFeaturePopup(true), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const dismissFeaturePopup = () => {
+    setFeaturePopup(false);
+    localStorage.setItem("checkReaction_announced", "done");
+  };
 
   useEffect(() => {
     let paywallTriggered = false;
@@ -327,6 +355,56 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
             ))}
           </List>
 
+          <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
+
+          <List sx={{ mt: 1 }}>
+            <ListItem disablePadding sx={{ marginBottom: 1 }}>
+              <ListItemButton
+                onClick={() => setCheckReaction(!checkReaction)}
+                sx={{
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255,255,255,0.05)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  <Icon icon="mdi:bell-ring-outline" style={{ fontSize: "1.5rem" }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t("checkReaction")}
+                  secondary={checkReaction ? t("enabled") : t("disabled")}
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      fontWeight: 500,
+                      color: "rgba(255,255,255,0.9)",
+                      fontSize: "0.9rem",
+                    },
+                    "& .MuiListItemText-secondary": {
+                      color: checkReaction ? "#4ecdc4" : "rgba(255,255,255,0.4)",
+                      fontSize: "0.75rem",
+                    },
+                  }}
+                />
+                <Switch
+                  edge="end"
+                  checked={checkReaction}
+                  sx={{
+                    "& .MuiSwitch-switchBase.Mui-checked": {
+                      color: "#4ecdc4",
+                    },
+                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                      backgroundColor: "#4ecdc4",
+                    },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </List>
+
+          <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
+
           {/* Footer links */}
           <List sx={{ mt: 1 }}>
             <ListItem disablePadding sx={{ mb: 0.5 }}>
@@ -411,6 +489,47 @@ const PremiumNavBar: React.FC<PremiumNavBarProps> = ({
         onClose={() => setPremiumModalOpen(false)}
         trigger="navbar"
       />
+
+      <Dialog
+        open={featurePopup}
+        onClose={dismissFeaturePopup}
+        PaperProps={{
+          sx: {
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: "16px",
+            color: "white",
+            maxWidth: 360,
+          },
+        }}
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, pb: 1 }}>
+          <Icon icon="mdi:bell-ring-outline" style={{ fontSize: "1.5rem", color: "#4ecdc4" }} />
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t("newFeature")}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ color: "rgba(255,255,255,0.8)", fontSize: "0.95rem", lineHeight: 1.7 }}>
+            {t("checkReactionAnnouncement")}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={dismissFeaturePopup}
+            sx={{
+              background: "linear-gradient(45deg, #4ecdc4, #45b7d1)",
+              borderRadius: "10px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+            }}
+          >
+            {t("gotIt")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 };

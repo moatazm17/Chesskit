@@ -26,7 +26,7 @@ import { Square, Arrow, CustomSquareStyles, CustomPieces, Piece } from "react-ch
 import RatingModal, { useRatingPrompt } from "@/components/RatingModal";
 import { logAnalyticsEvent } from "@/lib/firebase";
 import { BOARD_COLORS } from "@/constants";
-import { pieceSetAtom } from "@/components/board/states";
+import { checkReactionAtom, pieceSetAtom } from "@/components/board/states";
 import { useAtomValue } from "jotai";
 import LevelProgress from "@/components/LevelProgress";
 
@@ -60,6 +60,7 @@ export default function BrilliantPuzzles() {
   } = useBrilliantPuzzle();
 
   const pieceSet = useAtomValue(pieceSetAtom);
+  const checkReaction = useAtomValue(checkReactionAtom);
   const { showRating, ratingTrigger, checkAfterPuzzle, closeRating } = useRatingPrompt();
   const [hintArrow, setHintArrow] = useState<Arrow | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -74,11 +75,15 @@ export default function BrilliantPuzzles() {
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevPuzzleFenRef = useRef(game.fen());
 
-  // Detect check when position changes and show GIF
   useEffect(() => {
     const currentFen = game.fen();
     if (currentFen === prevPuzzleFenRef.current) return;
     prevPuzzleFenRef.current = currentFen;
+
+    if (!checkReaction) {
+      setCheckAnimSquare(null);
+      return;
+    }
 
     if (game.inCheck() && !game.isGameOver()) {
       const turn = game.turn();
@@ -108,7 +113,7 @@ export default function BrilliantPuzzles() {
     return () => {
       if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
     };
-  }, [game, game.fen()]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [game, game.fen(), checkReaction]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if we should show rating prompt when puzzle is solved
   useEffect(() => {

@@ -79,9 +79,11 @@ export const playSoundFromMove = (move: Move | null, game?: Chess) => {
   // Check if the game is over (checkmate, stalemate, draw)
   if (game && game.isGameOver()) return playGameEndSound();
 
-  // Check — single merged sound (check ping + funny reaction in one file)
   if (game && game.inCheck()) {
-    return play("checkFunny");
+    const reactionEnabled = typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("checkReaction") ?? "true")
+      : true;
+    return play(reactionEnabled ? "checkFunny" : "check");
   }
 
   if (move.captured) return playCaptureSound();

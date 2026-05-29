@@ -5,3 +5,8 @@ export const pieceSetAtom = atomWithStorage<(typeof PIECE_SETS)[number]>(
   "pieceSet",
   "cburnett"
 );
+
+export const checkReactionAtom = atomWithStorage<boolean>(
+  "checkReaction",
+  true
+);

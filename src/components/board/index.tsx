@@ -18,7 +18,7 @@ import { CurrentPosition } from "@/types/eval";
 import { BOARD_COLORS, CLASSIFICATION_COLORS } from "@/constants";
 import { Player } from "@/types/game";
 import PlayerHeader from "./playerHeader";
-import { pieceSetAtom } from "./states";
+import { checkReactionAtom, pieceSetAtom } from "./states";
 
 export interface Props {
   id: string;
@@ -57,6 +57,7 @@ export default function Board({
   const [moveClickFrom, setMoveClickFrom] = useState<Square | null>(null);
   const [moveClickTo, setMoveClickTo] = useState<Square | null>(null);
   const pieceSet = useAtomValue(pieceSetAtom);
+  const checkReaction = useAtomValue(checkReactionAtom);
   const captureSquaresAtom = useMemo(() => atom<Square[]>([]), []);
 
   const gameFen = game.fen();
@@ -64,13 +65,16 @@ export default function Board({
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevFenRef = useRef(gameFen);
 
-  // Detect check when position changes and show GIF
   useEffect(() => {
     if (gameFen === prevFenRef.current) return;
     prevFenRef.current = gameFen;
 
+    if (!checkReaction) {
+      setCheckAnimSquare(null);
+      return;
+    }
+
     if (game.inCheck() && !game.isGameOver()) {
-      // Find king square
       const turn = game.turn();
       const files = "abcdefgh";
       let kingSquare: Square | null = null;
@@ -98,7 +102,7 @@ export default function Board({
     return () => {
       if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
     };
-  }, [gameFen, game]);
+  }, [gameFen, game, checkReaction]);
 
   useEffect(() => {
     setClickedSquares([]);

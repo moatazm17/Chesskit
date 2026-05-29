@@ -8,6 +8,8 @@ import {
   DialogTitle,
   DialogContent,
   FormControl,
+  FormControlLabel,
+  Switch,
   InputLabel,
   OutlinedInput,
   DialogActions,
@@ -30,7 +32,7 @@ import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
 import { Stockfish18 } from "@/lib/engine/stockfish18";
 import { Stockfish17 } from "@/lib/engine/stockfish17";
 import { useAtom } from "jotai";
-import { pieceSetAtom } from "@/components/board/states";
+import { checkReactionAtom, pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
 import {
   DEFAULT_ENGINE,
@@ -61,6 +63,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
     engineNameAtom
   );
   const [pieceSet, setPieceSet] = useAtom(pieceSetAtom);
+  const [checkReaction, setCheckReaction] = useAtom(checkReactionAtom);
   const [engineWorkersNb, setEngineWorkersNb] = useAtom(engineWorkersNbAtom);
 
   const theme = useTheme();
@@ -195,6 +198,23 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
                 ))}
               </Select>
             </FormControl>
+          </Grid>
+
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="center"
+            size={{ xs: 12, sm: 8, md: 9 }}
+          >
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={checkReaction}
+                  onChange={(e) => setCheckReaction(e.target.checked)}
+                />
+              }
+              label={t("checkReaction")}
+            />
           </Grid>
 
           <Grid
