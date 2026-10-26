@@ -26,3 +26,11 @@ public/engines/
 
 # Local project context (not for GitHub)
 PROJECT_CONTEXT.md
+# secrets (added 2026-10-26)
+*.jks
+*.keystore
+key.properties
+*.p12
+*.p8
+.wrangler/
+.cursor/
